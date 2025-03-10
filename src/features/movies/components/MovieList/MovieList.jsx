@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import Movie from "../Movie/Movie";
 
-function ListBox({ movies }) {
+function MovieList({ movies }) {
   const [isOpen, setIsOpen] = useState(true);
   return (
     <div className="box">
@@ -10,16 +11,7 @@ function ListBox({ movies }) {
       {isOpen && (
         <ul className="list">
           {movies?.map((movie) => (
-            <li key={movie.imdbID}>
-              <img src={movie.Poster} alt={`${movie.Title} poster`} />
-              <h3>{movie.Title}</h3>
-              <div>
-                <p>
-                  <span>🗓</span>
-                  <span>{movie.Year}</span>
-                </p>
-              </div>
-            </li>
+            <Movie movie={movie} key={movie.imdbID} />
           ))}
         </ul>
       )}
@@ -27,4 +19,4 @@ function ListBox({ movies }) {
   );
 }
 
-export default ListBox;
+export default MovieList;

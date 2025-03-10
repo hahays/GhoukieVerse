@@ -1,11 +1,11 @@
-import { ListBox } from "@/features/movies/components/ListBox";
+import { MovieList } from "@/features/movies/components/MovieList";
 import WatchedBox from "@/features/movies/components/WatchedBox/WatchedBox";
 import React, { useState } from "react";
 
 function Main({ movies, watched }) {
   return (
     <main className="main">
-      <ListBox movies={movies} />
+      <MovieList movies={movies} />
       <WatchedBox watched={watched} />
     </main>
   );

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { calculateMovieAverages } from "@/lib/utils";
+import { MediaSummaryStats } from "@/containers/MediaSummaryStats";
 
 function WatchedBox({ watched }) {
   const [isOpen, setIsOpen] = useState(true);
@@ -13,27 +14,7 @@ function WatchedBox({ watched }) {
       </button>
       {isOpen && (
         <>
-          <div className="summary">
-            <h2>Movies you watched</h2>
-            <div>
-              <p>
-                <span>#️⃣</span>
-                <span>{watched.length} movies</span>
-              </p>
-              <p>
-                <span>⭐IMDb Rating</span>
-                <span>{avgImdbRating}</span>
-              </p>
-              <p>
-                <span>🌟Your Rating</span>
-                <span>{avgUserRating}</span>
-              </p>
-              <p>
-                <span>⏳Average Runtime</span>
-                <span>{avgRuntime} min</span>
-              </p>
-            </div>
-          </div>
+          <MediaSummaryStats watched={watched} />
 
           <ul className="list">
             {watched.map((movie) => (
