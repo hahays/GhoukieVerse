@@ -8,7 +8,7 @@ function NavBar({ movies, query, setQuery }) {
     <nav className="nav-bar">
       <Logo />
       <Search query={query} setQuery={setQuery} />
-      <NumResults />
+      <NumResults movies={movies} />
     </nav>
   );
 }

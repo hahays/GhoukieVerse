@@ -1,14 +1,9 @@
 import { MovieList } from "@/features/movies/components/MovieList";
-import WatchedBox from "@/features/movies/components/WatchedBox/WatchedBox";
+
 import React, { useState } from "react";
 
-function Main({ movies, watched }) {
-  return (
-    <main className="main">
-      <MovieList movies={movies} />
-      <WatchedBox watched={watched} />
-    </main>
-  );
+function Main({ children }) {
+  return <main className="main">{children}</main>;
 }
 
 export default Main;
