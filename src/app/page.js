@@ -12,6 +12,7 @@ import { MediaSummaryStats } from "@/containers/MediaSummaryStats";
 import { MediaDetailsList } from "@/containers/MediaDetailsList";
 import { Loader } from "@/containers/Loader";
 import { ErrorMessage } from "@/containers/ErrorMessage";
+import { MediaDetailsCard } from "@/containers/MediaDetailsCard";
 
 const KEY = process.env.NEXT_PUBLIC_API_KEY;
 
@@ -21,6 +22,7 @@ export default function Home() {
   const [watched, setWatched] = useState([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedId, setSelectedID] = useState(null);
   const QUERY = "gladiator";
 
   // fetch(
@@ -29,8 +31,16 @@ export default function Home() {
   //     .then((data) => console.log(data))
   // );
 
+  function handleSelectMovie(id) {
+    setSelectedID((selectedId) => (id === selectedId ? null : id));
+  }
+
+  function handleCloseMovie() {
+    setSelectedID(null);
+  }
+
   useEffect(() => {
-    const fetchData = async () => {
+    async function fetchData() {
       try {
         setIsLoading(true);
         setError("");
@@ -50,7 +60,7 @@ export default function Home() {
       } finally {
         setIsLoading(false);
       }
-    };
+    }
     if (query.length < 3) {
       setMovies([]);
       setError("");
@@ -58,6 +68,14 @@ export default function Home() {
     }
     fetchData();
   }, [query]);
+
+  // useEffect(
+  //   function () {
+  //     if (!title) return;
+  //     document.title = `Movie: | ${title}`;
+  //   },
+  //   [title]
+  // );
 
   // function Loader() {
   //   return <p className="loader"> LOADING . . . </p>;
@@ -69,12 +87,24 @@ export default function Home() {
       <Main>
         <Box>
           {isLoading && <Loader />}
-          {!isLoading && !error && <MovieList movies={movies} />}
+          {!isLoading && !error && (
+            <MovieList
+              movies={movies}
+              onSelectMovie={handleSelectMovie}
+              onCloseMovie={handleCloseMovie}
+            />
+          )}
           {error && <ErrorMessage message={error} />}
         </Box>
         <Box>
-          <MediaSummaryStats watched={watched} />
-          <MediaDetailsList watched={watched} />
+          {selectedId ? (
+            <MediaDetailsCard selectedID={selectedId} />
+          ) : (
+            <>
+              <MediaSummaryStats watched={watched} />
+              <MediaDetailsList watched={watched} />
+            </>
+          )}
         </Box>
       </Main>
     </>

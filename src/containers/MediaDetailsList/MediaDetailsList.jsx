@@ -1,8 +1,8 @@
 import React from "react";
 
-function MediaDetailsList({ watched }) {
+function MediaDetailsList({ watched, onClick }) {
   return (
-    <ul className="list">
+    <ul onClick={onClick} className="list">
       {watched.map((movie) => (
         <li key={movie.imdbID}>
           <img src={movie.Poster} alt={`${movie.Title} poster`} />
