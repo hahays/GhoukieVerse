@@ -16,6 +16,8 @@ import { MediaDetailsCard } from "@/containers/MediaDetailsCard";
 
 const KEY = process.env.NEXT_PUBLIC_API_KEY;
 
+
+
 export default function Home() {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
@@ -80,6 +82,95 @@ export default function Home() {
   // function Loader() {
   //   return <p className="loader"> LOADING . . . </p>;
   // }
+
+
+
+// export default function Home() {
+//   return (
+//     <main className="min-h-screen bg-black text-white">
+//       {/* Header */}
+//       <header className="p-4">
+//         <div className="container mx-auto">
+//           <Image
+//             src="/logo.png"
+//             alt="GhoukieVerse"
+//             width={200}
+//             height={50}
+//             className="text-green-500"
+//           />
+//         </div>
+//       </header>
+
+//       {/* Hero Section */}
+//       <section className="relative h-[300px] mb-12">
+//         <div className="absolute inset-0">
+//           <Image
+//             src="/hero-bg.jpg"
+//             alt="Hero background"
+//             fill
+//             className="object-cover"
+//           />
+//         </div>
+//         <div className="relative container mx-auto h-full flex items-center justify-center">
+//           <h1 className="text-3xl font-medium text-center text-white">
+//             Твой персональный гид в развлекательном мире
+//           </h1>
+//         </div>
+//       </section>
+
+//       {/* Tracker Section */}
+//       <section className="container mx-auto px-4 mb-16">
+//         <div className="flex flex-col md:flex-row items-center gap-8">
+//           <div className="w-full md:w-1/2">
+//             <Image
+//               src="/tracker-interface.png"
+//               alt="Tracker Interface"
+//               width={400}
+//               height={400}
+//               className="rounded-lg"
+//             />
+//           </div>
+//           <div className="w-full md:w-1/2">
+//             <p className="text-xl text-center md:text-left">
+//               Добро пожаловать в GHOUKIEVERSE — твой персональный трекер игр, фильмов и аниме.
+//               Сохраняй пройденное, планируй к просмотру, открывай новое и делись впечатлениями с
+//               комьюнити. Начни сейчас — это бесплатно
+//             </p>
+//           </div>
+//         </div>
+//       </section>
+
+//       {/* Media Grid Section */}
+//       <section className="container mx-auto px-4 mb-16">
+//         <h2 className="text-2xl font-medium text-center mb-8">
+//           Что посмотрим сегодня?
+//         </h2>
+//         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+//           {/* Media Cards */}
+//           {[...Array(8)].map((_, index) => (
+//             <div
+//               key={index}
+//               className={`aspect-[2/3] relative rounded-lg overflow-hidden ${
+//                 index === 1 ? 'border-2 border-dashed border-gray-600 flex items-center justify-center' : ''
+//               }`}
+//             >
+//               {index === 1 ? (
+//                 <span className="text-4xl text-gray-600">+</span>
+//               ) : (
+//                 <Image
+//                   src="/media-card.jpg"
+//                   alt="Media card"
+//                   fill
+//                   className="object-cover"
+//                 />
+//               )}
+//             </div>
+//           ))}
+//         </div>
+//       </section>
+//     </main>
+//   );
+// }
 
   return (
     <>
