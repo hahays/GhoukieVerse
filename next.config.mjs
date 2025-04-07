@@ -1,15 +1,16 @@
+// next.config.mjs
+import path from 'path';
+
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+    webpack: (config) => {
+        config.resolve.alias = {
+            ...config.resolve.alias,
+            '@': path.resolve( 'src'),
+        };
+        return config;
+    },
 
-// // export default nextConfig;
-// /** @type {import('next').NextConfig} */
-// const nextConfig = {
-//   reactStrictMode: true,
-// };
+};
 
-// module.exports = nextConfig;
-export function webpack(config) {
-  config.cache = false;
-  config.performance = { hints: false };
-  return config;
-}
+export default nextConfig;

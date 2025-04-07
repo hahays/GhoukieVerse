@@ -1,0 +1,1 @@
+export {MediaDetailsCard} from "./MediaDetailsCard";
