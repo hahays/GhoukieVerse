@@ -1,0 +1,1 @@
+export {NumResults} from "./NumResults";
