@@ -1,21 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 
-
-import { Movie } from "../types";
+import {Movie} from "../types";
 import {OMDBResponse} from "../types/film";
-import NavBar from "../containers/NavBar/NavBar";
-import Main from "../components/ui/Main/Main";
-import {Box} from "../components/ui/Box";
-import {Loader} from "../components/ui/Loader";
-import {FilmList} from "../components/films/FilmList";
-import {ErrorMessage} from "../containers/ErrorMessage";
-import {MediaDetailsCard} from "../containers/MediaDetailsCard";
-import {MediaSummaryStats} from "../containers/MediaSummaryStats";
-import {MediaDetailsList} from "../containers/MediaDetailsList";
+
+import {CategoryCards} from "../components/cards/CategoryCards";
+import {Footer} from "../components/layout/Footer";
+import {NavBar} from "../components/layout/Header/NavBar";
+import {PageHeader} from "../components/layout/PageHeader";
+
 
 const KEY = process.env.NEXT_PUBLIC_API_KEY;
+
 
 export default function Home() {
     const [query, setQuery] = useState("");
@@ -32,6 +29,7 @@ export default function Home() {
     const handleCloseMovie = () => {
         setSelectedId(null);
     };
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -73,39 +71,54 @@ export default function Home() {
     }, [query]);
 
     return (
-        <>
-            <NavBar
-                movies={movies}
-                query={query}
-                setQuery={setQuery}
-            />
+        <main className="min-h-screen  bg-primary-50">
+            <NavBar/>
 
-            <Main>
-                <Box>
-                    {isLoading && <Loader />}
-                    {!isLoading && !error && (
-                        <FilmList
-                            movies={movies}
-                            onSelectMovie={handleSelectMovie}
-                        />
-                    )}
-                    {error && <ErrorMessage message={error} />}
-                </Box>
+            <PageHeader title="GHOUKIEVERSE" description="Track your favorite movies, games, and anime. Discover new content and share your experiences with
+                    the community."/>
 
-                <Box>
-                    {selectedId ? (
-                        <MediaDetailsCard
-                            selectedId={selectedId}
-                            onClose={handleCloseMovie}
-                        />
-                    ) : (
-                        <>
-                            <MediaSummaryStats watched={watched} />
-                            <MediaDetailsList watched={watched} />
-                        </>
-                    )}
-                </Box>
-            </Main>
-        </>
+
+            <section className="py-12 px-4">
+                <div className="container mx-auto">
+                    <CategoryCards/>
+                </div>
+            </section>
+
+            <Footer/>
+        </main>
+        // <>
+        //     <NavBar
+        //         movies={movies}
+        //         query={query}
+        //         setQuery={setQuery}
+        //     />
+        //
+        //     <Main>
+        //         {/*<Box>*/}
+        //         {/*    {isLoading && <Loader/>}*/}
+        //         {/*    {!isLoading && !error && (*/}
+        //         {/*        <FilmList*/}
+        //         {/*            movies={movies}*/}
+        //         {/*            onSelectMovie={handleSelectMovie}*/}
+        //         {/*        />*/}
+        //         {/*    )}*/}
+        //         {/*    {error && <ErrorMessage message={error}/>}*/}
+        //         {/*</Box>*/}
+        //
+        //         {/*<Box>*/}
+        //         {/*    {selectedId ? (*/}
+        //         {/*        <MediaDetailsCard*/}
+        //         {/*            selectedId={selectedId}*/}
+        //         {/*            onClose={handleCloseMovie}*/}
+        //         {/*        />*/}
+        //         {/*    ) : (*/}
+        //         {/*        <>*/}
+        //         {/*            <MediaSummaryStats watched={watched}/>*/}
+        //         {/*            <MediaDetailsList watched={watched}/>*/}
+        //         {/*        </>*/}
+        //         {/*    )}*/}
+        //         {/*</Box>*/}
+        //     </Main>
+        // </>
     );
 }

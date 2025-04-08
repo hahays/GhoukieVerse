@@ -1,1 +1,1 @@
-export {  MediaDetailsList } from "./MediaDetailsList";
+export {MediaDetailsList} from "./MediaDetailsList";

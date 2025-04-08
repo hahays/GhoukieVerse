@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+body:not(.user-is-tabbing) button:focus,
+body:not(.user-is-tabbing) input:focus,
+body:not(.user-is-tabbing) select:focus,
+body:not(.user-is-tabbing) textarea:focus {
+    outline: none;
+}
+
+nav {
+    transition: top 0.3s, background-color 0.3s, color 0.3s;
+}
+
+
+.backdrop-blur-sm {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.group-hover\:scale-105:hover {
+    transform: scale(1.05);
+}
+
+
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+}
+
+
+footer {
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.min-h-screen {
+    min-height: 100vh;
+}
+
+.flex-grow {
+    flex-grow: 1;
+}

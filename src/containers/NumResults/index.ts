@@ -1,1 +1,1 @@
-export { default as NumResults } from "./NumResults";
+export {NumResults} from "./NumResults";
