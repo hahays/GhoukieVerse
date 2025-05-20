@@ -35,6 +35,7 @@ module.exports = {
         fontFamily: {
             vina: ['var(--font-vina)'],
             victor: ['var(--font-victor)'],
+            alef: ['var(--font-alef)'],
         },
     },
     plugins: [],

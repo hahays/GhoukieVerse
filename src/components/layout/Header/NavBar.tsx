@@ -68,7 +68,7 @@ export const NavBar: React.FC<NavBarProps> = ({ movies, query, setQuery, onLogin
                 ? 'bg-primary-800 text-white shadow-md'
                 : 'bg-primary-100/80 text-primary-900 backdrop-blur-sm'
         }`}>
-            <div className="container mx-auto px-4 py-3">
+            <div className="container mx-auto px-4 py-3 font-victor">
                 <div className="flex justify-between items-center">
 
                     <div className="flex items-center space-x-8">
@@ -90,11 +90,9 @@ export const NavBar: React.FC<NavBarProps> = ({ movies, query, setQuery, onLogin
                         </div>
 
                         <div className="flex space-x-2">
-                            <Button variant="outline" size="sm">
-                                Войти
-                            </Button>
-                            <Button size="sm">
-                                Зарегестрироваться
+
+                            <Button size="lg">
+                                Профиль
                             </Button>
                         </div>
 

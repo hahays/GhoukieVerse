@@ -1,4 +1,4 @@
-import {Geist, Geist_Mono, Vina_Sans, Victor_Mono} from "next/font/google";
+import {Geist, Geist_Mono, Vina_Sans, Victor_Mono, Alef} from "next/font/google";
 import './globals.css'
 
 const geistSans = Geist({
@@ -17,6 +17,12 @@ const vinaSans = Vina_Sans({
     variable: '--font-vina',
 });
 
+const alef = Alef({
+    weight: '400',
+    subsets: ['latin'],
+    variable: '--font-vina',
+});
+
 const victorMono = Victor_Mono({
     subsets: ['latin'],
     variable: '--font-victor',
@@ -30,7 +36,7 @@ export const metadata = {
 
 export default function RootLayout({children}) {
     return (
-        <html lang="en" className={`${vinaSans.variable} ${victorMono.variable}`}>
+        <html lang="en" className={`${vinaSans.variable} ${victorMono.variable} ${alef.variable}`}>
         <body>{children}</body>
         </html>
     );
