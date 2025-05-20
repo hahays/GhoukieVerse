@@ -71,7 +71,7 @@ export default function Home() {
     }, [query]);
 
     return (
-        <main className="min-h-screen  bg-primary-50">
+        <main className="min-h-screen  bg-ghoukie-white">
             <NavBar/>
 
             <PageHeader title="GHOUKIEVERSE" description="Track your favorite movies, games, and anime. Discover new content and share your experiences with
