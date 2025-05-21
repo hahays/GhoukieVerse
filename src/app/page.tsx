@@ -71,15 +71,15 @@ export default function Home() {
     }, [query]);
 
     return (
-        <main className="min-h-screen  bg-ghoukie-white">
+        <main className="min-h-screen bg-ghoukie-white">
             <NavBar/>
 
             <PageHeader title="GHOUKIEVERSE" description="Track your favorite movies, games, and anime. Discover new content and share your experiences with
                     the community."/>
 
 
-            <section className="py-12 px-4">
-                <div className="container mx-auto">
+            <section className="py-14 px-16">
+                <div className="mx-auto">
                     <CategoryCards/>
                 </div>
             </section>
