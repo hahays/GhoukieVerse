@@ -27,6 +27,7 @@ module.exports = {
                 'ghoukie-purple': '#7E22CE',
                 'ghoukie-pink': '#EC4899',
                 'ghoukie-black': '#1C1D1F',
+                'ghoukie-light-green': '#b3e680',
                 'ghoukie-green': '#A0CF7E',
                 'ghoukie-dark-green': '#4D7A40',
                 'ghoukie-white': '#ECFAEB',
@@ -52,9 +53,10 @@ module.exports = {
         },
         textShadow: {
             'figma': '0 4px 4px rgba(0, 0, 0, 0.25)',
-        }
+        },
+
     },
     plugins: [
-        require('tailwindcss-textshadow')
+        require('tailwindcss-textshadow'),
     ],
 };

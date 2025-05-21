@@ -74,10 +74,10 @@ export default function Home() {
         <main className="min-h-screen bg-ghoukie-white">
             <NavBar/>
 
-            <PageHeader title="GHOUKIEVERSE" description="Отслеживай свои любимые фильмы, игры и аниме."/>
+            <PageHeader className="" title="GHOUKIEVERSE" description="Отслеживай свои любимые фильмы, игры и аниме."/>
 
 
-            <section className="py-14 px-16">
+            <section className=" px-16">
                 <div className="mx-auto">
                     <CategoryCards/>
                 </div>

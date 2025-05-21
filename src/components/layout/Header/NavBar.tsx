@@ -109,9 +109,10 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
                         <div className="mb-4">
                             <Search query={query} setQuery={setQuery}/>
                         </div>
-                        <MobileNavLink href="/films">Films</MobileNavLink>
-                        <MobileNavLink href="/games">Games</MobileNavLink>
-                        <MobileNavLink href="/anime">Anime</MobileNavLink>
+                        <MobileNavLink href="/films">Фильмы</MobileNavLink>
+                        <MobileNavLink href="/games">Игры</MobileNavLink>
+                        <MobileNavLink href="/anime">Aниме</MobileNavLink>
+                        <MobileNavLink href="/roadmap">Roadmap</MobileNavLink>
                     </div>
                 )}
             </div>

@@ -6,10 +6,12 @@ const buttonVariants = cva(
     {
         variants: {
             variant: {
-                default: 'bg-ghoukie-green text-ghoukie-white hover:bg-primary-1100',
-                outline: 'border border-primary-600 text-primary-600 hover:bg-primary-50',
+                default: 'bg-ghoukie-green text-ghoukie-white hover:bg-ghoukie-light-green hover:text-ghoukie-black',
+                outline: 'border-2 border-ghoukie-black text-ghoukie-black hover:bg-ghoukie-light-green hover:text-ghoukie-black hover:border-ghoukie-light-green',
                 ghost: 'hover:bg-primary-50 text-primary-600',
                 danger: 'bg-red-600 text-white hover:bg-red-700',
+                secondary: 'bg-ghoukie-black text-ghoukie-white hover:bg-ghoukie-light-green hover:text-ghoukie-black'
+
             },
             size: {
                 xs: 'h-7 px-2 text-xs',
