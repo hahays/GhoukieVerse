@@ -30,6 +30,7 @@ module.exports = {
                 'ghoukie-green': '#A0CF7E',
                 'ghoukie-dark-green': '#4D7A40',
                 'ghoukie-white': '#ECFAEB',
+                'ghoukie-gray': '#5C5C5C',
             },
         },
         fontFamily: {
@@ -37,6 +38,23 @@ module.exports = {
             victor: ['var(--font-victor)'],
             alef: ['var(--font-alef)'],
         },
+        letterSpacing: {
+            'wide-18': '0.18em',
+            'absolute-18': '14px',
+        },
+        fontWeight: {
+            blacker: '900',
+            heavy: '950',
+            customBold: '1000'
+        },
+        boxShadow: {
+            'figma': '0 4px 4px 0 rgba(0, 0, 0, 0.25)',
+        },
+        textShadow: {
+            'figma': '0 4px 4px rgba(0, 0, 0, 0.25)',
+        }
     },
-    plugins: [],
+    plugins: [
+        require('tailwindcss-textshadow')
+    ],
 };

@@ -68,7 +68,7 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
                 ? 'bg-ghoukie-white '
                 : 'bg-ghoukie-white '
         }`}>
-            <div className=" mx-auto px-16 py-3 font-victor">
+            <div className=" mx-auto px-16 py-6 font-victor">
                 <div className="flex justify-between items-center">
 
                     <div className="flex items-center ">
@@ -85,11 +85,11 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
 
                     <div className="flex items-center space-x-4">
                         <div className="hidden md:block w-64">
-                            <Search value={query} onChange={setQuery}/>
+                            <Search value={query} className="shadow-figma" onChange={setQuery}/>
                         </div>
 
                         <div className="flex space-x-2">
-                            <Button size="lg">
+                            <Button className="shadow-figma" size="lg">
                                 Профиль
                             </Button>
                         </div>

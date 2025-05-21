@@ -74,8 +74,7 @@ export default function Home() {
         <main className="min-h-screen bg-ghoukie-white">
             <NavBar/>
 
-            <PageHeader title="GHOUKIEVERSE" description="Track your favorite movies, games, and anime. Discover new content and share your experiences with
-                    the community."/>
+            <PageHeader title="GHOUKIEVERSE" description="Отслеживай свои любимые фильмы, игры и аниме."/>
 
 
             <section className="py-14 px-16">

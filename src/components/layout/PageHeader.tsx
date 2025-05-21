@@ -12,10 +12,10 @@ export const PageHeader = ({
                                className = ''
                            }: PageHeaderProps) => {
     return (
-        <section className={`pt-32 pb-16 px-4 text-center ${className}`}>
+        <section className={`pt-36 text-center ${className}`}>
             <div className="container mx-auto">
-                <h1 className="text-6xl font-bold text-primary-900 mb-6">{title}</h1>
-                <p className="text-xl text-primary-700 max-w-2xl mx-auto mb-8">
+                <h1 className="text-9xl font-customBold text-shadow-figma tracking-absolute-18 font-vina text-ghoukie-black ">{title}</h1>
+                <p className="text-2xl text-ghoukie-gray font-victor max-w-2xl mx-auto mb-10">
                     {description}
                 </p>
 
