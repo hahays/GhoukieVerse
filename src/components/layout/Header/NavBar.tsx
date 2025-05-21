@@ -72,9 +72,7 @@ export const NavBar: React.FC<NavBarProps> = ({ movies, query, setQuery, onLogin
                 <div className="flex justify-between items-center">
 
                     <div className="flex items-center space-x-8">
-                        <Link href="/" className="text-2xl font-bold hover:text-primary-400 transition-colors">
-                            GHOUKIEVERSE
-                        </Link>
+                       <Logo href="/" logoSize="lg" className="hover:opacity-80" />
 
                         <div className="hidden md:flex space-x-6">
                             <NavLink href="/films">Фильмы</NavLink>
@@ -86,7 +84,7 @@ export const NavBar: React.FC<NavBarProps> = ({ movies, query, setQuery, onLogin
 
                     <div className="flex items-center space-x-4">
                         <div className="hidden md:block w-64">
-                            <Search query={query} setQuery={setQuery} />
+                            <Search value={query} onChange={setQuery} />
                         </div>
 
                         <div className="flex space-x-2">
