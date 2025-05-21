@@ -16,15 +16,15 @@ export const PageHeader = ({
     return (
         <section className={`pt-36 text-center pb-16  ${className}`}>
             <div className="container mx-auto">
-                <h1 className="text-9xl font-customBold text-shadow-figma tracking-absolute-18 text-ghoukie-black">
+                <h1 className="text-9xl pb-4 font-customBold text-shadow-figma tracking-absolute-18 text-ghoukie-black">
                     {title}
                 </h1>
-                <p className="text-2xl pb-16 text-ghoukie-gray text-shadow-figma font-victor max-w-2xl mx-auto ">
+                <p className="text-2xl pb-8 text-ghoukie-gray text-shadow-figma font-victor max-w-2xl mx-auto ">
                     {description}
                 </p>
 
                 {showButtons && (
-                    <div className="flex  justify-center space-x-4">
+                    <div className="flex justify-center space-x-4">
                       <Button size="lg" variant="secondary">  Твой каталог </Button>
                         <Button size="lg" variant="outline"> Начать </Button>
                     </div>
