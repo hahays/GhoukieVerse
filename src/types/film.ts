@@ -11,7 +11,7 @@ export interface Movie {
     Actors: string;
     Director: string;
     Genre: string;
-    [key: string]: any; // Для дополнительных полей, которые могут прийти из API
+    [key: string]: any;
 }
 
 export interface OMDBResponse {

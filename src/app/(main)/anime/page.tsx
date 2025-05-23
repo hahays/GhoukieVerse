@@ -1,7 +1,7 @@
 import React from "react";
 
-function Anime() {
+function Page() {
   return <div>Anime</div>;
 }
 
-export default Anime;
+export default Page;

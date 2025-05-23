@@ -1,3 +1,5 @@
+'use client'
+
 import React, {useEffect, useState} from "react";
 import {Logo} from "../../../containers/Logo";
 import {Search} from "../../../features/Search";
@@ -77,9 +79,9 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
 
                     <div className="hidden md:flex text-2xl text-ghoukie-black space-x-6">
                         <NavLink href="/">Главная</NavLink>
-                        <NavLink href="/films">Фильмы</NavLink>
-                        <NavLink href="/games">Игры</NavLink>
-                        <NavLink href="/anime">Аниме</NavLink>
+                        <NavLink href="/GhoukieVerse/src/app/(main)/films">Фильмы</NavLink>
+                        <NavLink href="/GhoukieVerse/src/app/(main)/games">Игры</NavLink>
+                        <NavLink href="/GhoukieVerse/src/app/(main)/anime">Аниме</NavLink>
                         <NavLink href="/roadmap">Roadmap</NavLink>
                     </div>
 
@@ -109,9 +111,9 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
                         <div className="mb-4">
                             <Search query={query} setQuery={setQuery}/>
                         </div>
-                        <MobileNavLink href="/films">Фильмы</MobileNavLink>
-                        <MobileNavLink href="/games">Игры</MobileNavLink>
-                        <MobileNavLink href="/anime">Aниме</MobileNavLink>
+                        <MobileNavLink href="/GhoukieVerse/src/app/(main)/films">Фильмы</MobileNavLink>
+                        <MobileNavLink href="/GhoukieVerse/src/app/(main)/games">Игры</MobileNavLink>
+                        <MobileNavLink href="/GhoukieVerse/src/app/(main)/anime">Aниме</MobileNavLink>
                         <MobileNavLink href="/roadmap">Roadmap</MobileNavLink>
                     </div>
                 )}
