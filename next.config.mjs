@@ -10,6 +10,16 @@ const nextConfig = {
         };
         return config;
     },
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'm.media-amazon.com',
+                port: '',
+                pathname: '/images/M/**', // или просто '/**' для всех путей
+            },
+        ],
+    },
 
 };
 

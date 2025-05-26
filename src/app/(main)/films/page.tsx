@@ -1,13 +1,12 @@
 'use client'
 
-import {PageHeader} from '@/components/layout/PageHeader'
 import React, {useState} from 'react';
 import {MediaGrid} from "../../../components/ui/MediaGrid/MediaGrid";
-import {getMoviesByCategory} from "../../../lib/api";
-import Image from "next/image";
+
 import {Select} from "../../../components/ui/Select/Select";
 import {ButtonToggle} from "../../../components/ui/ButtonToggle/ButtonToggle";
 import {Button} from "../../../components/ui/Button";
+import {useMovies} from "../../../hooks/useMovies";
 
 
 export const FilterPanel = () => {
@@ -130,7 +129,11 @@ interface FilterToggleProps {
 
 
 export default function FilmsPage() {
-    // const movies = await getMoviesByCategory('movie')
+
+    const {movies, isLoading, error, hasMore} = useMovies('action',);
+
+    if (isLoading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
 
     return (
 
@@ -140,23 +143,11 @@ export default function FilmsPage() {
             <div className="pt-36 px-16">
 
 
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-8 px-4">
-                    {Array.from({length: 15}).map((_, index) => (
-                        <div key={index} className="bg-white rounded overflow-hidden shadow-lg">
-                            <Image
-                                src={``}
-                                alt={`Игра ${index + 1}`}
-                                width={300}
-                                height={400}
-                                className="w-full h-auto object-cover"/>
-                            <div className="p-4">
-                                <h3 className="text-xl font-bold">Игра {index + 1}</h3>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                <section className="px-16 py-8">
+                    <MediaGrid movies={movies} mediaType="films"/>
 
-                {/* Pagination */}
+                </section>
+
                 <div className="flex justify-center mt-8 mb-10">
                     <button className="px-4 py-2 rounded bg-green-500 text-white mr-2">Предыдущая</button>
                     <div className="flex space-x-2">
@@ -171,19 +162,9 @@ export default function FilmsPage() {
                     </div>
                     <button className="px-4 py-2 rounded bg-green-500 text-white ml-2">Следующая</button>
                 </div>
-
             </div>
         </>
 
 
-        // <>
-        //
-        //
-        //
-        //
-        //   {/*<section className="px-16 py-8">*/}
-        //   {/*  <MediaGrid movies={movies} mediaType="films"/>*/}
-        //   {/*</section>*/}
-        // </>
     )
 }

@@ -1,33 +1,121 @@
 import Link from "next/link";
-import { Movie } from "../../../types";
+import Image from "next/image";
+import {Movie} from "../../../types";
+import {EllipsisHorizontalIcon, EyeIcon, HeartIcon} from "@heroicons/react/24/outline";
 
 interface MediaGridProps {
-    movies: Movie[];
+    movies?: Movie[];
     mediaType: 'films' | 'games' | 'anime';
+    isLoading?: boolean;
+    error?: string | null;
+    watchedMovies?: Set<string>; // Для отслеживания просмотренных фильмов
 }
 
-export function MediaGrid({ movies, mediaType }: MediaGridProps) {
-    return (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {movies?.map((movie) => (
-                <Link
-                    key={movie.imdbID}
-                    href={`/${mediaType}/${movie.imdbID}`}
-                    className="group"
-                >
-                    <div className="bg-ghoukie-gray rounded-lg overflow-hidden transition transform group-hover:scale-105">
-                        <img
-                            src={movie.Poster}
-                            alt={movie.Title}
-                            className="w-full h-64 object-cover"
-                        />
-                        <div className="p-4">
-                            <h3 className="font-bold text-lg">{movie.Title}</h3>
-                            <p className="text-ghoukie-light-gray">{movie.Year}</p>
-                        </div>
+export function MediaGrid({movies, mediaType, isLoading, error, watchedMovies = new Set()}: MediaGridProps) {
+    if (isLoading) {
+        return (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-8 px-4">
+                {[...Array(12)].map((_, index) => (
+                    <div key={index} className="bg-ghoukie-gray rounded-lg overflow-hidden animate-pulse aspect-[2/3]">
+                        <div className="w-full h-full bg-ghoukie-dark-gray"/>
                     </div>
-                </Link>
-            ))}
+                ))}
+            </div>
+        );
+    }
+
+    if (error) {
+        return <div className="text-red-500 p-4">Error: {error}</div>;
+    }
+
+    if (!movies || movies.length === 0) {
+        return <div className="text-ghoukie-light-gray p-4">Ничего не найдено</div>;
+    }
+
+    return (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 mt-8 px-4">
+            {movies.map((movie) => {
+                const isWatched = watchedMovies.has(movie.imdbID);
+                const poster = movie.Poster && movie.Poster !== "N/A" && movie.Poster.trim() !== ""
+                    ? movie.Poster
+                    : null;
+
+                return (
+                    <div
+                        key={movie.imdbID}
+                        className={`relative group aspect-[2/3] rounded-lg overflow-hidden transition-all duration-300 ${isWatched ? 'ring-2 ring-ghoukie-green' : ''}`}
+                    >
+                        <Link
+                            href={`/${mediaType}/${movie.imdbID}`}
+                            className="block h-full w-full"
+                            aria-label={`View details of ${movie.Title}`}
+                        >
+                            {poster ? (
+                                <Image
+                                    src={poster}
+                                    alt={`Poster for ${movie.Title}`}
+                                    fill
+                                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                                    priority={false}
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-ghoukie-dark-gray flex items-center justify-center">
+        <span className="text-ghoukie-light-gray text-center px-2">
+          {movie.Title}
+        </span>
+                                </div>
+                            )}
+                        </Link>
+
+
+                        <div
+                            className="absolute inset-0 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div className="bg-gradient-to-t from-black/90 via-black/70 to-transparent p-4">
+                                <h3 className="text-white font-semibold text-lg text-shadow-figma line-clamp-2 mb-1">
+                                    {movie.Title}
+                                </h3>
+                                <p className=" text-ghoukie-light-green text-lg font-medium text-shadow-figma">
+                                    {movie.Year}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div
+                            className="absolute top-0 left-0 right-0 flex justify-between p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div className="flex gap-2">
+                                <button
+                                    className="p-2 rounded-full bg-black/70 hover:bg-ghoukie-green transition-colors"
+                                    onClick={(e) => e.preventDefault()}
+                                >
+                                    <EyeIcon className="w-4 h-4 text-white"/>
+                                </button>
+                                <button
+                                    className="p-2 rounded-full bg-black/70 hover:bg-ghoukie-purple transition-colors"
+                                    onClick={(e) => e.preventDefault()}
+                                >
+                                    <HeartIcon className="w-4 h-4 text-white"/>
+                                </button>
+                            </div>
+
+                            <button
+                                className="p-2 rounded-full bg-black/70 hover:bg-ghoukie-dark-gray transition-colors"
+                                onClick={(e) => e.preventDefault()}
+                            >
+                                <EllipsisHorizontalIcon className="w-4 h-4 text-white"/>
+                            </button>
+                        </div>
+
+
+                        {isWatched && (
+                            <div
+                                className="absolute top-2 right-2 bg-ghoukie-green text-black text-xs px-2 py-1 rounded-full font-bold">
+                                ✓
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
         </div>
     );
 }
