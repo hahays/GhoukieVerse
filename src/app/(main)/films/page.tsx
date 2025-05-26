@@ -1,18 +1,13 @@
 'use client'
 
-import { PageHeader } from '@/components/layout/PageHeader'
-import React, { useState } from 'react';
+import {PageHeader} from '@/components/layout/PageHeader'
+import React, {useState} from 'react';
 import {MediaGrid} from "../../../components/ui/MediaGrid/MediaGrid";
 import {getMoviesByCategory} from "../../../lib/api";
 import Image from "next/image";
 import {Select} from "../../../components/ui/Select/Select";
 import {ButtonToggle} from "../../../components/ui/ButtonToggle/ButtonToggle";
 import {Button} from "../../../components/ui/Button";
-
-
-
-
-
 
 
 export const FilterPanel = () => {
@@ -31,13 +26,13 @@ export const FilterPanel = () => {
             <div className="flex flex-wrap gap-4">
 
                 <div className="flex-1 flex gap-4 ">
-                    <Select options={['Год', '2023', '2022', '2021']} />
+                    <Select options={['Год', '2023', '2022', '2021']}/>
                     <ButtonToggle
                         label="Просмотрено"
                         active={watched}
                         onClick={() => setWatched(!watched)}
                     />
-                    <Select options={['Рейтинг', '9+', '8+', '7+']} />
+                    <Select options={['Рейтинг', '9+', '8+', '7+']}/>
                 </div>
 
 
@@ -67,7 +62,7 @@ export const FilterPanel = () => {
 
 
                 <div className="flex-1 flex  gap-4 min-w-[240px]">
-                    <Select  options={['Все жанры', 'Фантастика', 'Фэнтези', 'Триллер']} />
+                    <Select options={['Все жанры', 'Фантастика', 'Фэнтези', 'Триллер']}/>
                     <ButtonToggle
                         label="Одна вселенная"
                         active={universe}
@@ -79,21 +74,21 @@ export const FilterPanel = () => {
             <div className="flex flex-wrap gap-4">
 
                 <div className="flex-1 flex gap-4 min-w-[240px]">
-                    <Select options={['Платформа', 'Netflix', 'Disney+', 'HBO']} />
-                    <Select  options={['16+', '18+', '12+']} />
-                    <Select  options={['Популярность', 'Высокая', 'Средняя']} />
+                    <Select options={['Платформа', 'Netflix', 'Disney+', 'HBO']}/>
+                    <Select options={['16+', '18+', '12+']}/>
+                    <Select options={['Популярность', 'Высокая', 'Средняя']}/>
                 </div>
 
 
                 <div className="flex-1 flex  gap-4 min-w-[240px]">
-                    <Select  options={['Продолжительность', 'До 90 мин', '90-120 мин', '120+ мин']} />
-                    <Select  options={['Дата добавления', 'Старые', 'За месяц', 'За год']} />
+                    <Select options={['Продолжительность', 'До 90 мин', '90-120 мин', '120+ мин']}/>
+                    <Select options={['Дата добавления', 'Старые', 'За месяц', 'За год']}/>
                 </div>
 
 
                 <div className="flex-1 flex  gap-4 min-w-[240px]">
-                    <Select options={['Метки', 'Избранное', 'К просмотру']} />
-                    <Select options={['Страна', 'США', 'Россия', 'Корея']} />
+                    <Select options={['Метки', 'Избранное', 'К просмотру']}/>
+                    <Select options={['Страна', 'США', 'Россия', 'Корея']}/>
                 </div>
             </div>
 
@@ -129,80 +124,66 @@ export const FilterPanel = () => {
 };
 
 
-
-
-
-
-
 interface FilterToggleProps {
     label: string;
 }
 
 
-
-
-
-
-
-
 export default function FilmsPage() {
-  // const movies = await getMoviesByCategory('movie')
+    // const movies = await getMoviesByCategory('movie')
 
-  return (
+    return (
 
-      <><>
-          <FilterPanel/>
-      </>
-          <div className="pt-36 px-16">
-
-
+        <><>
+            <FilterPanel/>
+        </>
+            <div className="pt-36 px-16">
 
 
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-8 px-4">
+                    {Array.from({length: 15}).map((_, index) => (
+                        <div key={index} className="bg-white rounded overflow-hidden shadow-lg">
+                            <Image
+                                src={``}
+                                alt={`Игра ${index + 1}`}
+                                width={300}
+                                height={400}
+                                className="w-full h-auto object-cover"/>
+                            <div className="p-4">
+                                <h3 className="text-xl font-bold">Игра {index + 1}</h3>
+                            </div>
+                        </div>
+                    ))}
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-8 px-4">
-                  {Array.from({length: 15}).map((_, index) => (
-                      <div key={index} className="bg-white rounded overflow-hidden shadow-lg">
-                          <Image
-                              src={``}
-                              alt={`Игра ${index + 1}`}
-                              width={300}
-                              height={400}
-                              className="w-full h-auto object-cover"/>
-                          <div className="p-4">
-                              <h3 className="text-xl font-bold">Игра {index + 1}</h3>
-                          </div>
-                      </div>
-                  ))}
-              </div>
+                {/* Pagination */}
+                <div className="flex justify-center mt-8 mb-10">
+                    <button className="px-4 py-2 rounded bg-green-500 text-white mr-2">Предыдущая</button>
+                    <div className="flex space-x-2">
+                        {Array.from({length: 5}).map((_, i) => (
+                            <button
+                                key={i}
+                                className={`px-4 py-2 rounded ${i === 0 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                            >
+                                {i + 1}
+                            </button>
+                        ))}
+                    </div>
+                    <button className="px-4 py-2 rounded bg-green-500 text-white ml-2">Следующая</button>
+                </div>
 
-              {/* Pagination */}
-              <div className="flex justify-center mt-8 mb-10">
-                  <button className="px-4 py-2 rounded bg-green-500 text-white mr-2">Предыдущая</button>
-                  <div className="flex space-x-2">
-                      {Array.from({length: 5}).map((_, i) => (
-                          <button
-                              key={i}
-                              className={`px-4 py-2 rounded ${i === 0 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-                          >
-                              {i + 1}
-                          </button>
-                      ))}
-                  </div>
-                  <button className="px-4 py-2 rounded bg-green-500 text-white ml-2">Следующая</button>
-              </div>
-
-          </div>
-      </>
+            </div>
+        </>
 
 
-      // <>
-      //
-      //
-      //
-      //
-      //   {/*<section className="px-16 py-8">*/}
-      //   {/*  <MediaGrid movies={movies} mediaType="films"/>*/}
-      //   {/*</section>*/}
-      // </>
-  )
+        // <>
+        //
+        //
+        //
+        //
+        //   {/*<section className="px-16 py-8">*/}
+        //   {/*  <MediaGrid movies={movies} mediaType="films"/>*/}
+        //   {/*</section>*/}
+        // </>
+    )
 }
