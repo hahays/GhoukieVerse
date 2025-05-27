@@ -7,6 +7,7 @@ import {Select} from "../../../components/ui/Select/Select";
 import {ButtonToggle} from "../../../components/ui/ButtonToggle/ButtonToggle";
 import {Button} from "../../../components/ui/Button";
 import {useMovies} from "../../../hooks/useMovies";
+import {Pagination} from "../../../components/ui/Pagination/Pagination";
 
 
 export const FilterPanel = () => {
@@ -148,20 +149,7 @@ export default function FilmsPage() {
 
                 </section>
 
-                <div className="flex justify-center mt-8 mb-10">
-                    <button className="px-4 py-2 rounded bg-green-500 text-white mr-2">Предыдущая</button>
-                    <div className="flex space-x-2">
-                        {Array.from({length: 5}).map((_, i) => (
-                            <button
-                                key={i}
-                                className={`px-4 py-2 rounded ${i === 0 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-                            >
-                                {i + 1}
-                            </button>
-                        ))}
-                    </div>
-                    <button className="px-4 py-2 rounded bg-green-500 text-white ml-2">Следующая</button>
-                </div>
+                <Pagination movies={movies} hasMore={hasMore}/>
             </div>
         </>
 
