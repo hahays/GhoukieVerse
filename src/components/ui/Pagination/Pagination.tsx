@@ -30,11 +30,11 @@ export function Pagination({
     const pages = getPageRange();
 
     return (
-        <div className="flex items-center justify-center gap-2 mt-8 mb-10">
+        <div className="flex items-center justify-between gap-2 mt-8 mb-10 px-16">
             <Button
                 variant="ghost"
-                size="lg"
-                className="text-black hover:bg-transparent hover:text-ghoukie-light-green gap-1 px-3"
+                size="ghost"
+                className="text-black hover:bg-transparent hover:text-ghoukie-light-green gap-1"
                 onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
                 disabled={currentPage === 1}
             >
@@ -79,8 +79,8 @@ export function Pagination({
 
             <Button
                 variant="ghost"
-                size="lg"
-                className="text-black hover:bg-transparent hover:text-ghoukie-light-green gap-1 px-3"
+                size="ghost"
+                className="text-black hover:bg-transparent hover:text-ghoukie-light-green gap-1"
                 onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
                 disabled={currentPage === totalPages}
             >

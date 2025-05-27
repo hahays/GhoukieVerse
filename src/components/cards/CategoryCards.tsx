@@ -10,8 +10,8 @@ interface CategoryItem {
     bgColor: string;
     hoverColor: string;
     innerBlockColor: string;
-    titleColor?: string; // Опциональный цвет заголовка
-    descriptionColor?: string; // Опциональный цвет описания
+    titleColor?: string;
+    descriptionColor?: string;
 }
 
 const categories: CategoryItem[] = [

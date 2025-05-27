@@ -96,7 +96,7 @@ export const FilterPanel = () => {
             <div className="flex">
                 <Button
                     variant="ghost"
-                    size="lg"
+                    size="ghost"
                     className="text-black hover:bg-transparent hover:text-ghoukie-light-green gap-2"
                     onClick={() => setIsExpanded(!isExpanded)}
                 >
@@ -141,10 +141,10 @@ export default function FilmsPage() {
         <><>
             <FilterPanel/>
         </>
-            <div className="pt-36 px-16">
+            <div className="">
 
 
-                <section className="px-16 py-8">
+                <section className="px-16">
                     <MediaGrid movies={movies} mediaType="films"/>
 
                 </section>

@@ -1,4 +1,5 @@
 import {Movie} from "../types";
+import {MovieDetails} from "../types/film";
 
 
 const KEY = process.env.NEXT_PUBLIC_API_KEY;
@@ -23,4 +24,15 @@ export async function getMoviesByCategory(
         movies: data.Search || [],
         totalResults: parseInt(data.totalResults) || 0
     };
+}
+
+export async function getMovieDetails(id: string): Promise<MovieDetails> {
+    const res = await fetch(`https://www.omdbapi.com/?apikey=${KEY}&i=${id}&plot=full`);
+    const data = await res.json();
+
+    if (data.Response === "False") {
+        throw new Error(data.Error || "Movie not found");
+    }
+
+    return data;
 }
