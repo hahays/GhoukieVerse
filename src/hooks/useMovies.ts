@@ -5,23 +5,25 @@ import { Movie } from '../types';
 export function useMovies(category: string) {
     const [movies, setMovies] = useState<Movie[]>([]);
     const [page, setPage] = useState(1);
-    const [totalResults, setTotalResults] = useState(0);
+    const [total, setTotal] = useState(0); // Изменили с totalResults на total
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const loadMore = () => setPage(p => p + 1);
-    const hasMore = movies.length < totalResults;
+    const hasMore = movies.length < total; // Проверяем по total
 
     useEffect(() => {
         const fetchMovies = async () => {
             try {
                 setIsLoading(true);
-                const { movies: newMovies, totalResults } = await getMoviesByCategory(category, page);
+                const data = await getMoviesByCategory(category, page);
+                console.log('API Response:', data);
 
-                setMovies(prev => [...prev, ...newMovies]);
-                setTotalResults(totalResults);
+                setMovies(prev => [...prev, ...data.docs]);
+                setTotal(data.total);
             } catch (err) {
-                setError(err.message);
+                console.error('Fetch error:', err);
+                setError(err instanceof Error ? err.message : 'Unknown error');
             } finally {
                 setIsLoading(false);
             }
