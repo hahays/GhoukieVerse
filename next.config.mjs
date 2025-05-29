@@ -16,7 +16,15 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: 'm.media-amazon.com',
                 port: '',
-                pathname: '/images/M/**', // или просто '/**' для всех путей
+                pathname: '/images/M/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'image.openmoviedb.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'avatars.mds.yandex.net',
             },
         ],
     },

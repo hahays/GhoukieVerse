@@ -84,9 +84,43 @@ export interface Movie {
 
 //Kinopoisk API
 
-export interface MovieDetails extends Movie {
-    description: string;
-    ageRating: number;
+interface MovieDetails {
+    id: number;
+    name: string;
+    alternativeName?: string;
+    year: number;
+    description?: string;
+    movieLength?: number;
+    ageRating?: number;
+    poster: {
+        url: string;
+        previewUrl?: string;
+    };
+    backdrop?: {
+        url: string;
+        previewUrl?: string;
+    };
+    rating: {
+        kp: number;
+        imdb?: number;
+    };
+    votes: {
+        kp: number;
+        imdb?: number;
+    };
+    genres: Array<{
+        name: string;
+    }>;
+    countries: Array<{
+        name: string;
+    }>;
+    persons: Array<{
+        id: number;
+        name?: string;
+        enName?: string;
+        description?: string;
+        enProfession?: string;
+    }>;
     videos?: {
         trailers: Array<{
             url: string;
@@ -94,34 +128,6 @@ export interface MovieDetails extends Movie {
             site: string;
         }>;
     };
-    persons: Array<{
-        id: number;
-        name: string;
-        photo?: string;
-        profession: string;
-        enProfession: string;
-    }>;
-    similarMovies?: Array<{
-        id: number;
-        name: string;
-        poster?: {
-            url: string;
-        };
-    }>;
-    budget?: {
-        value: number;
-        currency: string;
-    };
-    fees?: {
-        world?: {
-            value: number;
-            currency: string;
-        };
-    };
-    premiere?: {
-        world: string;
-    };
-    sequelsAndPrequels?: Array<Movie>;
 }
 
 export interface FilmCardProps {

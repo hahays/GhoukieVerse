@@ -42,6 +42,32 @@ async function fetchWithCache(url: string): Promise<any> {
     return data;
 }
 
+export async function getTopRecentMovies(
+    limit = 36,
+    years = [2024, 2025]
+): Promise<{ docs: Movie[]; total: number }> {
+    const yearQuery = years.map(y => `year=${y}`).join('&');
+    const url = `https://api.kinopoisk.dev/v1.4/movie?${yearQuery}&limit=${limit}&sortField=votes.kp&sortType=-1&notNullFields=poster.url&notNullFields=backdrop.url&type=movie`;
+
+    const data = await fetchWithCache(url);
+
+    return {
+        docs: data.docs.map((movie: any) => ({
+            id: movie.id,
+            name: movie.name,
+            alternativeName: movie.alternativeName,
+            year: movie.year,
+            poster: movie.poster,
+            backdrop: movie.backdrop,
+            rating: movie.rating,
+            genres: movie.genres,
+            countries: movie.countries,
+            movieLength: movie.movieLength,
+        })),
+        total: data.total
+    };
+}
+
 export async function getMoviesByCategory(
     category: string,
     page = 1,
