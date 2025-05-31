@@ -10,7 +10,7 @@ export default function MainLayout({
 }) {
     return (
         <>
-            {/*<NavBar />*/}
+            <NavBar />
             <main className="min-h-screen bg-ghoukie-white">
                 {children}
             </main>

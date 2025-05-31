@@ -84,7 +84,7 @@ export interface Movie {
 
 //Kinopoisk API
 
-interface MovieDetails {
+export interface MovieDetails {
     id: number;
     name: string;
     alternativeName?: string;
@@ -130,10 +130,7 @@ interface MovieDetails {
     };
 }
 
-export interface FilmCardProps {
-    movie: Movie;
-    onSelectMovie: (id: string) => void;
-}
+
 export interface FilmListProps {
     movies: Movie[];
     onSelectMovie: (id: string) => void;
