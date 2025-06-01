@@ -1,11 +1,10 @@
 'use client';
 import {useRouter} from 'next/navigation';
 import {useState} from 'react';
-import {ArrowLeftIcon} from 'lucide-react';
+import {ArrowLeftIcon, StarIcon} from 'lucide-react';
 import Image from 'next/image';
 import {MovieDetails} from "../../../types/film";
 import {RatingSection} from "../../../containers/RatingSection/RatingSection";
-
 
 const CastSection = ({persons}: { persons: any[] }) => (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -46,7 +45,7 @@ export function FilmPage({movie, backLink}: FilmPageProps) {
         if (backLink && backLink.startsWith('/')) {
             router.push(backLink);
         } else {
-            router.push('/films'); // Fallback
+            router.push('/films');
         }
     };
 
@@ -57,17 +56,6 @@ export function FilmPage({movie, backLink}: FilmPageProps) {
     const imdbRating = movie.rating?.imdb || 0;
     const directors = movie.persons?.filter(p => p.enProfession === 'director') || [];
     const actors = movie.persons?.filter(p => p.enProfession === 'actor')?.slice(0, 8) || [];
-
-    const watchOptions = [
-        {platform: "Kinopoisk", icon: "🎬"},
-        {platform: "IVI", icon: "📺"},
-        {platform: "Okko", icon: "🍿"}
-    ];
-
-    const stats = {
-        views: movie.votes?.kp || 0,
-        ratingCount: movie.votes?.imdb || 0
-    };
 
     return (
         <div className="min-h-screen">
@@ -91,10 +79,8 @@ export function FilmPage({movie, backLink}: FilmPageProps) {
                     </div>
                 </div>
 
-                <main
-                    className=" mx-auto py-8 flex gap-8 ">
-
-                    <div className="md:w-[354] flex-shrink-0">
+                <main className="mx-auto py-8 flex gap-8 items-stretch">
+                    <div className="md:w-[354px] flex-shrink-0">
                         <div className="aspect-auto rounded-lg overflow-hidden shadow-lg border-4 border-ghoukie-green">
                             <Image
                                 src={movie.poster?.url || 'https://placehold.co/300x450'}
@@ -111,17 +97,13 @@ export function FilmPage({movie, backLink}: FilmPageProps) {
 
                         <div className="mt-4 space-y-2">
                             <button
-                                className={`w-full px-4 py-2 rounded-md ${
-                                    watched ? "bg-green-600 text-white" : "bg-green-100 text-green-800"
-                                }`}
+                                className={`w-full px-4 py-2 rounded-md ${watched ? "bg-green-600 text-white" : "bg-green-100 text-green-800"}`}
                                 onClick={() => setWatched(!watched)}
                             >
                                 {watched ? 'Вы смотрели' : 'Отметить просмотренным'}
                             </button>
                             <button
-                                className={`w-full px-4 py-2 rounded-md ${
-                                    toWatch ? "bg-blue-600 text-white" : "bg-blue-100 text-blue-800"
-                                }`}
+                                className={`w-full px-4 py-2 rounded-md ${toWatch ? "bg-blue-600 text-white" : "bg-blue-100 text-blue-800"}`}
                                 onClick={() => setToWatch(!toWatch)}
                             >
                                 {toWatch ? 'В вашем списке' : 'Буду смотреть'}
@@ -129,7 +111,7 @@ export function FilmPage({movie, backLink}: FilmPageProps) {
                         </div>
                     </div>
 
-                    <div>
+                    <div className="flex-1">
                         <h1 className="text-3xl font-bold mb-1">{movie.name || movie.alternativeName}</h1>
                         <p className="text-xl text-gray-600 mb-4">
                             {movie.alternativeName && <span>{movie.alternativeName} • </span>}
@@ -139,40 +121,32 @@ export function FilmPage({movie, backLink}: FilmPageProps) {
                         <div className="flex flex-wrap gap-2 mb-6">
                             {genres.map((genre, index) => (
                                 <span key={index} className="bg-gray-200 px-3 py-1 rounded-full text-sm">
-                {genre}
-              </span>
+                                    {genre}
+                                </span>
                             ))}
-                            <span className="bg-gray-200 px-3 py-1 rounded-full text-sm">
-              {runtime}
-            </span>
+                            <span className="bg-gray-200 px-3 py-1 rounded-full text-sm">{runtime}</span>
                             {movie.ageRating && (
                                 <span className="bg-gray-200 px-3 py-1 rounded-full text-sm">
-                {movie.ageRating}+
-              </span>
+                                    {movie.ageRating}+
+                                </span>
                             )}
                         </div>
 
                         <div className="flex gap-2 mb-6 border-b border-gray-200 pb-2">
                             <button
-                                className={`px-4 py-2 rounded-md ${
-                                    activeTab === 'info' ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-800"
-                                }`}
+                                className={`px-4 py-2 rounded-md ${activeTab === 'info' ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-800"}`}
                                 onClick={() => setActiveTab('info')}
                             >
                                 О фильме
                             </button>
                             <button
-                                className={`px-4 py-2 rounded-md ${
-                                    activeTab === 'cast' ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-800"
-                                }`}
+                                className={`px-4 py-2 rounded-md ${activeTab === 'cast' ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-800"}`}
                                 onClick={() => setActiveTab('cast')}
                             >
                                 Актёры
                             </button>
                             <button
-                                className={`px-4 py-2 rounded-md ${
-                                    activeTab === 'media' ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-800"
-                                }`}
+                                className={`px-4 py-2 rounded-md ${activeTab === 'media' ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-800"}`}
                                 onClick={() => setActiveTab('media')}
                             >
                                 Трейлеры
@@ -206,63 +180,70 @@ export function FilmPage({movie, backLink}: FilmPageProps) {
                         {activeTab === 'media' && <MediaSection videos={movie.videos}/>}
                     </div>
 
-                    <aside
-                        className="md:w-[354] flex-shrink-1 bg-ghoukie-black p-6 rounded-lg shadow-md sticky top-8 self-start">
-                        <h2 className="text-xl font-bold mb-4 text-ghoukie-white">Где смотреть</h2>
-                        <div className="space-y-3">
-                            {watchOptions.map((option, index) => (
-                                <div key={index} className="flex  items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                                    <span className="text-2xl">{option.icon}</span>
-                                    <span className="font-medium">{option.platform}</span>
-                                    <button
-                                        className="ml-auto bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">
-                                        Смотреть
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
+                    <div className="relative w-[450px]">
+                        <div className="absolute w-full h-full left-[-36px] bottom-[-20px] bg-ghoukie-green rounded-lg z-0" />
 
-                        <h2 className="text-xl text-ghoukie-white font-bold mt-8 mb-4">Рейтинги</h2>
-                        <div className="space-y-4">
-                            <div>
-                                <div className="flex items-center justify-between mb-1">
-                                    <span className="font-medium text-ghoukie-white">Kinopoisk</span>
-                                    <span className="font-bold text-ghoukie-white">{rating.toFixed(1)}</span>
-                                </div>
-                                <div className="w-full  bg-gray-200 rounded-full h-2">
+                        <div className="relative z-10 bg-ghoukie-black text-white p-6 rounded-lg shadow-xl h-full">
+                            <h2 className="text-2xl flex justify-center font-bold font-victor mb-6 text-ghoukie-white">
+                                ГДЕ ПОСМОТРЕТЬ
+                            </h2>
+
+                            <div className="space-y-4 mb-8">
+                                {[{ name: "Kinopoisk HD", icon: "🎬", price: "от 299 ₽" }, { name: "IVI", icon: "📺", price: "по подписке" }, { name: "Okko", icon: "🍿", price: "аренда 350 ₽" }].map((platform, index) => (
                                     <div
-                                        className="bg-yellow-500 h-2 rounded-full"
-                                        style={{width: `${rating * 10}%`}}
-                                    />
-                                </div>
+                                        key={index}
+                                        className="flex items-center gap-4 p-3 hover:bg-gray-800 rounded-lg transition-colors"
+                                    >
+                                        <span className="text-2xl">{platform.icon}</span>
+                                        <div className="flex-1">
+                                            <p className="font-medium">{platform.name}</p>
+                                            <p className="text-sm text-gray-400">{platform.price}</p>
+                                        </div>
+                                        <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded text-sm font-medium transition-colors">
+                                            Смотреть
+                                        </button>
+                                    </div>
+                                ))}
                             </div>
 
-                            <div>
-                                <div className="flex items-center justify-between mb-1">
-                                    <span className="font-medium text-ghoukie-white">IMDb</span>
-                                    <span className="font-bold text-ghoukie-white">{imdbRating.toFixed(1)}</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div
-                                        className="bg-blue-500 h-2 rounded-full"
-                                        style={{width: `${imdbRating * 10}%`}}
-                                    />
+                            <div className="mt-6 pt-6 border-t border-gray-700">
+                                <h3 className="text-2xl flex justify-center font-bold font-victor text-center">
+                                    СРЕДНИЙ РЕЙТИНГ
+                                </h3>
+                                <h2 className="text-3xl flex justify-center font-bold font-victor mb-4 text-center">4.5</h2>
+
+                                <div className="flex items-end justify-center h-20 gap-1">
+                                    <div className="flex flex-col items-center h-full justify-end mr-2">
+                                        <StarIcon className="w-5 h-5 text-ghoukie-light-green fill-ghoukie-green" />
+                                    </div>
+
+                                    {[10, 70, 20, 80, 70, 20, 10, 25, 10].map((heightPercent, index) => (
+                                        <div key={index} className="flex flex-col items-center h-full justify-end">
+                                            <div
+                                                className="w-6 rounded bg-ghoukie-white transition-all duration-300"
+                                                style={{ height: `${heightPercent}%` }}
+                                            ></div>
+                                        </div>
+                                    ))}
+
+                                    <div className="flex flex-col items-center h-full justify-end ml-2">
+                                        <div className="flex mb-1">
+                                            <StarIcon className="w-5 h-5 text-ghoukie-light-green fill-ghoukie-green" />
+                                        </div>
+                                        <div className="flex mb-1">
+                                            <StarIcon className="w-5 h-5 text-ghoukie-light-green fill-ghoukie-green" />
+                                            <StarIcon className="w-5 h-5 text-ghoukie-light-green fill-ghoukie-green" />
+                                        </div>
+                                        <div className="flex">
+                                            <StarIcon className="w-5 h-5 text-ghoukie-light-green fill-ghoukie-green" />
+                                            <StarIcon className="w-5 h-5 text-ghoukie-light-green fill-ghoukie-green" />
+                                            <StarIcon className="w-5 h-5 text-ghoukie-light-green fill-ghoukie-green" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div className="mt-6 space-y-3 text-sm">
-                            <div className="flex justify-between">
-                                <span className="text-ghoukie-white">Просмотры</span>
-                                <span className="font-medium text-ghoukie-white">{stats.views.toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-ghoukie-white">Оценки</span>
-                                <span
-                                    className="font-medium text-ghoukie-white">{stats.ratingCount.toLocaleString()}</span>
-                            </div>
-                        </div>
-                    </aside>
+                    </div>
                 </main>
             </div>
         </div>
