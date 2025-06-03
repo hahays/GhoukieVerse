@@ -5,6 +5,10 @@ import {ArrowLeftIcon, StarIcon} from 'lucide-react';
 import Image from 'next/image';
 import {MovieDetails} from "../../../types/film";
 import {RatingSection} from "../../../containers/RatingSection/RatingSection";
+import {Icon} from "../../ui/Icon/Icon";
+import {IconName} from "lucide-react/dynamic";
+import {RatingDiagram} from "../../films/RatingDiagram";
+import {Button} from "../../ui/Button";
 
 const CastSection = ({persons}: { persons: any[] }) => (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -189,59 +193,33 @@ export function FilmPage({movie, backLink}: FilmPageProps) {
                             </h2>
 
                             <div className="space-y-4 mb-8">
-                                {[{ name: "Kinopoisk HD", icon: "🎬", price: "от 299 ₽" }, { name: "IVI", icon: "📺", price: "по подписке" }, { name: "Okko", icon: "🍿", price: "аренда 350 ₽" }].map((platform, index) => (
+                                {[
+                                    { name: "Kinopoisk HD", icon: "kinopoisk"},
+                                    { name: "IVI", icon: "ivi"},
+                                    { name: "Okko", icon: "okko"},
+                                    { name: "Apple TV", icon: "apple-tv"},
+                                    { name: "Google Play", icon: "google-play"}
+                                ].map((platform, index) => (
                                     <div
                                         key={index}
                                         className="flex items-center gap-4 p-3 hover:bg-gray-800 rounded-lg transition-colors"
                                     >
-                                        <span className="text-2xl">{platform.icon}</span>
+                                        <Icon
+                                            name={platform.icon as IconName}
+                                            className="fill-ghoukie-green w-12 h-12"
+                                        />
                                         <div className="flex-1">
-                                            <p className="font-medium">{platform.name}</p>
-                                            <p className="text-sm text-gray-400">{platform.price}</p>
+                                            <p className="text-2xl font-victor text-ghoukie-light-gray">{platform.name}</p>
+
                                         </div>
-                                        <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded text-sm font-medium transition-colors">
+                                        <Button variant="toggle" className="">
                                             Смотреть
-                                        </button>
+                                        </Button>
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="mt-6 pt-6 border-t border-gray-700">
-                                <h3 className="text-2xl flex justify-center font-bold font-victor text-center">
-                                    СРЕДНИЙ РЕЙТИНГ
-                                </h3>
-                                <h2 className="text-3xl flex justify-center font-bold font-victor mb-4 text-center">4.5</h2>
-
-                                <div className="flex items-end justify-center h-20 gap-1">
-                                    <div className="flex flex-col items-center h-full justify-end mr-2">
-                                        <StarIcon className="w-5 h-5 text-ghoukie-light-green fill-ghoukie-green" />
-                                    </div>
-
-                                    {[10, 70, 20, 80, 70, 20, 10, 25, 10].map((heightPercent, index) => (
-                                        <div key={index} className="flex flex-col items-center h-full justify-end">
-                                            <div
-                                                className="w-6 rounded bg-ghoukie-white transition-all duration-300"
-                                                style={{ height: `${heightPercent}%` }}
-                                            ></div>
-                                        </div>
-                                    ))}
-
-                                    <div className="flex flex-col items-center h-full justify-end ml-2">
-                                        <div className="flex mb-1">
-                                            <StarIcon className="w-5 h-5 text-ghoukie-light-green fill-ghoukie-green" />
-                                        </div>
-                                        <div className="flex mb-1">
-                                            <StarIcon className="w-5 h-5 text-ghoukie-light-green fill-ghoukie-green" />
-                                            <StarIcon className="w-5 h-5 text-ghoukie-light-green fill-ghoukie-green" />
-                                        </div>
-                                        <div className="flex">
-                                            <StarIcon className="w-5 h-5 text-ghoukie-light-green fill-ghoukie-green" />
-                                            <StarIcon className="w-5 h-5 text-ghoukie-light-green fill-ghoukie-green" />
-                                            <StarIcon className="w-5 h-5 text-ghoukie-light-green fill-ghoukie-green" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <RatingDiagram rating={4.5} />
                         </div>
                     </div>
                 </main>

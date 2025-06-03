@@ -32,6 +32,7 @@ module.exports = {
                 'ghoukie-dark-green': '#4D7A40',
                 'ghoukie-white': '#ECFAEB',
                 'ghoukie-gray': '#5C5C5C',
+                'ghoukie-light-gray': '#8c8c8c',
             },
         },
         fontFamily: {
