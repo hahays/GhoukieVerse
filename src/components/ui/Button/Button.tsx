@@ -11,7 +11,8 @@ const buttonVariants = cva(
                 ghost: 'hover:bg-primary-50 px-0 text-ghoukie-black',
                 danger: 'bg-red-600 text-white hover:bg-red-700',
                 secondary: 'bg-ghoukie-black text-ghoukie-white hover:bg-ghoukie-light-green hover:text-ghoukie-black',
-                toggle: 'whitespace-nowrap w-full transition-all'
+                toggle: 'whitespace-nowrap w-full transition-all',
+                ghostToggle: 'whitespace-nowrap w-full transition-all',
             },
             size: {
                 xs: 'h-7 px-2 text-xs',
@@ -20,7 +21,7 @@ const buttonVariants = cva(
                 lg: 'h-16 px-8 text-2xl',
                 ghost: 'text-xl',
                 icon: 'h-9 w-9',
-                toggle: ''
+                toggle: 'px-4 py-2 text-xl'
             },
             active: {
                 true: '',
@@ -41,6 +42,16 @@ const buttonVariants = cva(
             {
                 variant: 'toggle',
                 className: 'relative rounded-lg p-[1.5px] data-[active=true]:bg-ghoukie-green data-[active=false]:bg-gradient-to-r from-[#000000] to-[#666666]'
+            },
+            {
+                variant: 'ghostToggle',
+                active: false,
+                className: 'text-ghoukie-white hover:bg-ghoukie-light-green hover:text-white'
+            },
+            {
+                variant: 'ghostToggle',
+                active: true,
+                className: 'bg-ghoukie-white text-ghoukie-black'
             }
         ],
         defaultVariants: {

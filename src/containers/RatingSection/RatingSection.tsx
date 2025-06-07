@@ -1,16 +1,36 @@
-import {StarIcon} from "lucide-react";
+import {StarIcon} from "../../components/ui/StarIcon";
 
-export function RatingSection({ rating }: { rating: string }) {
+interface RatingSectionProps {
+    rating: number;
+    size?: "sm" | "md" | "lg";
+    className?: string;
+}
+
+export function RatingSection({rating, size = "md", className = ""}: RatingSectionProps) {
+    const sizes = {
+        sm: "w-4 h-4",
+        md: "w-5 h-5",
+        lg: "w-14 h-14",
+    };
+
+    const sizeClass = sizes[size];
+
     return (
-        <div className="bg-ghoukie-gray p-4 rounded-lg mb-4">
-            <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold">{rating}</span>
-                <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                        <StarIcon key={i} className="w-5 h-5 text-yellow-400" />
-                    ))}
-                </div>
-            </div>
+        <div className={`flex justify-center gap-2 pt-2 items-center ${className}`}>
+            {[1, 2, 3, 4, 5].map((star) => {
+                const isFilled = star <= Math.floor(rating);
+                const isHalf = !isFilled && star - 0.5 <= rating;
+                const widthClass = isFilled ? "w-full" : isHalf ? "w-1/2" : "w-0";
+
+                return (
+                    <div key={star} className="relative">
+                        <StarIcon className={sizeClass} filled={false}/>
+                        <div className={`absolute top-0 left-0 overflow-hidden ${widthClass}`}>
+                            <StarIcon className={sizeClass} filled/>
+                        </div>
+                    </div>
+                );
+            })}
         </div>
     );
 }

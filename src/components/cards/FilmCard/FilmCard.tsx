@@ -9,6 +9,7 @@ import {Icon} from "../../ui/Icon/Icon";
 import {IconName} from "lucide-react/dynamic";
 import {RatingDiagram} from "../../films/RatingDiagram";
 import {Button} from "../../ui/Button";
+import {ActionToggleGroup} from "../../ui/ActionToggleGroup/ActionToggleGroup";
 
 const CastSection = ({persons}: { persons: any[] }) => (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -97,22 +98,16 @@ export function FilmPage({movie, backLink}: FilmPageProps) {
                             />
                         </div>
 
-                        <RatingSection rating={rating}/>
+                        <RatingSection rating={rating} size="lg"/>
 
-                        <div className="mt-4 space-y-2">
-                            <button
-                                className={`w-full px-4 py-2 rounded-md ${watched ? "bg-green-600 text-white" : "bg-green-100 text-green-800"}`}
-                                onClick={() => setWatched(!watched)}
-                            >
-                                {watched ? 'Вы смотрели' : 'Отметить просмотренным'}
-                            </button>
-                            <button
-                                className={`w-full px-4 py-2 rounded-md ${toWatch ? "bg-blue-600 text-white" : "bg-blue-100 text-blue-800"}`}
-                                onClick={() => setToWatch(!toWatch)}
-                            >
-                                {toWatch ? 'В вашем списке' : 'Буду смотреть'}
-                            </button>
-                        </div>
+                        <ActionToggleGroup
+                            options={[
+                                { value: 'watched', label: 'Смотрел' },
+                                { value: 'wantToWatch', label: 'Буду смотреть' },
+                            ]}
+
+                        />
+
                     </div>
 
                     <div className="flex-1">
