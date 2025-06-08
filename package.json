@@ -14,6 +14,7 @@
     "@openmoviedb/kinopoiskdev_client": "^1.3.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.16.0",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.511.0",
     "next": "^15.2.0-canary.53",

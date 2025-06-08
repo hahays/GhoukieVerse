@@ -1,6 +1,6 @@
 'use client';
 import {useRouter} from 'next/navigation';
-import {useState} from 'react';
+import React, {useState} from 'react';
 import {ArrowLeftIcon, StarIcon} from 'lucide-react';
 import Image from 'next/image';
 import {MovieDetails} from "../../../types/film";
@@ -10,6 +10,9 @@ import {IconName} from "lucide-react/dynamic";
 import {RatingDiagram} from "../../films/RatingDiagram";
 import {Button} from "../../ui/Button";
 import {ActionToggleGroup} from "../../ui/ActionToggleGroup/ActionToggleGroup";
+import {Select} from "../../ui/Select/Select";
+import {AddToListDropdown} from "../../ui/AddToListDropdown/AddToListDropdown";
+
 
 const CastSection = ({persons}: { persons: any[] }) => (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -43,8 +46,19 @@ interface FilmPageProps {
 export function FilmPage({movie, backLink}: FilmPageProps) {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<'info' | 'cast' | 'media'>('info');
+
     const [watched, setWatched] = useState(false);
     const [toWatch, setToWatch] = useState(false);
+
+    const lists = [
+        { id: 'favorites', name: 'Избранное', icon: '⭐' },
+        { id: 'watch-later', name: 'Посмотреть позже', icon: '⏱️' },
+        { id: 'custom', name: 'Мой список', icon: '📋' },
+    ];
+
+    const handleAddToList = (listId: string) => {
+
+    };
 
     const handleBack = () => {
         if (backLink && backLink.startsWith('/')) {
@@ -98,15 +112,25 @@ export function FilmPage({movie, backLink}: FilmPageProps) {
                             />
                         </div>
 
-                        <RatingSection rating={rating} size="lg"/>
 
-                        <ActionToggleGroup
-                            options={[
-                                { value: 'watched', label: 'Смотрел' },
-                                { value: 'wantToWatch', label: 'Буду смотреть' },
-                            ]}
 
-                        />
+                       <div className="grid gap-3">
+
+                           <RatingSection rating={rating} size="lg"/>
+                           <ActionToggleGroup
+                               options={[
+                                   { value: 'watched', label: 'Смотрел' },
+                                   { value: 'wantToWatch', label: 'Буду смотреть' },
+                               ]}
+
+                           />
+                           <AddToListDropdown
+                               lists={lists}
+                               onSelect={handleAddToList}
+                               className=""
+                           />
+
+                       </div>
 
                     </div>
 

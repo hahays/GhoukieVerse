@@ -21,7 +21,8 @@ const buttonVariants = cva(
                 lg: 'h-16 px-8 text-2xl',
                 ghost: 'text-xl',
                 icon: 'h-9 w-9',
-                toggle: 'px-4 py-2 text-xl'
+                toggle: 'px-4 py-2 text-xl',
+                ghostToggle: 'px-6 py-3 text-xl',
             },
             active: {
                 true: '',

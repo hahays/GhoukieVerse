@@ -21,16 +21,16 @@ export const ActionToggleGroup = ({
     };
 
     return (
-        <div className="relative w-full max-w-md mx-auto p-2">
+        <div className="relative w-full max-w-md">
             <div className="relative rounded-lg p-[1.5px] bg-gradient-to-r from-[#000000] to-[#666666]">
-                <div className="bg-ghoukie-green shadow-figma rounded-[calc(0.5rem-1.5px)] p-[2px]">
-                    <div className="bg-ghoukie-green rounded-[calc(0.5rem-3.5px)] p-2 flex justify-center gap-2">
+                <div className="bg-ghoukie-green shadow-figma rounded-[calc(0.5rem-1.5px)] py-1">
+                    <div className="bg-ghoukie-green  rounded-[calc(0.5rem-3.5px)] gap-x-1.5 flex justify-center">
                         {options.map((option) => {
                             const isActive = selected === option.value;
                             return (
                                 <Button
                                     key={option.value}
-                                    size="toggle"
+                                    size="ghostToggle"
                                     variant="ghostToggle"
                                     active={isActive}
                                     onClick={() => handleClick(option.value)}

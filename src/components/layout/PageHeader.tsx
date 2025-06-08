@@ -14,7 +14,7 @@ export const PageHeader = ({
                                className = ''
                            }: PageHeaderProps) => {
     return (
-        <section className={`pt-36 text-center pb-16  ${className}`}>
+        <section className={`pt-36 text-center pb-16 ${className}`}>
             <div className="container mx-auto">
                 <h1 className="text-9xl pb-4 font-customBold text-shadow-figma tracking-absolute-18 text-ghoukie-black">
                     {title}
