@@ -21,7 +21,7 @@ export const ActionToggleGroup = ({
     };
 
     return (
-        <div className="relative w-full  max-w-md mx-auto p-2">
+        <div className="relative w-full max-w-md mx-auto p-2">
             <div className="relative rounded-lg p-[1.5px] bg-gradient-to-r from-[#000000] to-[#666666]">
                 <div className="bg-ghoukie-green shadow-figma rounded-[calc(0.5rem-1.5px)] p-[2px]">
                     <div className="bg-ghoukie-green rounded-[calc(0.5rem-3.5px)] p-2 flex justify-center gap-2">

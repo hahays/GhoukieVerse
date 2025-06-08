@@ -77,7 +77,7 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
                         <Logo href="/" logoSize="lg" className="hover:opacity-80"/>
                     </div>
 
-                    <div className="hidden md:flex text-2xl text-ghoukie-black space-x-6">
+                    <div className="hidden md:flex text-2xl text-ghoukie-black space-x-6 flex p">
                         <NavLink href="/">Главная</NavLink>
                         <NavLink href="/GhoukieVerse/src/app/(main)/films">Фильмы</NavLink>
                         <NavLink href="/GhoukieVerse/src/app/(main)/games">Игры</NavLink>

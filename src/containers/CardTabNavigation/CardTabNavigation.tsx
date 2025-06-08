@@ -6,7 +6,7 @@ export function TabNavigation({
     setActiveTab: (tab: string) => void
 }) {
     return (
-        <div className="flex border-b border-ghoukie-light-gray mb-6">
+        <div className="flex border-b border-ghoukie-light-gray mb-6 ы">
             {['info', 'cast', 'media'].map((tab) => (
                 <button
                     key={tab}
