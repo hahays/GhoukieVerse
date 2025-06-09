@@ -12,6 +12,7 @@ import {Button} from "../../ui/Button";
 import {ActionToggleGroup} from "../../ui/ActionToggleGroup/ActionToggleGroup";
 import {Select} from "../../ui/Select/Select";
 import {AddToListDropdown} from "../../ui/AddToListDropdown/AddToListDropdown";
+import {Tabs} from "../../ui/Tabs/Tabs";
 
 
 const CastSection = ({persons}: { persons: any[] }) => (
@@ -135,72 +136,122 @@ export function FilmPage({movie, backLink}: FilmPageProps) {
                     </div>
 
                     <div className="flex-1">
-                        <h1 className="text-3xl font-bold mb-1">{movie.name || movie.alternativeName}</h1>
-                        <p className="text-xl text-gray-600 mb-4">
-                            {movie.alternativeName && <span>{movie.alternativeName} • </span>}
-                            {movie.year}
-                        </p>
+                        <h1 className="text-3xl font-victor font-bold mb-3">{movie.name}</h1>
+                        {movie.alternativeName && (
+                            <p className="text-2xl text-ghoukie-light-gray font-victor mb-3 italic">
+                                {movie.alternativeName}
+                            </p>
+                        )}
 
-                        <div className="flex flex-wrap gap-2 mb-6">
-                            {genres.map((genre, index) => (
-                                <span key={index} className="bg-gray-200 px-3 py-1 rounded-full text-sm">
-                                    {genre}
-                                </span>
-                            ))}
-                            <span className="bg-gray-200 px-3 py-1 rounded-full text-sm">{runtime}</span>
-                            {movie.ageRating && (
-                                <span className="bg-gray-200 px-3 py-1 rounded-full text-sm">
-                                    {movie.ageRating}+
-                                </span>
+                        <div className="flex flex-wrap gap-3 items-center mb-3 text-xl text-ghoukie-light-gray-dark-gray">
+                            {genres.length > 0 && <span>{genres.join(', ')}</span>}
+                            {movie.year && <span className="text-ghoukie-green">• {movie.year}</span>}
+                            {runtime && <span>• {runtime}</span>}
+                            {movie.videos?.trailers?.length > 0 && (
+                                <a
+                                    href={movie.videos.trailers[0].url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="flex items-center gap-1 text-ghoukie-green hover:underline"
+                                >
+                                    <svg
+                                        className="w-4 h-4"
+                                        fill="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path d="M10 8.64L15.27 12L10 15.36V8.64M8 5V19L19 12L8 5Z" />
+                                    </svg>
+                                    Трейлер
+                                </a>
                             )}
                         </div>
 
-                        <div className="flex gap-2 mb-6 border-b border-gray-200 pb-2">
-                            <button
-                                className={`px-4 py-2 rounded-md ${activeTab === 'info' ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-800"}`}
-                                onClick={() => setActiveTab('info')}
-                            >
-                                О фильме
-                            </button>
-                            <button
-                                className={`px-4 py-2 rounded-md ${activeTab === 'cast' ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-800"}`}
-                                onClick={() => setActiveTab('cast')}
-                            >
-                                Актёры
-                            </button>
-                            <button
-                                className={`px-4 py-2 rounded-md ${activeTab === 'media' ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-800"}`}
-                                onClick={() => setActiveTab('media')}
-                            >
-                                Трейлеры
-                            </button>
+                        <div className="flex gap-6 mb-6 border-b border-ghoukie-light-gray/30">
+                            <Tabs
+                                items={[
+                                    { value: 'info', label: 'О фильме' },
+                                    { value: 'cast', label: 'Состав' },
+                                    { value: 'media', label: 'Медиа' }
+                                ]}
+                                value={activeTab}
+                                onChange={(tab) => setActiveTab(tab as 'info' | 'cast' | 'media')}
+                            />
+                            {/* Рейтинги */}
+                            <div className="ml-auto flex gap-4 items-center">
+                                <div className="flex items-center gap-1 text-ghoukie-light-gray">
+                                    <Image
+                                        src="/icons/imdb_rating.svg"
+                                        alt="IMDb"
+                                        width={60}
+                                        height={20}
+                                        className="object-contain"
+                                    />
+                                    <span>{imdbRating?.toFixed(1) || '—'}</span>
+                                </div>
+                                <div className="flex items-center gap-1 text-ghoukie-light-gray">
+                                    <Image
+                                        src="/icons/kinopoisk_rating.svg"
+                                        alt="IMDb"
+                                        width={150}
+                                        height={100}
+                                        className="object-contain"
+                                    />
+                                    <span>{rating?.toFixed(1) || '—'}</span>
+                                </div>
+                            </div>
                         </div>
 
                         {activeTab === 'info' && (
                             <div>
-                                <p className="text-lg mb-6 leading-relaxed">
+                                {/* Описание */}
+                                <p className="text-base text-ghoukie-white leading-relaxed mb-6">
                                     {movie.description || 'Описание отсутствует'}
                                 </p>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                {/* Информация о съёмочной группе */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="bg-gray-100 p-4 rounded-lg">
-                                        <h4 className="text-gray-500 text-sm mb-1">Режиссер</h4>
-                                        <p className="font-medium">
-                                            {directors.map(d => d.name || d.enName).join(', ') || 'Не указано'}
+                                        <h4 className="text-sm text-gray-500 mb-1">Режиссёр</h4>
+                                        <p className="font-medium text-ghoukie-black">
+                                            {movie.persons
+                                                ?.filter(p => p.enProfession === 'director')
+                                                .map(p => p.name)
+                                                .join(', ') || 'Не указано'}
                                         </p>
                                     </div>
                                     <div className="bg-gray-100 p-4 rounded-lg">
-                                        <h4 className="text-gray-500 text-sm mb-1">Страна</h4>
-                                        <p className="font-medium">
-                                            {countries.join(', ') || 'Не указано'}
+                                        <h4 className="text-sm text-gray-500 mb-1">Сценарий</h4>
+                                        <p className="font-medium text-ghoukie-black">
+                                            {movie.persons
+                                                ?.filter(p => p.enProfession === 'writer')
+                                                .map(p => p.name)
+                                                .join(', ') || 'Не указано'}
+                                        </p>
+                                    </div>
+                                    <div className="bg-gray-100 p-4 rounded-lg">
+                                        <h4 className="text-sm text-gray-500 mb-1">Оператор</h4>
+                                        <p className="font-medium text-ghoukie-black">
+                                            {movie.persons
+                                                ?.filter(p => p.enProfession === 'operator')
+                                                .map(p => p.name)
+                                                .join(', ') || 'Не указано'}
+                                        </p>
+                                    </div>
+                                    <div className="bg-gray-100 p-4 rounded-lg">
+                                        <h4 className="text-sm text-gray-500 mb-1">Композитор</h4>
+                                        <p className="font-medium text-ghoukie-black">
+                                            {movie.persons
+                                                ?.filter(p => p.enProfession === 'composer')
+                                                .map(p => p.name)
+                                                .join(', ') || 'Не указано'}
                                         </p>
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {activeTab === 'cast' && <CastSection persons={actors.slice(0, 8)}/>}
-                        {activeTab === 'media' && <MediaSection videos={movie.videos}/>}
+                        {activeTab === 'cast' && <CastSection persons={actors.slice(0, 8)} />}
+                        {activeTab === 'media' && <MediaSection videos={movie.videos} />}
                     </div>
 
                     <div className="relative w-[450px]">

@@ -3,12 +3,14 @@ import IviIcon from '../../../assets/ivi.svg';
 import OkkoIcon from '../../../assets/okko.svg';
 import AppleTvIcon from '../../../assets/apple-tv.svg';
 import GooglePlayIcon from '../../../assets/google-play.svg';
+import ImdbRatingIcon from "../../../../public/icons/imdb_rating.svg"
+import KinoPoiskRatingIcon from "../../../assets/kinopoisk.svg";
 import Image from "next/image";
 
 type PublicIconName = 'addToList' | 'other-icon'; // Добавьте нужные
 
 export type IconName =
-    | 'kinopoisk' | 'ivi' | 'okko' | 'apple-tv' | 'google-play'
+    | 'kinopoisk' | 'ivi' | 'okko' | 'apple-tv' | 'google-play' | 'kinopoiskRating' | 'imdbRating'
     | PublicIconName; // Объединяем типы
 
 interface IconProps {
@@ -17,9 +19,10 @@ interface IconProps {
     className?: string;
 }
 
-// Иконки из assets
 const componentIcons = {
     kinopoisk: KinopoiskIcon,
+    kinopoiskRating: KinoPoiskRatingIcon,
+    imdbRating: ImdbRatingIcon,
     ivi: IviIcon,
     okko: OkkoIcon,
     'apple-tv': AppleTvIcon,
@@ -27,7 +30,6 @@ const componentIcons = {
 } as const;
 
 export const Icon = ({ name, size = 24, className = '' }: IconProps) => {
-    // Если иконка из public/icons/
     if (name === 'addToList') {
         return (
             <Image
@@ -40,7 +42,6 @@ export const Icon = ({ name, size = 24, className = '' }: IconProps) => {
         );
     }
 
-    // Иконки из assets как компоненты
     const SvgIcon = componentIcons[name];
     return <SvgIcon className={className} width={size} height={size} />;
 };
