@@ -13,6 +13,7 @@ import {ActionToggleGroup} from "../../ui/ActionToggleGroup/ActionToggleGroup";
 import {Select} from "../../ui/Select/Select";
 import {AddToListDropdown} from "../../ui/AddToListDropdown/AddToListDropdown";
 import {Tabs} from "../../ui/Tabs/Tabs";
+import {ButtonToggle} from "../../ui/ButtonToggle/ButtonToggle";
 
 
 const CastSection = ({persons}: { persons: any[] }) => (
@@ -143,56 +144,56 @@ export function FilmPage({movie, backLink}: FilmPageProps) {
                             </p>
                         )}
 
-                        <div className="flex flex-wrap gap-3 items-center mb-3 text-xl text-ghoukie-light-gray-dark-gray">
+                        <div className="flex flex-wrap gap-3 items-center mb-4 text-xl text-ghoukie-light-gray-dark-gray">
                             {genres.length > 0 && <span>{genres.join(', ')}</span>}
                             {movie.year && <span className="text-ghoukie-green">• {movie.year}</span>}
                             {runtime && <span>• {runtime}</span>}
                             {movie.videos?.trailers?.length > 0 && (
-                                <a
+                                <a сдф
                                     href={movie.videos.trailers[0].url}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="flex items-center gap-1 text-ghoukie-green hover:underline"
                                 >
-                                    <svg
-                                        className="w-4 h-4"
-                                        fill="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path d="M10 8.64L15.27 12L10 15.36V8.64M8 5V19L19 12L8 5Z" />
-                                    </svg>
+                                    <Image
+                                        src="/icons/youtube.svg"
+                                        alt="IMDb"
+                                        width={30}
+                                        height={20}
+                                        className="object-contain align-middle"
+                                    />
                                     Трейлер
                                 </a>
                             )}
                         </div>
 
-                        <div className="flex gap-6 mb-6 border-b border-ghoukie-light-gray/30">
+                        <div className="flex gap-6 mb-8">
                             <Tabs
                                 items={[
-                                    { value: 'info', label: 'О фильме' },
+                                    { value: 'info', label: 'Инфо' },
                                     { value: 'cast', label: 'Состав' },
                                     { value: 'media', label: 'Медиа' }
                                 ]}
                                 value={activeTab}
                                 onChange={(tab) => setActiveTab(tab as 'info' | 'cast' | 'media')}
+                                className="text-xl font-victor"
                             />
-                            {/* Рейтинги */}
-                            <div className="ml-auto flex gap-4 items-center">
-                                <div className="flex items-center gap-1 text-ghoukie-light-gray">
+                            <div className="flex gap-4 items-center">
+                                <div className="flex items-center text-xl gap-1 text-ghoukie-black">
                                     <Image
                                         src="/icons/imdb_rating.svg"
                                         alt="IMDb"
-                                        width={60}
+                                        width={80}
                                         height={20}
                                         className="object-contain"
                                     />
                                     <span>{imdbRating?.toFixed(1) || '—'}</span>
                                 </div>
-                                <div className="flex items-center gap-1 text-ghoukie-light-gray">
+                                <div className="flex items-center text-xl gap-1 text-ghoukie-black">
                                     <Image
                                         src="/icons/kinopoisk_rating.svg"
                                         alt="IMDb"
-                                        width={150}
+                                        width={230}
                                         height={100}
                                         className="object-contain"
                                     />
@@ -202,44 +203,43 @@ export function FilmPage({movie, backLink}: FilmPageProps) {
                         </div>
 
                         {activeTab === 'info' && (
-                            <div>
-                                {/* Описание */}
-                                <p className="text-base text-ghoukie-white leading-relaxed mb-6">
+                            <div className="pr-6">
+
+                                <p className="text-2xl mb-8 font-victor text-ghoukie-black leading-relaxed">
                                     {movie.description || 'Описание отсутствует'}
                                 </p>
 
-                                {/* Информация о съёмочной группе */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="bg-gray-100 p-4 rounded-lg">
-                                        <h4 className="text-sm text-gray-500 mb-1">Режиссёр</h4>
-                                        <p className="font-medium text-ghoukie-black">
+                                    <div className=" gap-5 items-center">
+                                        <h4 className="text-2xl text-ghoukie-black">Режиссёр</h4>
+                                        <p className="text-xl text-ghoukie-light-gray">
                                             {movie.persons
                                                 ?.filter(p => p.enProfession === 'director')
                                                 .map(p => p.name)
                                                 .join(', ') || 'Не указано'}
                                         </p>
                                     </div>
-                                    <div className="bg-gray-100 p-4 rounded-lg">
-                                        <h4 className="text-sm text-gray-500 mb-1">Сценарий</h4>
-                                        <p className="font-medium text-ghoukie-black">
+                                    <div className=" gap-5 items-center">
+                                        <h4 className="text-2xl text-ghoukie-black">Сценарий</h4>
+                                        <p className="text-xl text-ghoukie-light-gray">
                                             {movie.persons
                                                 ?.filter(p => p.enProfession === 'writer')
                                                 .map(p => p.name)
                                                 .join(', ') || 'Не указано'}
                                         </p>
                                     </div>
-                                    <div className="bg-gray-100 p-4 rounded-lg">
-                                        <h4 className="text-sm text-gray-500 mb-1">Оператор</h4>
-                                        <p className="font-medium text-ghoukie-black">
+                                    <div className=" gap-5 items-center">
+                                        <h4 className="text-2xl text-ghoukie-black">Оператор</h4>
+                                        <p className="text-xl text-ghoukie-light-gray">
                                             {movie.persons
                                                 ?.filter(p => p.enProfession === 'operator')
                                                 .map(p => p.name)
                                                 .join(', ') || 'Не указано'}
                                         </p>
                                     </div>
-                                    <div className="bg-gray-100 p-4 rounded-lg">
-                                        <h4 className="text-sm text-gray-500 mb-1">Композитор</h4>
-                                        <p className="font-medium text-ghoukie-black">
+                                    <div className=" gap-5 items-center">
+                                        <h4 className="text-2xl text-ghoukie-black">Композитор</h4>
+                                        <p className="text-xl text-ghoukie-light-gray">
                                             {movie.persons
                                                 ?.filter(p => p.enProfession === 'composer')
                                                 .map(p => p.name)
@@ -282,9 +282,9 @@ export function FilmPage({movie, backLink}: FilmPageProps) {
                                             <p className="text-2xl font-victor text-ghoukie-light-gray">{platform.name}</p>
 
                                         </div>
-                                        <Button variant="toggle" className="">
+                                        <ButtonToggle variant="toggle" className="">
                                             Смотреть
-                                        </Button>
+                                        </ButtonToggle>
                                     </div>
                                 ))}
                             </div>

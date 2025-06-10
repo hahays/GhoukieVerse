@@ -34,7 +34,7 @@ export const ActionToggleGroup = ({
                                     variant="ghostToggle"
                                     active={isActive}
                                     onClick={() => handleClick(option.value)}
-                                    className="w-full font-victor"
+                                    className=" font-victor"
                                 >
                                     {option.label}
                                 </Button>
