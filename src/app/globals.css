@@ -48,3 +48,20 @@ footer {
 .flex-grow {
     flex-grow: 1;
 }
+
+/* globals.css */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(161, 208, 126, 0.5) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(161, 208, 126, 0.5);
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
