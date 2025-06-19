@@ -90,11 +90,11 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
                             <Search value={query} className="shadow-figma" onChange={setQuery}/>
                         </div>
 
-                        <div className="flex space-x-2">
+                        <Link href="/profile">
                             <Button className="shadow-figma" size="lg">
                                 Профиль
                             </Button>
-                        </div>
+                        </Link>
 
 
                         <button

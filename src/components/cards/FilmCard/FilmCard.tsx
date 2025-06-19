@@ -14,60 +14,68 @@ import {Tabs} from "../../ui/Tabs/Tabs";
 import {ButtonToggle} from "../../ui/ButtonToggle/ButtonToggle";
 
 
-const CastSection = ({persons}: { persons: any[] }) => {
+const CastSection = ({ persons }: { persons: any[] }) => {
     const peopleByProfession = persons?.reduce((acc, person) => {
-        const profession = person.enProfession || 'actor';
+        const profession = person.enProfession || "actor";
         if (!acc[profession]) acc[profession] = [];
         acc[profession].push(person);
         return acc;
-    }, {});
+    }, {} as Record<string, any[]>);
 
     const professionTitles = {
-        director: 'Режиссеры',
-        writer: 'Сценаристы',
-        operator: 'Операторы',
-        composer: 'Композиторы',
-        actor: 'Актеры',
-        designer: 'Художники',
-        producer: 'Продюсеры'
+        director: "Режиссеры",
+        writer: "Сценаристы",
+        operator: "Операторы",
+        composer: "Композиторы",
+        actor: "Актеры",
+        designer: "Художники",
+        producer: "Продюсеры",
     };
 
     return (
         <div className="h-[600px] overflow-y-auto pr-3 custom-scrollbar">
             {Object.entries(peopleByProfession).map(([profession, people]) => (
-                <div key={profession} className="mb-8">
+                <div key={profession} className="mb-10">
                     <h3 className="text-2xl font-victor text-ghoukie-green mb-4">
                         {professionTitles[profession] || profession}
                     </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+                    <div
+                        className="grid gap-6"
+                        style={{
+                            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                        }}
+                    >
                         {people.map((person, index) => (
-                            <div
-                                key={index}
-                                className="bg-ghoukie-black/80 p-3 rounded-lg border border-ghoukie-green/20 hover:border-ghoukie-green transition-all"
-                            >
-                                <div className="relative h-32 mb-2 rounded-md overflow-hidden">
-                                    {person.photo ? (
-                                        <Image
-                                            src={person.photo}
-                                            alt={person.name}
-                                            fill
-                                            className="object-cover"
-                                        />
-                                    ) : (
-                                        <div
-                                            className="w-full h-full bg-ghoukie-green/10 flex items-center justify-center">
-                                            <UserIcon className="w-8 h-8 text-ghoukie-green/50"/>
+                            <div key={index} className="group shrink-0 flex-1">
+                                <div
+                                    className="relative rounded-lg p-[1.5px] bg-gradient-to-r from-[#000000] to-[#666666] group-hover:from-ghoukie-green group-hover:to-ghoukie-green transition-colors"
+                                >
+                                    <div className="bg-ghoukie-black/80 rounded-[calc(0.5rem-1.5px)] p-4 h-full">
+                                        <div className="relative h-40 mb-3 rounded-md overflow-hidden">
+                                            {person.photo ? (
+                                                <Image
+                                                    src={person.photo}
+                                                    alt={person.name}
+                                                    fill
+                                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-ghoukie-green/10 flex items-center justify-center">
+                                                    <UserIcon className="w-8 h-8 text-ghoukie-green/50" />
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
+                                        <p className="font-medium font-victor text-ghoukie-white truncate">
+                                            {person.name || person.enName}
+                                        </p>
+                                        {person.description && (
+                                            <p className="text-xs font-victor text-ghoukie-light-gray truncate">
+                                                {person.description}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
-                                <p className="font-medium text-ghoukie-white truncate">
-                                    {person.name || person.enName}
-                                </p>
-                                {person.description && (
-                                    <p className="text-xs text-ghoukie-light-gray truncate">
-                                        {person.description}
-                                    </p>
-                                )}
                             </div>
                         ))}
                     </div>
