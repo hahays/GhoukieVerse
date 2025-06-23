@@ -1,4 +1,3 @@
-// src/app/(main)/profile/page.tsx
 'use client'
 
 import {useEffect, useState} from 'react'
@@ -8,6 +7,7 @@ import {Tabs} from "../../../components/ui/Tabs/Tabs";
 import {RatingDiagram} from "../../../components/films/RatingDiagram";
 import {Button} from "../../../components/ui/Button";
 import {MovieCard} from "../../../components/cards/MovieCard/MovieCard";
+import {ActionToggleGroup} from "../../../components/ui/ActionToggleGroup/ActionToggleGroup";
 
 type ContentType = 'films' | 'games' | 'anime'
 type ProfileTabType = 'profile' | 'films' | 'favorites' | 'dropped' | 'lists'
@@ -55,7 +55,6 @@ export default function ProfilePage() {
 
             <div className="mt-28 bg-ghoukie-black h-24 w-full"></div>
 
-
             <div className="container mx-auto px-4">
 
                 <div className="flex flex-col md:flex-row gap-8 -mt-12 relative z-10">
@@ -75,15 +74,14 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="flex-1">
-                        <Tabs
-                            items={[
-                                {value: 'films', label: `Фильмы (${favorites.films.length})`},
-                                {value: 'games', label: `Игры (${favorites.games.length})`},
-                                {value: 'anime', label: `Аниме (${favorites.anime.length})`}
+                        <ActionToggleGroup
+                            options={[
+                                { value: 'films', label: `Фильмы (${favorites.films.length})` },
+                                { value: 'games', label: `Игры (${favorites.games.length})` },
+                                { value: 'anime', label: `Аниме (${favorites.anime.length})` }
                             ]}
-                            value={activeContentTab}
-                            onChange={setActiveContentTab}
-                            className="text-xl font-victor"
+                            initial={activeContentTab}
+                            onChange={(value) => setActiveContentTab(value as ContentType)}
                         />
                     </div>
                 </div>
@@ -99,6 +97,8 @@ export default function ProfilePage() {
                         ]}
                         value={activeProfileTab}
                         onChange={setActiveProfileTab}
+                        variant='no-line'
+                        buttonVariant="tabs"
                         className="font-victor"
                     />
                 </div>

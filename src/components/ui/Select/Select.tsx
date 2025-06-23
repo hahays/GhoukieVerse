@@ -11,12 +11,12 @@ export const Select: React.FC<CustomSelectProps> = ({
     return (
         <div className={`relative w-full min-w-[180px] ${className}`}>
             <div className="relative rounded-lg p-[1.5px] bg-gradient-to-r from-[#000000] to-[#666666]">
-                <div className="bg-[#A1D07E] rounded-[calc(0.5rem-1.5px)] p-[2px]">
-                    <div className="bg-[#ECFAEB] rounded-[calc(0.5rem-3.5px)] h-full">
+                <div className="bg-ghoukie-green rounded-[calc(0.5rem-1.5px)] p-[2px]">
+                    <div className="bg-ghoukie-white rounded-[calc(0.5rem-3.5px)] h-full">
                         <select
                             className="w-full pl-4 pr-8 py-2 bg-transparent appearance-none focus:outline-none text-[#1A1A1A] rounded-[calc(0.5rem-3.5px)]">
                             {options.map((option) => (
-                                <option key={option} value={option} className="bg-[#ECFAEB] text-[#1A1A1A]">
+                                <option key={option} value={option} className="bg-ghoukie-white text-ghoukie-white">
                                     {option}
                                 </option>
                             ))}
