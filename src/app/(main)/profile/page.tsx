@@ -1,59 +1,65 @@
+// src/app/(main)/profile/page.tsx
 'use client'
 
-import {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react'
 
-import {ChevronRightIcon, TrashIcon} from 'lucide-react';
+import {ChevronRightIcon, TrashIcon} from 'lucide-react'
+import {Tabs} from "../../../components/ui/Tabs/Tabs";
 import {RatingDiagram} from "../../../components/films/RatingDiagram";
 import {Button} from "../../../components/ui/Button";
 import {MovieCard} from "../../../components/cards/MovieCard/MovieCard";
 
-type ContentType = 'films' | 'games' | 'anime';
-type ProfileTabType = 'profile' | 'films' | 'favorites' | 'dropped' | 'lists';
+type ContentType = 'films' | 'games' | 'anime'
+type ProfileTabType = 'profile' | 'films' | 'favorites' | 'dropped' | 'lists'
 
 export default function ProfilePage() {
-    const [activeContentTab, setActiveContentTab] = useState<ContentType>('films');
-    const [activeProfileTab, setActiveProfileTab] = useState<ProfileTabType>('profile');
+    const [activeContentTab, setActiveContentTab] = useState<ContentType>('films')
+    const [activeProfileTab, setActiveProfileTab] = useState<ProfileTabType>('profile')
     const [favorites, setFavorites] = useState({
         films: [],
         games: [],
         anime: []
-    });
-    const [recentlyWatched, setRecentlyWatched] = useState<any[]>([]);
+    })
+    const [recentlyWatched, setRecentlyWatched] = useState<any[]>([])
 
     useEffect(() => {
-        const storedFavorites = JSON.parse(localStorage.getItem('ghoukie-favorites') || '{}');
-        const storedWatched = JSON.parse(localStorage.getItem('ghoukie-watched') || '[]');
+        const storedFavorites = JSON.parse(localStorage.getItem('ghoukie-favorites') || '{}')
+        const storedWatched = JSON.parse(localStorage.getItem('ghoukie-watched') || '[]')
 
         setFavorites({
             films: storedFavorites.films || [],
             games: storedFavorites.games || [],
             anime: storedFavorites.anime || []
-        });
-
-        setRecentlyWatched(storedWatched.slice(0, 4));
-    }, []);
+        })
+        setRecentlyWatched(storedWatched.slice(0, 4))
+    }, [])
 
     const removeFromFavorites = (id: number, type: ContentType) => {
         const updated = {
             ...favorites,
             [type]: favorites[type].filter(item => item.id !== id)
-        };
-        setFavorites(updated);
-        localStorage.setItem('ghoukie-favorites', JSON.stringify(updated));
-    };
+        }
+        setFavorites(updated)
+        localStorage.setItem('ghoukie-favorites', JSON.stringify(updated))
+    }
 
     const calculateAverageRating = () => {
-        const allFilms = [...favorites.films, ...recentlyWatched];
-        if (allFilms.length === 0) return 0;
-
-        const sum = allFilms.reduce((acc, film) => acc + (film.rating?.kp || 0), 0);
-        return sum / allFilms.length;
-    };
+        const allFilms = [...favorites.films, ...recentlyWatched]
+        if (allFilms.length === 0) return 0
+        const sum = allFilms.reduce((acc, film) => acc + (film.rating?.kp || 0), 0)
+        return sum / allFilms.length
+    }
 
     return (
         <div className="min-h-screen bg-ghoukie-white">
-            <div className="bg-ghoukie-black/5 py-8">
-                <div className="container mx-auto px-4 flex flex-col md:flex-row gap-8">
+
+            <div className="mt-28 bg-ghoukie-black h-24 w-full"></div>
+
+
+            <div className="container mx-auto px-4">
+
+                <div className="flex flex-col md:flex-row gap-8 -mt-12 relative z-10">
+
                     <div className="flex-shrink-0 flex flex-col items-center md:items-start">
                         <div
                             className="w-32 h-32 rounded-full bg-ghoukie-green/20 border-4 border-ghoukie-green overflow-hidden mb-4">
@@ -63,57 +69,46 @@ export default function ProfilePage() {
                                 className="w-full h-full object-cover"
                             />
                         </div>
-                        <h1 className="text-3xl font-victor font-bold text-ghoukie-black">Привет, Путешественник!</h1>
+                        <h1 className="text-3xl font-victor font-bold text-ghoukie-black">
+                            Привет, Путешественник!
+                        </h1>
                     </div>
-                    <div className="flex-1">
-                        <div className="flex border-b border-ghoukie-black/10">
-                            <button
-                                onClick={() => setActiveContentTab('films')}
-                                className={`px-4 py-2 font-victor text-lg ${activeContentTab === 'films' ? 'text-ghoukie-green border-b-2 border-ghoukie-green' : 'text-ghoukie-light-gray'}`}
-                            >
-                                Фильмы ({favorites.films.length})
-                            </button>
-                            <button
-                                onClick={() => setActiveContentTab('games')}
-                                className={`px-4 py-2 font-victor text-lg ${activeContentTab === 'games' ? 'text-ghoukie-green border-b-2 border-ghoukie-green' : 'text-ghoukie-light-gray'}`}
-                            >
-                                Игры ({favorites.games.length})
-                            </button>
-                            <button
-                                onClick={() => setActiveContentTab('anime')}
-                                className={`px-4 py-2 font-victor text-lg ${activeContentTab === 'anime' ? 'text-ghoukie-green border-b-2 border-ghoukie-green' : 'text-ghoukie-light-gray'}`}
-                            >
-                                Аниме ({favorites.anime.length})
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <div className="border-t border-b border-ghoukie-black/10 py-2">
-                <div className="container mx-auto px-4">
-                    <div className="flex space-x-4">
-                        {(['profile', 'films', 'favorites', 'dropped', 'lists'] as ProfileTabType[]).map((tab) => (
-                            <button
-                                key={tab}
-                                onClick={() => setActiveProfileTab(tab)}
-                                className={`px-3 py-1 rounded-full font-victor ${activeProfileTab === tab ? 'bg-ghoukie-green text-white' : 'text-ghoukie-black hover:bg-ghoukie-black/5'}`}
-                            >
-                                {tab === 'profile' && 'Профиль'}
-                                {tab === 'films' && 'Фильмы'}
-                                {tab === 'favorites' && 'Любимые'}
-                                {tab === 'dropped' && 'Брошено'}
-                                {tab === 'lists' && 'Списки'}
-                            </button>
-                        ))}
+                    <div className="flex-1">
+                        <Tabs
+                            items={[
+                                {value: 'films', label: `Фильмы (${favorites.films.length})`},
+                                {value: 'games', label: `Игры (${favorites.games.length})`},
+                                {value: 'anime', label: `Аниме (${favorites.anime.length})`}
+                            ]}
+                            value={activeContentTab}
+                            onChange={setActiveContentTab}
+                            className="text-xl font-victor"
+                        />
                     </div>
                 </div>
-            </div>
-            <div className="container mx-auto px-4 py-8">
+
+                <div className="border-t border-b border-ghoukie-black/10 py-2 my-6">
+                    <Tabs
+                        items={[
+                            {value: 'profile', label: 'Профиль'},
+                            {value: 'films', label: 'Фильмы'},
+                            {value: 'favorites', label: 'Любимые'},
+                            {value: 'dropped', label: 'Брошено'},
+                            {value: 'lists', label: 'Списки'}
+                        ]}
+                        value={activeProfileTab}
+                        onChange={setActiveProfileTab}
+                        className="font-victor"
+                    />
+                </div>
+
                 {activeProfileTab === 'profile' && (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div className="lg:col-span-1 bg-ghoukie-black/5 p-6 rounded-xl">
-                            <h2 className="text-2xl font-victor font-bold mb-4 text-ghoukie-black">Мой рейтинг</h2>
+                            <h2 className="text-2xl font-victor font-bold mb-4 text-ghoukie-black">
+                                Мой рейтинг
+                            </h2>
                             <div className="flex justify-center">
                                 <RatingDiagram rating={calculateAverageRating()} size="lg"/>
                             </div>
@@ -121,9 +116,12 @@ export default function ProfilePage() {
                                 Средняя оценка: {calculateAverageRating().toFixed(1)}
                             </p>
                         </div>
+
                         <div className="lg:col-span-2">
                             <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-2xl font-victor font-bold text-ghoukie-black">Недавно смотрели</h2>
+                                <h2 className="text-2xl font-victor font-bold text-ghoukie-black">
+                                    Недавно смотрели
+                                </h2>
                                 <Button variant="ghost" className="text-ghoukie-green">
                                     Показать все <ChevronRightIcon className="ml-1 w-4 h-4"/>
                                 </Button>
@@ -140,10 +138,12 @@ export default function ProfilePage() {
                                     </p>
                                 )}
                             </div>
+
                             <div className="mt-12">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h2 className="text-2xl font-victor font-bold text-ghoukie-black">Любимые
-                                        фильмы</h2>
+                                    <h2 className="text-2xl font-victor font-bold text-ghoukie-black">
+                                        Любимые фильмы
+                                    </h2>
                                     <Button variant="ghost" className="text-ghoukie-green">
                                         Показать все <ChevronRightIcon className="ml-1 w-4 h-4"/>
                                     </Button>
@@ -174,20 +174,13 @@ export default function ProfilePage() {
                 )}
 
                 {activeProfileTab !== 'profile' && (
-                    <div>
-                        <h2 className="text-2xl font-victor font-bold mb-6 text-ghoukie-black">
-                            {activeProfileTab === 'films' && 'Все фильмы'}
-                            {activeProfileTab === 'favorites' && 'Любимое'}
-                            {activeProfileTab === 'dropped' && 'Брошенное'}
-                            {activeProfileTab === 'lists' && 'Мои списки'}
-                        </h2>
-
-                        <div className="bg-ghoukie-black/5 rounded-xl p-8 text-center">
-                            <p className="text-xl text-ghoukie-light-gray">Раздел в разработке</p>
-                        </div>
+                    <div className="bg-ghoukie-black/5 rounded-xl p-8 text-center">
+                        <p className="text-xl text-ghoukie-light-gray">
+                            Раздел "{activeProfileTab}" в разработке
+                        </p>
                     </div>
                 )}
             </div>
         </div>
-    );
+    )
 }

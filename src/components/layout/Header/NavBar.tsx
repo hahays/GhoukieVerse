@@ -63,7 +63,7 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
     }, [prevScrollPos])
 
     return (
-        <nav className={`fixed w-full transition-all duration-300 z-50 ${
+        <nav className={`fixed w-full h-24 transition-all duration-300 z-50  ${
             visible ? 'top-0' : '-top-24'
         } ${
             scrolled
