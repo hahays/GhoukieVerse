@@ -2,6 +2,10 @@ import Link from "next/link";
 import { Movie } from "../../../types";
 import { useFavorites } from "../../../hooks/useFavorites";
 import {MovieCard} from "../../cards/MovieCard/MovieCard";
+import {GameCard} from "../../cards/GameCard/GameCard";
+import {AnimeCard} from "../../cards/AnimeCard/AnimeCard";
+import {useWatched} from "../../../hooks/useWatched";
+import React from "react";
 
 interface MediaGridProps {
     movies?: Movie[];
@@ -11,8 +15,9 @@ interface MediaGridProps {
     watchedMovies?: Set<number>;
 }
 
-export function MediaGrid({ movies, mediaType, isLoading, error, watchedMovies = new Set() }: MediaGridProps) {
+export function MediaGrid({ movies, mediaType, isLoading, error }: MediaGridProps) {
     const { isFavorite, addToFavorites, removeFromFavorites } = useFavorites();
+    const { isWatched, markAsWatched } = useWatched();
 
     const handleFavoriteClick = (e: React.MouseEvent, movie: Movie) => {
         e.preventDefault();
@@ -31,6 +36,10 @@ export function MediaGrid({ movies, mediaType, isLoading, error, watchedMovies =
                 rating: movie.rating
             }, mediaType);
         }
+    };
+
+    const handleCardClick = (id: number) => {
+        markAsWatched(id, mediaType);
     };
 
     if (isLoading) {
@@ -61,10 +70,11 @@ export function MediaGrid({ movies, mediaType, isLoading, error, watchedMovies =
                     href={`/${mediaType}/${movie.id}`}
                     className="relative group"
                     passHref
+                    onClick={() => handleCardClick(movie.id)}
                 >
-                    {mediaType === 'films' && <MovieCard movie={movie} isWatched={watchedMovies.has(movie.id)} />}
-                    {mediaType === 'games' && <GameCard game={movie} isWatched={watchedMovies.has(movie.id)} />}
-                    {mediaType === 'anime' && <AnimeCard anime={movie} isWatched={watchedMovies.has(movie.id)} />}
+                    {mediaType === 'films' && <MovieCard movie={movie} isWatched={isWatched(movie.id, mediaType)} />}
+                    {mediaType === 'games' && <GameCard game={movie} isWatched={isWatched(movie.id, mediaType)} />}
+                    {mediaType === 'anime' && <AnimeCard anime={movie} isWatched={isWatched(movie.id, mediaType)} />}
                 </Link>
             ))}
         </div>

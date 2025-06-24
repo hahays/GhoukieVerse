@@ -38,12 +38,12 @@ export const Tabs = ({
                         variant={buttonVariant}
                         size={buttonSize}
                         useTabsVariant={true}
-                        activeWrapperClass = 'bg-ghoukie-black'
-                    inactiveWrapperClass = 'bg-gradient-to-r from-[#000000] to-[#666666]'
-                    activeInnerClass = 'bg-ghoukie-green'
-                    inactiveInnerClass = 'bg-ghoukie-green'
-                    activeButtonClass = 'bg-ghoukie-black text-ghoukie-black'
-                    inactiveButtonClass = 'bg-ghoukie-black text-ghoukie-black hover:opacity-80'
+                        activeWrapperClass ='bg-ghoukie-black'
+                    inactiveWrapperClass ='bg-gradient-to-r from-[#000000] to-[#666666]'
+                    activeInnerClass ='bg-ghoukie-green'
+                    inactiveInnerClass ='bg-ghoukie-green'
+                    activeButtonClass ='bg-ghoukie-black text-ghoukie-black'
+                    inactiveButtonClass ='bg-ghoukie-black text-ghoukie-black hover:opacity-80'
                     >
                         {tab.label}
                     </ButtonToggle>

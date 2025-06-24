@@ -1,16 +1,18 @@
 import Image from 'next/image';
-import {EllipsisHorizontalIcon, EyeIcon, HeartIcon} from '@heroicons/react/24/outline';
-import {useFavorites} from "../../../hooks/useFavorites";
-
+import { EyeIcon, HeartIcon, EllipsisHorizontalIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { useFavorites } from "../../../hooks/useFavorites";
+import {useWatched} from "../../../hooks/useWatched";
 
 interface MediaCardProps {
     item: any;
     mediaType: 'films' | 'games' | 'anime';
     isWatched?: boolean;
+    onToggleWatched?: () => void;
 }
 
-export const MediaCard = ({item, mediaType, isWatched = false}: MediaCardProps) => {
-    const {isFavorite, addToFavorites, removeFromFavorites} = useFavorites();
+export const MediaCard = ({ item, mediaType }: MediaCardProps) => {
+    const { isFavorite, addToFavorites, removeFromFavorites } = useFavorites();
+    const { isWatched, toggleWatched } = useWatched();
 
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -20,13 +22,18 @@ export const MediaCard = ({item, mediaType, isWatched = false}: MediaCardProps) 
             : addToFavorites(item, mediaType);
     };
 
+    const handleWatchedClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleWatched(item.id, mediaType);
+    };
+
     const posterUrl = item.poster?.url || null;
     const title = item.name || item.alternativeName || "Без названия";
     const year = item.year ? String(item.year) : "Н/Д";
 
     return (
-        <div
-            className={`relative aspect-[2/3] rounded-lg overflow-hidden transition-all duration-300 ${isWatched ? 'ring-2 ring-ghoukie-green' : ''}`}>
+        <div className={`relative aspect-[2/3] rounded-lg overflow-hidden transition-all duration-300 ${isWatched(item.id, mediaType) ? 'ring-2 ring-ghoukie-green' : ''}`}>
             {posterUrl ? (
                 <Image
                     src={posterUrl}
@@ -40,9 +47,9 @@ export const MediaCard = ({item, mediaType, isWatched = false}: MediaCardProps) 
                     <span className="text-ghoukie-light-gray text-center px-2">{title}</span>
                 </div>
             )}
+
             <div className="absolute inset-0 flex flex-col justify-end pointer-events-none">
-                <div
-                    className="bg-gradient-to-t from-black/90 via-black/70 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-gradient-to-t from-black/90 via-black/70 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <h3 className="text-white font-semibold text-lg text-shadow-figma line-clamp-2 mb-1">
                         {title}
                     </h3>
@@ -60,11 +67,15 @@ export const MediaCard = ({item, mediaType, isWatched = false}: MediaCardProps) 
                 )}
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <button
-                        className="p-2 rounded-full bg-black/70 hover:bg-ghoukie-green transition-colors z-20"
-                        onClick={(e) => e.preventDefault()}
-                        aria-label="Добавить в просмотренные"
+                        className={`p-2 rounded-full transition-colors z-20 ${
+                            isWatched(item.id, mediaType)
+                                ? 'bg-ghoukie-green'
+                                : 'bg-black/70 hover:bg-ghoukie-green'
+                        }`}
+                        onClick={handleWatchedClick}
+                        aria-label={isWatched(item.id, mediaType) ? "Удалить из просмотренных" : "Добавить в просмотренные"}
                     >
-                        <EyeIcon className="w-4 h-4 text-white"/>
+                        <EyeIcon className={`w-4 h-4 text-white ${isWatched(item.id, mediaType) ? 'fill-current' : ''}`}/>
                     </button>
                     <button
                         className={`p-2 rounded-full transition-colors z-20 ${
@@ -87,10 +98,10 @@ export const MediaCard = ({item, mediaType, isWatched = false}: MediaCardProps) 
                     </button>
                 </div>
             </div>
-            {isWatched && (
-                <div
-                    className="absolute top-2 right-2 bg-ghoukie-green text-black text-xs px-2 py-1 rounded-full font-bold pointer-events-none">
-                    ✓
+
+            {isWatched(item.id, mediaType) && (
+                <div className="absolute top-2 right-2 bg-ghoukie-green text-black text-xs px-2 py-1 rounded-full font-bold">
+                    <CheckIcon className="w-3 h-3" />
                 </div>
             )}
         </div>

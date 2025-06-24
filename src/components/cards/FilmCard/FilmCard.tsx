@@ -288,6 +288,8 @@ export function FilmPage({movie, backLink}: FilmPageProps) {
                                 value={activeTab}
                                 onChange={(tab) => setActiveTab(tab as 'info' | 'cast' | 'media')}
                                 className="text-xl font-victor"
+
+
                             />
                             <div className="flex gap-4 items-center">
                                 <div className="flex items-center text-xl gap-1 text-ghoukie-black">
