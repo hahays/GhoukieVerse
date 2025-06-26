@@ -1,4 +1,3 @@
-// src/lib/utils/movies.js
 import { average } from "./math";
 
 export const calculateMovieAverages = (movies) => ({

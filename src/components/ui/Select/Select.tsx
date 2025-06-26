@@ -1,23 +1,51 @@
 import React from 'react';
 
+interface SelectOption {
+    value: string;
+    label: string;
+}
+
 interface CustomSelectProps {
-    options: string[];
+    options: SelectOption[] | string[];
+    value?: string;
+    onChange?: (value: string) => void;
     className?: string;
 }
 
 export const Select: React.FC<CustomSelectProps> = ({
-                                                        options, className = ''
+                                                        options,
+                                                        value,
+                                                        onChange,
+                                                        className = ''
                                                     }) => {
+    const normalizedOptions = options.map(option => {
+        if (typeof option === 'string') {
+            return { value: option, label: option };
+        }
+        return option;
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        onChange?.(e.target.value);
+    };
+
     return (
         <div className={`relative w-full min-w-[180px] ${className}`}>
             <div className="relative rounded-lg p-[1.5px] bg-gradient-to-r from-[#000000] to-[#666666]">
                 <div className="bg-ghoukie-green rounded-[calc(0.5rem-1.5px)] p-[2px]">
                     <div className="bg-ghoukie-white rounded-[calc(0.5rem-3.5px)] h-full">
                         <select
-                            className="w-full pl-4 pr-8 py-2 bg-transparent appearance-none focus:outline-none text-[#1A1A1A] rounded-[calc(0.5rem-3.5px)]">
-                            {options.map((option) => (
-                                <option key={option} value={option} className="bg-ghoukie-white text-ghoukie-white">
-                                    {option}
+                            value={value}
+                            onChange={handleChange}
+                            className="w-full pl-4 pr-8 py-2 bg-transparent appearance-none focus:outline-none text-[#1A1A1A] rounded-[calc(0.5rem-3.5px)]"
+                        >
+                            {normalizedOptions.map((option) => (
+                                <option
+                                    key={option.value}
+                                    value={option.value}
+                                    className="bg-ghoukie-white text-[#1A1A1A]"
+                                >
+                                    {option.label}
                                 </option>
                             ))}
                         </select>
@@ -31,6 +59,4 @@ export const Select: React.FC<CustomSelectProps> = ({
             </div>
         </div>
     );
-
-
-}
+};

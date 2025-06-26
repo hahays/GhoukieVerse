@@ -1,5 +1,6 @@
 import {FilmPage} from "../../../../components/cards/FilmCard/FilmCard";
-import {getMovieDetails} from "../../../../lib/api";
+import {getMovieDetailsServer} from "../../../../lib/utils/server-api";
+
 
 const movieCache = new Map<string, any>();
 
@@ -20,7 +21,7 @@ export default async function Page({
     }
 
     try {
-        const movie = await getMovieDetails(params.id);
+        const movie = await getMovieDetailsServer(params.id);
 
         movieCache.set(params.id, movie);
 
