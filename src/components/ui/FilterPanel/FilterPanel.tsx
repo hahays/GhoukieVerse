@@ -1,8 +1,9 @@
 import {useCallback, useState} from "react";
-import {FilterPanelProps} from "./types";
+import {FilterPanelProps, FilterValues} from "./types";
 import {Select} from "../Select/Select";
 import {ButtonToggle} from "../ButtonToggle/ButtonToggle";
 import {Button} from "../Button";
+import { RangeSelect } from "../RangeSelect/RangeSelect";
 
 export const FilterPanel = ({
                                 genres = [],
@@ -16,14 +17,14 @@ export const FilterPanel = ({
                                 onFilterChange,
                                 className = '',
                             }: FilterPanelProps) => {
-    const [filters, setFilters] = useState({
+    const [filters, setFilters] = useState<FilterValues>({
         watched: false,
         action: false,
         drama: false,
         comedy: false,
         horror: false,
         universe: false,
-        year: '',
+        year: { from: '', to: '' },
         rating: '',
         platform: '',
         genre: '',
@@ -36,6 +37,8 @@ export const FilterPanel = ({
     });
 
     const [isExpanded, setIsExpanded] = useState(false);
+
+
 
     const handleFilterChange = useCallback((filterName: string, value: any) => {
         const newFilters = {
@@ -86,6 +89,19 @@ export const FilterPanel = ({
         }]
     };
 
+    const yearOptions = years.length
+        ? years.map(y => y.value.toString()).filter(y => y !== '')
+        : defaultOptions.years.slice(1).map(y => y.value.toString());
+
+    const handleYearRangeChange = useCallback((value: { from: string; to: string }) => {
+        const newFilters = {
+            ...filters,
+            year: value
+        };
+        setFilters(newFilters);
+        onFilterChange?.(newFilters);
+    }, [filters, onFilterChange]);
+
     return (
         <div className={`pt-36 px-16 w-full rounded-lg p-4 space-y-4 border border-transparent
       bg-clip-padding bg-origin-border before:content-[''] before:absolute before:inset-0 
@@ -93,10 +109,15 @@ export const FilterPanel = ({
 
             <div className="flex flex-wrap gap-4">
                 <div className="flex-1 flex gap-4">
-                    <Select
-                        options={years.length ? [{value: '', label: 'Год'}, ...years] : defaultOptions.years}
-                        value={filters.year}
-                        onChange={(value) => handleFilterChange('year', value)}
+                    <RangeSelect
+                        value={typeof filters.year === 'string'
+                            ? { from: filters.year, to: '' }
+                            : filters.year}
+                        onChange={(range) => handleFilterChange('year', range)}
+                        label="Год выпуска"
+                        minYear={1870}
+                        maxYear={new Date().getFullYear()}
+                        className="min-w-[200px]"
                     />
                     <ButtonToggle
                         label="Просмотрено"
@@ -147,7 +168,6 @@ export const FilterPanel = ({
                 </div>
             </div>
 
-            {/* Вторая строка фильтров (показывается всегда) */}
             <div className="flex flex-wrap gap-4">
                 <div className="flex-1 flex gap-4 min-w-[240px]">
                     <Select

@@ -3,6 +3,12 @@ export interface FilterOption {
     label: string;
 }
 
+export interface FilterValues {
+    watched: boolean;
+    action: boolean;
+    year: string | { from: string; to: string };
+}
+
 export interface FilterPanelProps {
     genres?: FilterOption[];
     years?: FilterOption[];
@@ -12,6 +18,6 @@ export interface FilterPanelProps {
     durations?: FilterOption[];
     dates?: FilterOption[];
     tags?: FilterOption[];
-    onFilterChange?: (filters: Record<string, any>) => void;
+    onFilterChange?: (filters: FilterValues) => void;
     className?: string;
 }

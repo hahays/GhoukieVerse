@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { getTopMovies } from '../lib/api';
 import { Movie } from '../types';
 
-export function useMovies() {
+export function useMovies(initialFilters: { year?: { from?: string; to?: string } } = {}) {
     const [movies, setMovies] = useState<Movie[]>([]);
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(0);
@@ -20,36 +20,50 @@ export function useMovies() {
     const hasMore = movies.length < total;
 
     useEffect(() => {
-        let isMounted = true; // Флаг для избежания утечек памяти
+        // Сбрасываем данные при изменении фильтров
+        setPage(1);
+        setMovies([]);
+        cachedData.current = null;
+    }, [initialFilters.year]);
+
+    useEffect(() => {
+        let isMounted = true;
 
         const fetchMovies = async () => {
             try {
                 setIsLoading(true);
                 setError(null);
 
-                console.log('Fetching movies, page:', page); // Логирование
+                const yearParams = initialFilters.year?.from || initialFilters.year?.to
+                    ? {
+                        from: initialFilters.year.from ? parseInt(initialFilters.year.from) : undefined,
+                        to: initialFilters.year.to ? parseInt(initialFilters.year.to) : undefined
+                    }
+                    : [2024, 2025];
 
-                const data = await getTopMovies(36, page, [2024, 2025]);
-                console.log('Received data:', data); // Логирование
+                console.log('Fetching with params:', { page, yearParams }); // Логирование
+
+                const data = await getTopMovies(36, page, yearParams);
 
                 if (!isMounted) return;
+
+                console.log('Received data:', data); // Логирование
 
                 if (page === 1) {
                     cachedData.current = {
                         movies: data.docs,
                         total: data.total
                     };
+                    setMovies(data.docs);
+                } else {
+                    setMovies(prev => [...prev, ...data.docs]);
                 }
-
-                setMovies(prev =>
-                    page === 1 ? data.docs : [...prev, ...data.docs]
-                );
                 setTotal(data.total);
+
             } catch (err) {
                 if (!isMounted) return;
-
                 const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-                console.error('Error fetching movies:', errorMessage); // Логирование
+                console.error('Error fetching movies:', errorMessage);
                 setError(errorMessage);
             } finally {
                 if (isMounted) {
@@ -61,9 +75,9 @@ export function useMovies() {
         fetchMovies();
 
         return () => {
-            isMounted = false; // Очистка при размонтировании
+            isMounted = false;
         };
-    }, [page]);
+    }, [page, initialFilters.year]);
 
     return { movies, isLoading, error, loadMore, hasMore };
 }

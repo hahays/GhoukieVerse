@@ -63,7 +63,7 @@ export function MediaGrid({ movies, mediaType, isLoading, error }: MediaGridProp
     }
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 mt-8">
+        <div className="grid relative z-0 grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 mt-8">
             {movies.map((movie) => (
                 <Link
                     key={movie.id}

@@ -1,14 +1,22 @@
 import {Movie} from "../types";
-import {MovieDetails} from "../types/film";
+import {MovieDetails, MovieFilterParams} from "../types/film";
 import {fetchWithCache} from "./utils/utils";
 
 export async function getTopMovies(
     limit = 36,
     page = 1,
-    years: number[] = [2024, 2025]
+    years: number[] | { from?: number; to?: number } = [2024, 2025] // Обновляем тип
 ): Promise<{ docs: Movie[]; total: number }> {
     try {
-        const yearQuery = years.map(y => `year=${y}`).join('&');
+        let yearQuery = '';
+
+        if (Array.isArray(years)) {
+            yearQuery = years.map(y => `year=${y}`).join('&');
+        } else {
+            if (years.from) yearQuery += `year=${years.from}`;
+            if (years.to) yearQuery += `&year=${years.to}`;
+        }
+
         const url = `https://api.kinopoisk.dev/v1.4/movie?${yearQuery}&limit=${limit}&page=${page}&sortField=votes.kp&sortType=-1&notNullFields=poster.url&notNullFields=backdrop.url&type=movie`;
 
         console.log('API Request URL:', url);
@@ -56,4 +64,18 @@ export async function getMovieDetails(id: string): Promise<MovieDetails> {
         persons: data.persons || [],
         videos: data.videos || { trailers: [] },
     };
+}
+
+export const movieApi = {
+    async getFilteredMovies(params: MovieFilterParams) {
+        const queryParams = new URLSearchParams();
+
+        if (typeof params.year === 'object') {
+            if (params.year.from) queryParams.append('year', params.year.from);
+            if (params.year.to) queryParams.append('year', params.year.to);
+        } else if (params.year) {
+            queryParams.append('year', params.year);
+        }
+
+    }
 }

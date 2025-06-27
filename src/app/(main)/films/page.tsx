@@ -1,30 +1,20 @@
 'use client'
 
-import React from 'react';
-import { MediaGrid } from "../../../components/ui/MediaGrid/MediaGrid";
-import { useMovieFilters } from "../../../hooks/useMovieFilters";
-import { FilterPanel } from "../../../components/ui/FilterPanel/FilterPanel";
-import { Pagination } from "../../../components/ui/Pagination/Pagination";
-import {MovieFilterParams} from "../../../types/film";
+import React, {useState} from 'react';
+import {MediaGrid} from "../../../components/ui/MediaGrid/MediaGrid";
+import {FilterPanel} from "../../../components/ui/FilterPanel/FilterPanel";
+import {Pagination} from "../../../components/ui/Pagination/Pagination";
+import {useMovies} from "../../../hooks/useMovies";
 
 export default function FilmsPage() {
-    const {
-        movies,
-        isLoading,
-        error,
-        applyFilters,
-        filterOptions
-    } = useMovieFilters();
+    const [filters, setFilters] = useState({
+        year: {from: '', to: ''}
+    });
 
-    const handleFilterChange = (filters: any) => {
-        const apiFilters: MovieFilterParams = {
-            years: filters.year ? [parseInt(filters.year)] : undefined,
-            genres: filters.genre ? [filters.genre] : undefined,
-            countries: filters.country ? [filters.country] : undefined,
-            rating: filters.rating,
-        };
+    const {movies, isLoading, error, loadMore, hasMore} = useMovies(filters);
 
-        applyFilters(apiFilters);
+    const handleFilterChange = (newFilters) => {
+        setFilters(newFilters);
     };
 
     if (isLoading && !movies.length) return <div>Loading...</div>;
@@ -33,8 +23,6 @@ export default function FilmsPage() {
     return (
         <div className="">
             <FilterPanel
-                genres={filterOptions.genres}
-                countries={filterOptions.countries}
                 onFilterChange={handleFilterChange}
             />
 
