@@ -5,3 +5,8 @@ export interface Category {
     bgColor: string;
     hoverColor: string;
 }
+
+export interface FilterOption {
+    value: string;
+    label: string;
+}

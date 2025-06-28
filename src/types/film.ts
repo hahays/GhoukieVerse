@@ -78,12 +78,37 @@ export interface FilmListProps {
     onCloseMovie?: () => void;
 }
 
+export interface MovieResponse {
+    docs: Movie[];
+    total: number;
+    limit: number;
+    page: number;
+    pages: number;
+}
+
+export interface FilterValues {
+    watched: boolean
+    action: boolean
+    drama: boolean
+    comedy: boolean
+    horror: boolean
+    universe: boolean
+    year: { from: string; to: string }
+    rating: string
+    platform: string
+    genre: string
+    country: string
+    duration: string
+    date: string
+    tag: string
+    age: string
+    popularity: string
+}
+
 export interface MovieFilterParams {
-    years?: number[];
-    rating?: string;
-    genres?: string[];
-    countries?: string[];
-    platforms?: string[];
-    limit?: number;
-    page?: number;
+    year: { from: string; to: string };
+    genre: string;
+    action: boolean;
+    country?: string
+    rating?: string
 }

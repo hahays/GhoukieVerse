@@ -19,7 +19,7 @@ export const RangeSelect: React.FC<RangeSelectProps> = ({
                                                             maxYear = new Date().getFullYear(),
                                                         }) => {
     const [open, setOpen] = useState(false);
-    const [tempValue, setTempValue] = useState(value);
+    const [localValue, setLocalValue] = useState(value);
     const containerRef = useRef<HTMLDivElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -29,32 +29,24 @@ export const RangeSelect: React.FC<RangeSelectProps> = ({
     );
 
     useEffect(() => {
-        if (open) setTempValue(value);
+        if (open) {
+            setLocalValue(value);
+        }
     }, [open, value]);
 
-    useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(e.target as Node) &&
-                (!dropdownRef.current || !dropdownRef.current.contains(e.target as Node))) {
-                setOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
     const handleApply = () => {
-        onChange(tempValue);
+        if (localValue.from !== value.from || localValue.to !== value.to) {
+            onChange(localValue);
+        }
         setOpen(false);
     };
 
     const handleReset = () => {
-        setTempValue({ from: '', to: '' });
+        setLocalValue({ from: '', to: '' });
     };
 
     const handleSelect = (key: 'from' | 'to', val: string) => {
-        setTempValue(prev => ({ ...prev, [key]: val }));
+        setLocalValue(prev => ({ ...prev, [key]: val }));
     };
 
     const displayText = value.from || value.to
@@ -101,6 +93,7 @@ export const RangeSelect: React.FC<RangeSelectProps> = ({
                     </div>
                 </div>
             </div>
+
             {open && createPortal(
                 <div
                     ref={dropdownRef}
@@ -123,7 +116,7 @@ export const RangeSelect: React.FC<RangeSelectProps> = ({
                                                     key={`from-${year}`}
                                                     onClick={() => handleSelect('from', year)}
                                                     className={`px-3 py-1 cursor-pointer hover:bg-ghoukie-green/10 ${
-                                                        tempValue.from === year ? 'bg-ghoukie-green text-white' : 'text-[#1A1A1A]'
+                                                        localValue.from === year ? 'bg-ghoukie-green text-white' : 'text-[#1A1A1A]'
                                                     }`}
                                                 >
                                                     {year}
@@ -140,7 +133,7 @@ export const RangeSelect: React.FC<RangeSelectProps> = ({
                                                     key={`to-${year}`}
                                                     onClick={() => handleSelect('to', year)}
                                                     className={`px-3 py-1 cursor-pointer hover:bg-ghoukie-green/10 ${
-                                                        tempValue.to === year ? 'bg-ghoukie-green text-white' : 'text-[#1A1A1A]'
+                                                        localValue.to === year ? 'bg-ghoukie-green text-white' : 'text-[#1A1A1A]'
                                                     }`}
                                                 >
                                                     {year}

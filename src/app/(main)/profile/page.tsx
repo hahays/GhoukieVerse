@@ -28,7 +28,7 @@ export default function ProfilePage() {
             const fromFavorites = favorites.films.find(f => f.id === id);
             return fromFavorites || { id, name: `Фильм #${id}`, rating: {} };
         })
-        .slice(0, 4); // Берем 4 последних
+        .slice(0, 4);
 
     const handleToggleWatched = (id: number) => {
         toggleWatched(id, 'films');

@@ -1,5 +1,6 @@
 import {Geist, Geist_Mono, Vina_Sans, Victor_Mono, Alef} from "next/font/google";
 import './globals.css'
+import StoreProvider from "../stores/provider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -37,7 +38,9 @@ export const metadata = {
 export default function RootLayout({children}) {
     return (
         <html lang="en" className={`${vinaSans.variable} ${victorMono.variable} ${alef.variable}`}>
-        <body>{children}</body>
+        <body>  <StoreProvider>
+            {children}
+        </StoreProvider></body>
         </html>
     );
 }

@@ -1,13 +1,5 @@
-export interface FilterOption {
-    value: string;
-    label: string;
-}
-
-export interface FilterValues {
-    watched: boolean;
-    action: boolean;
-    year: string | { from: string; to: string };
-}
+import {FilterValues} from "../../../types/film";
+import {FilterOption} from "../../../types/general";
 
 export interface FilterPanelProps {
     genres?: FilterOption[];
@@ -19,5 +11,7 @@ export interface FilterPanelProps {
     dates?: FilterOption[];
     tags?: FilterOption[];
     onFilterChange?: (filters: FilterValues) => void;
+    onYearChange: (range: { from: string; to: string }) => void;
+    onGenreChange: (genre: string) => void;
     className?: string;
 }
