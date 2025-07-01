@@ -34,6 +34,24 @@ export const RangeSelect: React.FC<RangeSelectProps> = ({
         }
     }, [open, value]);
 
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target as Node) &&
+                containerRef.current &&
+                !containerRef.current.contains(event.target as Node)
+            ) {
+                setOpen(false);
+            }
+        };
+
+        if (open) {
+            document.addEventListener('mousedown', handleClickOutside);
+            return () => document.removeEventListener('mousedown', handleClickOutside);
+        }
+    }, [open]);
+
     const handleApply = () => {
         if (localValue.from !== value.from || localValue.to !== value.to) {
             onChange(localValue);
@@ -46,7 +64,19 @@ export const RangeSelect: React.FC<RangeSelectProps> = ({
     };
 
     const handleSelect = (key: 'from' | 'to', val: string) => {
-        setLocalValue(prev => ({ ...prev, [key]: val }));
+        // Toggle if clicking the same value
+        if (localValue[key] === val) {
+            setLocalValue(prev => ({ ...prev, [key]: '' }));
+        } else {
+            setLocalValue(prev => ({ ...prev, [key]: val }));
+        }
+    };
+
+    const handleInputChange = (key: 'from' | 'to', e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        if (val === '' || (val.length === 4 && /^\d+$/.test(val))) {
+            setLocalValue(prev => ({ ...prev, [key]: val }));
+        }
     };
 
     const displayText = value.from || value.to
@@ -97,7 +127,7 @@ export const RangeSelect: React.FC<RangeSelectProps> = ({
             {open && createPortal(
                 <div
                     ref={dropdownRef}
-                    className="fixed z-[9999]"
+                    className="fixed z-[9999] bg-white shadow-lg"
                     style={{
                         top: `${position.top}px`,
                         left: `${position.left}px`,
@@ -110,6 +140,14 @@ export const RangeSelect: React.FC<RangeSelectProps> = ({
                                 <div className="flex gap-3">
                                     <div className="flex-1">
                                         <label className="block text-sm font-medium mb-1 text-[#1A1A1A]">От</label>
+                                        <input
+                                            type="text"
+                                            value={localValue.from}
+                                            onChange={(e) => handleInputChange('from', e)}
+                                            className="w-full p-2 mb-2 border border-ghoukie-gray rounded"
+                                            placeholder="Год от"
+                                            maxLength={4}
+                                        />
                                         <div className="max-h-[180px] overflow-y-auto border border-ghoukie-gray rounded">
                                             {years.map(year => (
                                                 <div
@@ -127,6 +165,14 @@ export const RangeSelect: React.FC<RangeSelectProps> = ({
 
                                     <div className="flex-1">
                                         <label className="block text-sm font-medium mb-1 text-[#1A1A1A]">До</label>
+                                        <input
+                                            type="text"
+                                            value={localValue.to}
+                                            onChange={(e) => handleInputChange('to', e)}
+                                            className="w-full p-2 mb-2 border border-ghoukie-gray rounded"
+                                            placeholder="Год до"
+                                            maxLength={4}
+                                        />
                                         <div className="max-h-[180px] overflow-y-auto border border-ghoukie-gray rounded">
                                             {years.map(year => (
                                                 <div

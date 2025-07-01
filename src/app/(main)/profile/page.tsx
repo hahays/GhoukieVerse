@@ -26,7 +26,7 @@ export default function ProfilePage() {
     const recentlyWatched = recentlyWatchedIds
         .map(id => {
             const fromFavorites = favorites.films.find(f => f.id === id);
-            return fromFavorites || { id, name: `Фильм #${id}`, rating: {} };
+            return fromFavorites || {id, name: `Фильм #${id}`, rating: {}};
         })
         .slice(0, 4);
 

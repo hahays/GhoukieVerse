@@ -18,10 +18,17 @@ interface FilmFiltersState extends MovieFilterParams {
 
 const initialState: FilmFiltersState = {
     year: { from: '', to: '' },
-    genre: '',
-    action: false,
-    country: undefined,
-    rating: undefined,
+    genres: [],
+    countries: [],
+    rating: '',
+    platform: '',
+    duration: '',
+    date: '',
+    tag: '',
+    age: '',
+    popularity: '',
+    watched: false,
+    universe: false,
     isInitialized: false
 }
 

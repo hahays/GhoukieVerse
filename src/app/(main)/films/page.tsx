@@ -1,44 +1,66 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { MediaGrid } from "../../../components/ui/MediaGrid/MediaGrid"
 import { FilterPanel } from "../../../components/ui/FilterPanel/FilterPanel"
 import { Pagination } from "../../../components/ui/Pagination/Pagination"
 import { useAppDispatch, useAppSelector } from "../../../stores/hooks"
 import { setFilmFilter, resetFilmFilters } from "../../../stores/slices/films/filmFilters.slice"
 import { useGetTopMoviesQuery } from "../../api/films/films.api"
+import { useDebounce } from "../../../hooks/useDebounce"
 
 export default function FilmsPage() {
     const [page, setPage] = useState(1)
     const filters = useAppSelector(state => state.filmFilters)
     const dispatch = useAppDispatch()
 
-    // Добавляем логирование для отладки
-    console.log('Current filters:', filters)
-    console.log('Current page:', page)
+    const debouncedFilters = useDebounce(filters, 500)
 
-    const { data, isLoading, error, isFetching } = useGetTopMoviesQuery({
-        limit: 36,
-        page,
-        ...(filters.year?.from || filters.year?.to ? { year: filters.year } : {}),
-        ...(filters.genre ? { genre: filters.genre } : {}),
-        ...(filters.country ? { country: filters.country } : {}),
-    }, {
+    const queryParams = useMemo(() => {
+        const params: any = {
+            limit: 36,
+            page,
+        }
+
+        if (debouncedFilters.year?.from || debouncedFilters.year?.to) {
+            params.year = `${debouncedFilters.year.from || ''}-${debouncedFilters.year.to || ''}`
+        }
+
+        if (debouncedFilters.genres?.length) {
+            params['genres.name'] = debouncedFilters.genres
+        }
+
+        if (debouncedFilters.country) {
+            params['countries.name'] = debouncedFilters.country
+        }
+
+        if (debouncedFilters.rating) {
+            params['rating.kp'] = debouncedFilters.rating
+        }
+
+        if (debouncedFilters.platform) {
+            params['platform.name'] = debouncedFilters.platform
+        }
+        if (debouncedFilters.watched) {
+            params.isWatched = true
+        }
+        if (debouncedFilters.universe) {
+            params.isUniverse = true
+        }
+
+        return params
+    }, [debouncedFilters, page])
+
+    const { data, isLoading, error, isFetching } = useGetTopMoviesQuery(queryParams, {
         refetchOnMountOrArgChange: true
     })
 
-    useEffect(() => {
-        console.log('API response:', { data, isLoading, error, isFetching })
-    }, [data, isLoading, error, isFetching])
-
     const handleFilterChange = (newFilters: Partial<typeof filters>) => {
-        console.log('Filter changed:', newFilters)
         setPage(1)
         dispatch(setFilmFilter(newFilters))
     }
 
     const handleResetAll = () => {
-        console.log('Resetting all filters')
         setPage(1)
         dispatch(resetFilmFilters())
     }

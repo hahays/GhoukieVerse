@@ -26,7 +26,9 @@ export const Select: React.FC<CustomSelectProps> = ({
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        onChange?.(e.target.value);
+        const selectedValue = e.target.value;
+        // Если выбрано то же значение, что и сейчас - сбрасываем
+        onChange?.(selectedValue === value ? '' : selectedValue);
     };
 
     return (
@@ -43,7 +45,9 @@ export const Select: React.FC<CustomSelectProps> = ({
                                 <option
                                     key={option.value}
                                     value={option.value}
-                                    className="bg-ghoukie-white text-[#1A1A1A]"
+                                    className={`bg-ghoukie-white text-[#1A1A1A] ${
+                                        value === option.value ? 'bg-ghoukie-green text-white' : ''
+                                    }`}
                                 >
                                     {option.label}
                                 </option>

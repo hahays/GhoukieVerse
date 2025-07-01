@@ -107,8 +107,16 @@ export interface FilterValues {
 
 export interface MovieFilterParams {
     year: { from: string; to: string };
-    genre: string;
-    action: boolean;
-    country?: string
-    rating?: string
+    genres: string[];
+    countries: string[];
+    rating: string;
+    platform: string;
+    duration: string;
+    date: string;
+    tag: string;
+    age: string;
+    popularity: string;
+    watched: boolean;
+    universe: boolean;
+    isInitialized: boolean;
 }

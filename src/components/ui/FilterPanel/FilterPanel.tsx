@@ -89,67 +89,94 @@ export const FilterPanel = ({
     }
 
 
-    const handleResetFilter = (filterName: keyof FilterValues) => {
-        const resetValue = typeof filters[filterName] === 'boolean' ? false :
-            filterName === 'year' ? {from: '', to: ''} : ''
-        handleFilterChange(filterName, resetValue)
+    const handleResetFilter = (filterKey: string, filterValue?: string) => {
+        if (filterKey === 'year') {
+            dispatch(setFilmFilter({ year: { from: '', to: '' } }));
+        }
+        else if (filterKey.startsWith('genre-')) {
+            const genreToRemove = filterValue || filterKey.replace('genre-', '');
+            const newGenres = filters.genres?.filter(g => g !== genreToRemove) || [];
+            dispatch(setFilmFilter({ genres: newGenres }));
+        }
+        else {
+            const resetValue = typeof filters[filterKey as keyof FilterValues] === 'boolean' ? false : '';
+            dispatch(setFilmFilter({ [filterKey]: resetValue }));
+        }
     }
 
 
     const getActiveFilters = () => {
-        const activeFilters: { key: keyof FilterValues; label: string }[] = []
+        const activeFilters: { key: string; label: string; value?: string }[] = [];
 
+        // Год
         if (filters.year.from || filters.year.to) {
             activeFilters.push({
                 key: 'year',
-                label: `Год: ${filters.year.from || ''}-${filters.year.to || ''}`
-            })
+                label: `Год: ${filters.year.from || ''}-${filters.year.to || ''}`,
+                value: 'year'
+            });
+        }
+
+        if (filters.genres?.length) {
+            filters.genres.forEach(genre => {
+                activeFilters.push({
+                    key: `genre-${genre}`,
+                    label: `Жанр: ${genre}`,
+                    value: genre
+                });
+            });
         }
 
         const booleanFilters = [
-            {key: 'action', label: 'Боевик'},
-            {key: 'drama', label: 'Драма'},
-            {key: 'comedy', label: 'Комедия'},
-            {key: 'horror', label: 'Ужасы'},
-            {key: 'universe', label: 'Одна вселенная'},
-            {key: 'watched', label: 'Просмотрено'}
-        ]
+            { key: 'action', label: 'Боевик' },
+            { key: 'drama', label: 'Драма' },
+            { key: 'comedy', label: 'Комедия' },
+            { key: 'horror', label: 'Ужасы' },
+            { key: 'universe', label: 'Одна вселенная' },
+            { key: 'watched', label: 'Просмотрено' }
+        ];
 
-        booleanFilters.forEach(({key, label}) => {
+        booleanFilters.forEach(({ key, label }) => {
             if (filters[key]) {
-                activeFilters.push({key, label})
+                activeFilters.push({ key, label });
             }
-        })
-        const textFilters = [
-            {key: 'rating', label: 'Рейтинг'},
-            {key: 'platform', label: 'Платформа'},
-            {key: 'genre', label: 'Жанр'},
-            {key: 'country', label: 'Страна'},
-            {key: 'duration', label: 'Продолжительность'},
-            {key: 'date', label: 'Дата добавления'},
-            {key: 'tag', label: 'Метка'},
-            {key: 'age', label: 'Возраст'},
-            {key: 'popularity', label: 'Популярность'}
-        ]
+        });
 
-        textFilters.forEach(({key, label}) => {
+        const textFilters = [
+            { key: 'rating', label: 'Рейтинг' },
+            { key: 'platform', label: 'Платформа' },
+            { key: 'country', label: 'Страна' },
+            { key: 'duration', label: 'Продолжительность' },
+            { key: 'date', label: 'Дата добавления' },
+            { key: 'tag', label: 'Метка' },
+            { key: 'age', label: 'Возраст' },
+            { key: 'popularity', label: 'Популярность' }
+        ];
+
+        textFilters.forEach(({ key, label }) => {
             if (filters[key]) {
                 const option = defaultOptions[key as keyof typeof defaultOptions]
-                    .find((opt: any) => opt.value === filters[key])
+                    ?.find((opt: any) => opt.value === filters[key]);
                 if (option) {
-                    activeFilters.push({key, label: `${label}: ${option.label}`})
+                    activeFilters.push({
+                        key,
+                        label: `${label}: ${option.label}`,
+                        value: filters[key]
+                    });
                 }
             }
-        })
+        });
 
-        return activeFilters
-    }
+        return activeFilters;
+    };
 
-    const handleActionToggle = () => {
-        const newValue = !filters.action;
-        dispatch(setFilmFilter({ action: newValue }));
+    const handleGenreToggle = (genre: string) => {
+        const currentGenres = filters.genres || [];
+        const newGenres = currentGenres.includes(genre)
+            ? currentGenres.filter(g => g !== genre)
+            : [...currentGenres, genre]; //
 
-        console.log('Боевик фильтр:', newValue);
+        dispatch(setFilmFilter({ genres: newGenres }));
     };
 
     const handleYearChange = useCallback((range: { from: string; to: string }) => {
@@ -168,6 +195,14 @@ export const FilterPanel = ({
         dispatch(resetFilmFilters());
     }, [dispatch]);
 
+    const handleSelectGenre = (genre: string) => {
+        const currentGenres = filters.genres || [];
+        const newGenres = currentGenres.includes(genre)
+            ? currentGenres.filter(g => g !== genre)
+            : [...currentGenres, genre];
+
+        dispatch(setFilmFilter({ genres: newGenres }));
+    };
 
     const activeFilters = getActiveFilters()
 
@@ -219,13 +254,13 @@ export const FilterPanel = ({
                 <div className="flex flex-wrap gap-1 flex-1">
                     <ButtonToggle
                         label="Боевик"
-                        active={filters.action}
-                        onClick={handleActionToggle}
+                        active={filters.genres?.includes('боевик')}
+                        onClick={() => handleGenreToggle('боевик')}
                     />
                     <ButtonToggle
                         label="Драма"
-                        active={filters.drama}
-                        onClick={() => handleFilterChange('drama', !filters.drama)}
+                        active={filters.genres?.includes('драма')}
+                        onClick={() => handleGenreToggle('драма')}
                     />
                     <ButtonToggle
                         label="Комедия"
@@ -241,9 +276,9 @@ export const FilterPanel = ({
 
                 <div className="flex-1 flex gap-4 min-w-[240px]">
                     <Select
-                        options={genres}
-                        value={filters.genre}
-                        onChange={handleGenreChange}
+                        options={genres.length ? [{ value: '', label: 'Все жанры' }, ...genres] : defaultOptions.genres}
+                        value=""
+                        onChange={handleSelectGenre}
                     />
                     <ButtonToggle
                         label="Одна вселенная"
