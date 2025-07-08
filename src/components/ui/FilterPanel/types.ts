@@ -14,4 +14,8 @@ export interface FilterPanelProps {
     onYearChange: (range: { from: string; to: string }) => void;
     onGenreChange: (genre: string) => void;
     className?: string;
+    onApplyFilters?: () => void
+    previewCount?: number | null
+    isApplying?: boolean
+    isLoadingPreview?: boolean;
 }

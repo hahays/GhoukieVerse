@@ -3,13 +3,13 @@ import {Select} from '../Select/Select'
 import {ButtonToggle} from '../ButtonToggle/ButtonToggle'
 import {Button} from '../Button'
 import {RangeSelect} from '../RangeSelect/RangeSelect'
-import {Trash2} from 'lucide-react'
-
-import {FilterLabel} from "../FilterLabel/FilterLabel";
-import {FilterValues} from "../../../types/film";
-import {FilterPanelProps} from "./types";
-import {useAppDispatch, useAppSelector} from "../../../stores/hooks";
-import {resetFilmFilters, setFilmFilter} from "../../../stores/slices/films/filmFilters.slice";
+import {ChevronDown, Trash2} from 'lucide-react'
+import {FilterLabel} from "../FilterLabel/FilterLabel"
+import {FilterValues} from "../../../types/film"
+import {FilterPanelProps} from "./types"
+import {useAppDispatch, useAppSelector} from "../../../stores/hooks"
+import {resetFilmFilters, setFilmFilter} from "../../../stores/slices/films/filmFilters.slice"
+import {Spinner} from "../Spinner/Spinner"
 
 export const FilterPanel = ({
                                 genres = [],
@@ -22,12 +22,13 @@ export const FilterPanel = ({
                                 tags = [],
                                 onFilterChange,
                                 className = '',
-                                onYearChange,
-                                onGenreChange,
+                                onApplyFilters,
+                                previewCount,
+                                isLoadingPreview,
                             }: FilterPanelProps) => {
-    const dispatch = useAppDispatch();
-    const filters = useAppSelector(state => state.filmFilters);
-    const [isExpanded, setIsExpanded] = useState(false);
+    const dispatch = useAppDispatch()
+    const filters = useAppSelector(state => state.filmFilters)
+    const [isExpanded, setIsExpanded] = useState(false)
 
     const defaultOptions = {
         years: [
@@ -88,133 +89,98 @@ export const FilterPanel = ({
         ]
     }
 
-
-    const handleResetFilter = (filterKey: string, filterValue?: string) => {
-        if (filterKey === 'year') {
-            dispatch(setFilmFilter({ year: { from: '', to: '' } }));
-        }
-        else if (filterKey.startsWith('genre-')) {
-            const genreToRemove = filterValue || filterKey.replace('genre-', '');
-            const newGenres = filters.genres?.filter(g => g !== genreToRemove) || [];
-            dispatch(setFilmFilter({ genres: newGenres }));
-        }
-        else {
-            const resetValue = typeof filters[filterKey as keyof FilterValues] === 'boolean' ? false : '';
-            dispatch(setFilmFilter({ [filterKey]: resetValue }));
-        }
+    const handleResetFilter = (filterName: keyof FilterValues) => {
+        const resetValue = typeof filters[filterName] === 'boolean' ? false :
+            filterName === 'year' ? {from: '', to: ''} : ''
+        onFilterChange({[filterName]: resetValue})
     }
 
-
     const getActiveFilters = () => {
-        const activeFilters: { key: string; label: string; value?: string }[] = [];
+        const activeFilters: {key: keyof FilterValues; label: string}[] = []
 
-        // Год
-        if (filters.year.from || filters.year.to) {
+        if (filters.year?.from || filters.year?.to) {
             activeFilters.push({
                 key: 'year',
-                label: `Год: ${filters.year.from || ''}-${filters.year.to || ''}`,
-                value: 'year'
-            });
+                label: `Год: ${filters.year.from || ''}-${filters.year.to || ''}`
+            })
         }
+
 
         if (filters.genres?.length) {
             filters.genres.forEach(genre => {
                 activeFilters.push({
-                    key: `genre-${genre}`,
-                    label: `Жанр: ${genre}`,
-                    value: genre
-                });
-            });
+                    key: 'genres',
+                    label: `Жанр: ${genre}`
+                })
+            })
         }
+        const filterTypes = [
+            {key: 'rating', label: 'Рейтинг'},
+            {key: 'platform', label: 'Платформа'},
+            {key: 'country', label: 'Страна'},
+            {key: 'duration', label: 'Продолжительность'},
+            {key: 'date', label: 'Дата добавления'},
+            {key: 'tag', label: 'Метка'},
+            {key: 'age', label: 'Возраст'},
+            {key: 'popularity', label: 'Популярность'},
+            {key: 'action', label: 'Боевик'},
+            {key: 'drama', label: 'Драма'},
+            {key: 'comedy', label: 'Комедия'},
+            {key: 'horror', label: 'Ужасы'},
+            {key: 'universe', label: 'Одна вселенная'},
+            {key: 'watched', label: 'Просмотрено'}
+        ]
 
-        const booleanFilters = [
-            { key: 'action', label: 'Боевик' },
-            { key: 'drama', label: 'Драма' },
-            { key: 'comedy', label: 'Комедия' },
-            { key: 'horror', label: 'Ужасы' },
-            { key: 'universe', label: 'Одна вселенная' },
-            { key: 'watched', label: 'Просмотрено' }
-        ];
-
-        booleanFilters.forEach(({ key, label }) => {
+        filterTypes.forEach(({key, label}) => {
             if (filters[key]) {
-                activeFilters.push({ key, label });
-            }
-        });
-
-        const textFilters = [
-            { key: 'rating', label: 'Рейтинг' },
-            { key: 'platform', label: 'Платформа' },
-            { key: 'country', label: 'Страна' },
-            { key: 'duration', label: 'Продолжительность' },
-            { key: 'date', label: 'Дата добавления' },
-            { key: 'tag', label: 'Метка' },
-            { key: 'age', label: 'Возраст' },
-            { key: 'popularity', label: 'Популярность' }
-        ];
-
-        textFilters.forEach(({ key, label }) => {
-            if (filters[key]) {
-                const option = defaultOptions[key as keyof typeof defaultOptions]
-                    ?.find((opt: any) => opt.value === filters[key]);
-                if (option) {
-                    activeFilters.push({
-                        key,
-                        label: `${label}: ${option.label}`,
-                        value: filters[key]
-                    });
+                if (typeof filters[key] === 'boolean') {
+                    activeFilters.push({key, label})
+                } else {
+                    const option = defaultOptions[key as keyof typeof defaultOptions]
+                        ?.find((opt: any) => opt.value === filters[key])
+                    if (option) {
+                        activeFilters.push({
+                            key,
+                            label: `${label}: ${option.label}`
+                        })
+                    }
                 }
             }
-        });
+        })
 
-        return activeFilters;
-    };
+        return activeFilters
+    }
+
+    const handleYearChange = useCallback((range: {from: string; to: string}) => {
+        onFilterChange({year: range})
+    }, [onFilterChange])
 
     const handleGenreToggle = (genre: string) => {
-        const currentGenres = filters.genres || [];
+        const currentGenres = filters.genres || []
         const newGenres = currentGenres.includes(genre)
             ? currentGenres.filter(g => g !== genre)
-            : [...currentGenres, genre]; //
+            : [...currentGenres, genre]
+        onFilterChange({genres: newGenres})
+    }
 
-        dispatch(setFilmFilter({ genres: newGenres }));
-    };
-
-    const handleYearChange = useCallback((range: { from: string; to: string }) => {
-        dispatch(setFilmFilter({year: range}));
-    }, [dispatch]);
-
-    const handleGenreChange = useCallback((genre: string) => {
-        dispatch(setFilmFilter({genre}));
-    }, [dispatch]);
-
-    const handleToggleFilter = useCallback((filterName: keyof FilterValues, value: any) => {
-        dispatch(setFilmFilter({[filterName]: value}));
-    }, [dispatch]);
+    const handleToggleFilter = (filterName: keyof FilterValues, value: any) => {
+        onFilterChange({[filterName]: value})
+    }
 
     const handleResetAll = useCallback(() => {
-        dispatch(resetFilmFilters());
-    }, [dispatch]);
-
-    const handleSelectGenre = (genre: string) => {
-        const currentGenres = filters.genres || [];
-        const newGenres = currentGenres.includes(genre)
-            ? currentGenres.filter(g => g !== genre)
-            : [...currentGenres, genre];
-
-        dispatch(setFilmFilter({ genres: newGenres }));
-    };
+        dispatch(resetFilmFilters())
+    }, [dispatch])
 
     const activeFilters = getActiveFilters()
 
     return (
-        <div
-            className={`pt-36 px-16 w-full rounded-lg p-4 space-y-4 border border-transparent bg-clip-padding bg-origin-border before:content-[''] before:absolute before:inset-0 before:rounded-lg before:p-[1px] before:bg-gradient-to-r before:-z-10 relative z-0 ${className}`}>
+        <div className={`pt-36 px-16 w-full rounded-lg p-4 space-y-4 border border-transparent bg-clip-padding bg-origin-border before:content-[''] before:absolute before:inset-0 before:rounded-lg before:p-[1px] before:bg-gradient-to-r before:-z-10 relative z-0 ${className}`}>
             {activeFilters.length > 0 && (
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-4 p-2 bg-gray-50 rounded-lg">
                     <div className="flex flex-wrap items-center gap-2">
                         {activeFilters.map(({key, label}) => (
                             <FilterLabel
-                                key={key}
+                                key={`${key}-${label}`}
                                 label={label}
                                 onRemove={() => handleResetFilter(key)}
                             />
@@ -235,19 +201,19 @@ export const FilterPanel = ({
             <div className="flex flex-wrap gap-4">
                 <div className="flex-1 flex gap-4">
                     <RangeSelect
-                        value={filters.year}
+                        value={filters.year || {from: '', to: ''}}
                         onChange={handleYearChange}
                         label="Год выпуска"
                     />
                     <ButtonToggle
                         label="Просмотрено"
-                        active={filters.watched}
-                        onClick={() => handleFilterChange('watched', !filters.watched)}
+                        active={!!filters.watched}
+                        onClick={() => handleToggleFilter('watched', !filters.watched)}
                     />
                     <Select
                         options={ratings.length ? [{value: '', label: 'Рейтинг'}, ...ratings] : defaultOptions.ratings}
-                        value={filters.rating}
-                        onChange={(value) => handleFilterChange('rating', value)}
+                        value={filters.rating || ''}
+                        onChange={(value) => handleToggleFilter('rating', value)}
                     />
                 </div>
 
@@ -264,26 +230,26 @@ export const FilterPanel = ({
                     />
                     <ButtonToggle
                         label="Комедия"
-                        active={filters.comedy}
-                        onClick={() => handleFilterChange('comedy', !filters.comedy)}
+                        active={!!filters.comedy}
+                        onClick={() => handleToggleFilter('comedy', !filters.comedy)}
                     />
                     <ButtonToggle
                         label="Ужасы"
-                        active={filters.horror}
-                        onClick={() => handleFilterChange('horror', !filters.horror)}
+                        active={!!filters.horror}
+                        onClick={() => handleToggleFilter('horror', !filters.horror)}
                     />
                 </div>
 
                 <div className="flex-1 flex gap-4 min-w-[240px]">
                     <Select
-                        options={genres.length ? [{ value: '', label: 'Все жанры' }, ...genres] : defaultOptions.genres}
+                        options={genres.length ? [{value: '', label: 'Все жанры'}, ...genres] : defaultOptions.genres}
                         value=""
-                        onChange={handleSelectGenre}
+                        onChange={(value) => handleGenreToggle(value)}
                     />
                     <ButtonToggle
                         label="Одна вселенная"
-                        active={filters.universe}
-                        onClick={() => handleFilterChange('universe', !filters.universe)}
+                        active={!!filters.universe}
+                        onClick={() => handleToggleFilter('universe', !filters.universe)}
                     />
                 </div>
             </div>
@@ -291,85 +257,72 @@ export const FilterPanel = ({
             <div className="flex flex-wrap gap-4">
                 <div className="flex-1 flex gap-4 min-w-[240px]">
                     <Select
-                        options={platforms.length ? [{
-                            value: '',
-                            label: 'Платформа'
-                        }, ...platforms] : defaultOptions.platforms}
-                        value={filters.platform}
-                        onChange={(value) => handleFilterChange('platform', value)}
+                        options={platforms.length ? [{value: '', label: 'Платформа'}, ...platforms] : defaultOptions.platforms}
+                        value={filters.platform || ''}
+                        onChange={(value) => handleToggleFilter('platform', value)}
                     />
                     <Select
                         options={defaultOptions.ages}
-                        value={filters.age}
-                        onChange={(value) => handleFilterChange('age', value)}
+                        value={filters.age || ''}
+                        onChange={(value) => handleToggleFilter('age', value)}
                     />
                     <Select
                         options={defaultOptions.popularities}
-                        value={filters.popularity}
-                        onChange={(value) => handleFilterChange('popularity', value)}
+                        value={filters.popularity || ''}
+                        onChange={(value) => handleToggleFilter('popularity', value)}
                     />
                 </div>
 
                 <div className="flex-1 flex gap-4 min-w-[240px]">
                     <Select
-                        options={durations.length ? [{
-                            value: '',
-                            label: 'Продолжительность'
-                        }, ...durations] : defaultOptions.durations}
-                        value={filters.duration}
-                        onChange={(value) => handleFilterChange('duration', value)}
+                        options={durations.length ? [{value: '', label: 'Продолжительность'}, ...durations] : defaultOptions.durations}
+                        value={filters.duration || ''}
+                        onChange={(value) => handleToggleFilter('duration', value)}
                     />
                     <Select
-                        options={dates.length ? [{
-                            value: '',
-                            label: 'Дата добавления'
-                        }, ...dates] : defaultOptions.dates}
-                        value={filters.date}
-                        onChange={(value) => handleFilterChange('date', value)}
+                        options={dates.length ? [{value: '', label: 'Дата добавления'}, ...dates] : defaultOptions.dates}
+                        value={filters.date || ''}
+                        onChange={(value) => handleToggleFilter('date', value)}
                     />
                 </div>
 
                 <div className="flex-1 flex gap-4 min-w-[240px]">
                     <Select
                         options={tags.length ? [{value: '', label: 'Метки'}, ...tags] : defaultOptions.tags}
-                        value={filters.tag}
-                        onChange={(value) => handleFilterChange('tag', value)}
+                        value={filters.tag || ''}
+                        onChange={(value) => handleToggleFilter('tag', value)}
                     />
                     <Select
-                        options={countries.length ? [{
-                            value: '',
-                            label: 'Страна'
-                        }, ...countries] : defaultOptions.countries}
-                        value={filters.country}
-                        onChange={(value) => handleFilterChange('country', value)}
+                        options={countries.length ? [{value: '', label: 'Страна'}, ...countries] : defaultOptions.countries}
+                        value={filters.country || ''}
+                        onChange={(value) => handleToggleFilter('country', value)}
                     />
                 </div>
             </div>
 
-            <div className="flex">
+            <div className="flex items-center justify-between mt-4">
                 <Button
                     variant="ghost"
                     size="ghost"
-                    className="text-black hover:bg-transparent hover:text-ghoukie-light-green gap-2"
                     onClick={() => setIsExpanded(!isExpanded)}
+                    className="text-black hover:bg-transparent hover:text-ghoukie-light-green gap-2"
                 >
-                    {isExpanded ? 'Скрыть' : 'Показать все'}
-                    <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-                    >
-                        <path
-                            d="M6 9L12 15L18 9"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
+                    {isExpanded ? 'Скрыть фильтры' : 'Все фильтры'}
+                    <ChevronDown className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                </Button>
+
+                <Button
+                    onClick={onApplyFilters}
+                    disabled={isLoadingPreview || previewCount === null}
+                    className="bg-ghoukie-green hover:bg-ghoukie-dark-green text-white min-w-[120px]"
+                >
+                    {isLoadingPreview ? (
+                        <Spinner className="w-4 h-4" />
+                    ) : previewCount !== null ? (
+                        `Показать ${previewCount}`
+                    ) : (
+                        'Применить'
+                    )}
                 </Button>
             </div>
         </div>
