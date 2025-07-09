@@ -8,12 +8,15 @@ import {Pagination} from "../../../components/ui/Pagination/Pagination"
 import {useAppDispatch, useAppSelector} from "../../../stores/hooks"
 import {resetFilmFilters, setFilmFilter} from "../../../stores/slices/films/filmFilters.slice"
 import {filmsApi, useGetTopMoviesQuery} from "../../api/films/films.api"
+import {useFilmFilters} from "../../../hooks/useFilmFilters";
+import {useGenres} from "../../../hooks/useGenges";
 
 export default function FilmsPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const dispatch = useAppDispatch()
     const filters = useAppSelector(state => state.filmFilters)
+    const { genres: apiGenres, isLoading: genresLoading } = useGenres();
 
     const [page, setPage] = useState(1)
     const [isLoadingPreview, setIsLoadingPreview] = useState(false)
@@ -48,18 +51,22 @@ export default function FilmsPage() {
         const params: any = {
             limit: 36,
             page,
-        }
+        };
 
         if (appliedFilters?.year?.from || appliedFilters?.year?.to) {
-            params.year = `${appliedFilters.year.from || ''}-${appliedFilters.year.to || ''}`
+            params.year = `${appliedFilters.year.from || ''}-${appliedFilters.year.to || ''}`;
         }
 
         if (appliedFilters?.genres?.length) {
-            params['genres.name'] = appliedFilters.genres
+            params['genres.name'] = appliedFilters.genres;
         }
 
-        return params
-    }, [appliedFilters, page])
+        params.headers = {
+            'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || ''
+        };
+
+        return params;
+    }, [appliedFilters, page]);
 
     const {data, isLoading, error, isFetching} = useGetTopMoviesQuery(queryParams)
 
@@ -124,6 +131,7 @@ export default function FilmsPage() {
                 onResetAll={handleResetAll}
                 onApplyFilters={handleApplyFilters}
                 previewCount={previewCount}
+                genres={apiGenres}
                 isLoadingPreview={isLoadingPreview}
             />
 

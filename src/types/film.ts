@@ -1,5 +1,6 @@
 
 export interface Movie {
+    watchability: any;
     id: number;
     name: string;
     alternativeName?: string;
@@ -103,6 +104,21 @@ export interface FilterValues {
     tag: string
     age: string
     popularity: string
+    favorite: boolean;
+    language: string;
+    actor: string;
+    award: string;
+    actors: string;
+    directors: string;
+    is3d: boolean;
+    isImax: boolean;
+    genres: string[];
+    'rating.imdb'?: string;
+    'rating.kp'?: string;
+    'genres.name'?: string[];
+    'sequelsAndPrequels.id'?: { $exists: boolean };
+    'similarMovies.id'?: { $exists: boolean; $nin: (null | string)[] };
+    'top250'?: { $exists: boolean; $lte: number };
 }
 
 export interface MovieFilterParams {
@@ -119,4 +135,17 @@ export interface MovieFilterParams {
     watched: boolean;
     universe: boolean;
     isInitialized: boolean;
+    favorite: boolean;
+    actor: string;
+    language?: string;
+    'persons.name'?: string;
+    'awards.name'?: string;
+    is3d?: boolean;
+    isImax?: boolean;
+    'rating.imdb'?: string;
+    'rating.kp'?: string;
+    'genres.name'?: string[];
+    'sequelsAndPrequels.id'?: { $exists: boolean };
+    'similarMovies.id'?: { $exists: boolean; $nin: (null | string)[] };
+    'top250'?: { $exists: boolean; $lte: number };
 }

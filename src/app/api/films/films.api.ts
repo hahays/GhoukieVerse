@@ -8,10 +8,27 @@ export const filmsApi = kinoApi.injectEndpoints({
             limit?: number
             page?: number
             year?: string;
-            'genres.name'?: string[];
             'countries.name'?: string;
             watched?: boolean;
+            budget?: string;
+            language?: string;
+            isImax?: boolean;
+            'watchability.items.name'?: string;
+            ageRating?: { $gte?: number };
+            movieLength?: { $lt?: number; $gte?: number; $lte?: number } | number;
+            is3d?: boolean;
+            'productionCompanies.name'?: string;
+            'awards.name'?: string;
+            'persons.name'?: string;
+            'persons.enProfession'?: string;
+            'names.language'?: string;
             universe?: boolean;
+            'rating.imdb'?: string;
+            'rating.kp'?: string;
+            'genres.name'?: string[];
+            'sequelsAndPrequels.id'?: { $exists: boolean };
+            'similarMovies.id'?: { $exists: boolean; $nin: (null | string)[] };
+            'top250'?: { $exists: boolean; $lte: number };
         }>({
             query: (params) => {
                 const queryParams = new URLSearchParams()
@@ -27,6 +44,45 @@ export const filmsApi = kinoApi.injectEndpoints({
                 if (params['countries.name']) queryParams.append('countries.name', params['countries.name']);
                 if (params.watched) queryParams.append('isWatched', 'true');
                 if (params.universe) queryParams.append('isUniverse', 'true');
+
+                if (params.ageRating) queryParams.append('ageRating', params.ageRating);
+                if (params['persons.name']) queryParams.append('persons.name', params['persons.name']);
+                if (params.language) queryParams.append('language', params.language);
+
+                if (params.language) queryParams.append('language', params.language);
+                if (params['awards.name']) queryParams.append('awards.name', params['awards.name']);
+                if (params.is3d) queryParams.append('is3d', 'true');
+                if (params.isImax) queryParams.append('isImax', 'true');
+
+                if (params['rating.imdb']) {
+                    queryParams.append('rating.imdb', params['rating.imdb']);
+                } else if (params['rating.kp']) {
+                    queryParams.append('rating.kp', params['rating.kp']);
+                }
+
+                if (params['genres.name']) {
+                    params['genres.name'].forEach(genre => {
+                        queryParams.append('genres.name', genre);
+                    });
+                }
+
+                if (params['top250']?.$exists) {
+                    queryParams.append('top250', '!null');
+                    queryParams.append('top250', `<=${params['top250'].$lte}`);
+                }
+
+                if (params['sequelsAndPrequels.id']?.$exists) {
+                    queryParams.append('sequelsAndPrequels.id', 'exists');
+                } else if (params['similarMovies.id']?.$exists) {
+                    queryParams.append('similarMovies.id', 'exists');
+                }
+
+                if (params['watchability.items.name']) {
+                    queryParams.append('watchability.items.name', params['watchability.items.name']);
+                }
+                if (params.ageRating) {
+                    queryParams.append('ageRating', JSON.stringify(params.ageRating));
+                }
 
                 queryParams.append('sortField', 'votes.kp')
                 queryParams.append('sortType', '-1')

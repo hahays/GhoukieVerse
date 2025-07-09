@@ -8,8 +8,12 @@ import {FilterLabel} from "../FilterLabel/FilterLabel"
 import {FilterValues} from "../../../types/film"
 import {FilterPanelProps} from "./types"
 import {useAppDispatch, useAppSelector} from "../../../stores/hooks"
-import {resetFilmFilters, setFilmFilter} from "../../../stores/slices/films/filmFilters.slice"
+import {resetFilmFilters} from "../../../stores/slices/films/filmFilters.slice"
 import {Spinner} from "../Spinner/Spinner"
+import {Collapse} from '../Collapse/Collapse'
+import {SearchInput} from "../SearchInput/SearchInput";
+import {useFilmFiltersData} from "../../../hooks/useFilmFiltersData";
+import {useGenres} from "../../../hooks/useGenges";
 
 export const FilterPanel = ({
                                 genres = [],
@@ -29,9 +33,66 @@ export const FilterPanel = ({
     const dispatch = useAppDispatch()
     const filters = useAppSelector(state => state.filmFilters)
     const [isExpanded, setIsExpanded] = useState(false)
+    const [ratingType, setRatingType] = useState<'kp' | 'imdb' | 'tmdb'>('kp');
+    const [ratingRange, setRatingRange] = useState<{min: string, max: string}>({min: '', max: ''});
+
+    const {
+        countries: apiCountries,
+        years: apiYears,
+        platforms: apiPlatforms,
+        awards: apiAwards,
+        isLoading: isLoadingFilters,
+        error: filtersError
+    } = useFilmFiltersData();
+
+    const { genres: apiGenres, isLoading: genresLoading } = useGenres();
+
+    const safeApiYears = apiYears || [];
+    const safeApiGenres = apiGenres || [];
+    const safeApiCountries = apiCountries || [];
+
+    const handleGenreToggle = (genre: string) => {
+        const currentGenres = filters.genres || [];
+        const newGenres = currentGenres.includes(genre)
+            ? currentGenres.filter(g => g !== genre)
+            : [...currentGenres, genre];
+
+        onFilterChange({
+            genres: newGenres,
+            'genres.name': newGenres.length > 0 ? newGenres : undefined
+        });
+    };
+
+
+    const ratingOptions = [
+        { value: '', label: 'Рейтинг' },
+        { value: '9-10', label: '9+ (Отлично)' },
+        { value: '8-10', label: '8+ (Очень хорошо)' },
+        { value: '7-10', label: '7+ (Хорошо)' },
+        { value: '6-10', label: '6+ (Неплохо)' },
+        { value: '5-10', label: '5+ (Так себе)' }
+    ];
+
+    const handleRatingChange = (value: string) => {
+        if (!value) {
+            onFilterChange({
+                rating: '',
+                'rating.imdb': undefined,
+                'rating.kp': undefined
+            });
+            return;
+        }
+
+        const [from] = value.split('-');
+        onFilterChange({
+            rating: value,
+            'rating.imdb': `${from}-10`,
+            'rating.kp': `${from}-10`
+        });
+    };
 
     const defaultOptions = {
-        years: [
+        years: safeApiYears.length > 1 ? safeApiYears : [
             {value: '', label: 'Год'},
             {value: '2023', label: '2023'},
             {value: '2022', label: '2022'},
@@ -49,17 +110,21 @@ export const FilterPanel = ({
             {value: 'disney', label: 'Disney+'},
             {value: 'hbo', label: 'HBO'}
         ],
-        genres: [
-            {value: '', label: 'Все жанры'},
-            {value: 'fantasy', label: 'Фантастика'},
-            {value: 'thriller', label: 'Триллер'}
-        ],
-        countries: [
-            {value: '', label: 'Страна'},
-            {value: 'usa', label: 'США'},
-            {value: 'russia', label: 'Россия'},
-            {value: 'korea', label: 'Корея'}
-        ],
+        genres: safeApiGenres.length > 0 ?
+            [{value: '', label: 'Все жанры'}, ...safeApiGenres] :
+            [
+                {value: '', label: 'Все жанры'},
+                {value: 'фэнтези', label: 'Фентези'},
+                {value: 'триллер', label: 'Триллер'}
+            ],
+        countries: safeApiCountries.length > 0 ?
+            [{value: '', label: 'Страна'}, ...safeApiCountries] :
+            [
+                {value: '', label: 'Страна'},
+                {value: 'usa', label: 'США'},
+                {value: 'russia', label: 'Россия'},
+                {value: 'korea', label: 'Корея'}
+            ],
         durations: [
             {value: '', label: 'Продолжительность'},
             {value: '90', label: 'До 90 мин'},
@@ -89,6 +154,7 @@ export const FilterPanel = ({
         ]
     }
 
+
     const handleResetFilter = (filterName: keyof FilterValues) => {
         const resetValue = typeof filters[filterName] === 'boolean' ? false :
             filterName === 'year' ? {from: '', to: ''} : ''
@@ -96,7 +162,7 @@ export const FilterPanel = ({
     }
 
     const getActiveFilters = () => {
-        const activeFilters: {key: keyof FilterValues; label: string}[] = []
+        const activeFilters: {key: keyof FilterValues; label: string}[] = [];
 
         if (filters.year?.from || filters.year?.to) {
             activeFilters.push({
@@ -108,12 +174,52 @@ export const FilterPanel = ({
 
         if (filters.genres?.length) {
             filters.genres.forEach(genre => {
+                const genreName = apiGenres.find(g => g.value === genre)?.label || genre;
                 activeFilters.push({
                     key: 'genres',
-                    label: `Жанр: ${genre}`
-                })
-            })
+                    label: `Жанр: ${genreName}`
+                });
+            });
         }
+
+        if (filters.top250) {
+            activeFilters.push({
+                key: 'top250',
+                label: 'Топ-250'
+            });
+        }
+
+        if (filters.rating) {
+            const option = ratingOptions.find(opt => opt.value === filters.rating);
+            if (option) {
+                activeFilters.push({
+                    key: 'rating',
+                    label: `Рейтинг: ${option.label}`
+                });
+            }
+        }
+
+        if (filters.language) {
+            activeFilters.push({
+                key: 'language',
+                label: `Язык: ${filters.language}`
+            });
+        }
+
+        if (filters.award) {
+            activeFilters.push({
+                key: 'award',
+                label: `Награда: ${filters.award}`
+            });
+        }
+
+        if (filters.is3d) {
+            activeFilters.push({
+                key: 'is3d',
+                label: '3D'
+            });
+        }
+
         const filterTypes = [
             {key: 'rating', label: 'Рейтинг'},
             {key: 'platform', label: 'Платформа'},
@@ -151,30 +257,81 @@ export const FilterPanel = ({
         return activeFilters
     }
 
-    const handleYearChange = useCallback((range: {from: string; to: string}) => {
+    const handleYearChange = useCallback((range: { from: string; to: string }) => {
         onFilterChange({year: range})
     }, [onFilterChange])
 
-    const handleGenreToggle = (genre: string) => {
-        const currentGenres = filters.genres || []
-        const newGenres = currentGenres.includes(genre)
-            ? currentGenres.filter(g => g !== genre)
-            : [...currentGenres, genre]
-        onFilterChange({genres: newGenres})
-    }
+
 
     const handleToggleFilter = (filterName: keyof FilterValues, value: any) => {
         onFilterChange({[filterName]: value})
     }
 
+    const handleUniverseToggle = () => {
+        const newValue = !filters.universe;
+        onFilterChange({
+            universe: newValue,
+            'similarMovies.id': newValue ? { $exists: true } : undefined,
+            'sequelsAndPrequels.id': newValue ? { $exists: true } : undefined
+        });
+    };
+
+
+    const handlePlatformChange = (value: string) => {
+        onFilterChange({
+            platform: value,
+            'watchability.items.name': value || undefined
+        });
+    };
+
+    const handleAgeChange = (value: string) => {
+        onFilterChange({
+            age: value,
+            ageRating: value ? { $gte: parseInt(value) } : undefined
+        });
+    };
+
+    const handleDurationChange = (value: string) => {
+        let durationFilter;
+        if (value === 'short') durationFilter = { $lt: 90 };
+        else if (value === 'medium') durationFilter = { $gte: 90, $lte: 120 };
+        else if (value === 'long') durationFilter = { $gt: 120 };
+        else if (value) durationFilter = parseInt(value);
+
+        onFilterChange({
+            duration: value,
+            movieLength: durationFilter
+        });
+    };
+
     const handleResetAll = useCallback(() => {
-        dispatch(resetFilmFilters())
+       dispatch(resetFilmFilters())
     }, [dispatch])
 
     const activeFilters = getActiveFilters()
 
+
+    const handleTop250Toggle = () => {
+        const newValue = !filters.top250;
+        onFilterChange({
+            top250: newValue,
+            'top250': newValue ? { $exists: true, $lte: 250 } : undefined
+        });
+    };
+
+    {genresLoading ? (
+        <Spinner className="w-5 h-5" />
+    ) : (
+        <Select
+            options={[{ value: '', label: 'Все жанры' }, ...apiGenres]}
+            value=""
+            onChange={(value) => handleGenreToggle(value)}
+        />
+    )}
+
     return (
-        <div className={`pt-36 px-16 w-full rounded-lg p-4 space-y-4 border border-transparent bg-clip-padding bg-origin-border before:content-[''] before:absolute before:inset-0 before:rounded-lg before:p-[1px] before:bg-gradient-to-r before:-z-10 relative z-0 ${className}`}>
+        <div
+            className={`pt-36 px-16 w-full rounded-lg p-4 space-y-4 border border-transparent bg-clip-padding bg-origin-border before:content-[''] before:absolute before:inset-0 before:rounded-lg before:p-[1px] before:bg-gradient-to-r before:-z-10 relative z-0 ${className}`}>
             {activeFilters.length > 0 && (
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-4 p-2 bg-gray-50 rounded-lg">
                     <div className="flex flex-wrap items-center gap-2">
@@ -211,9 +368,9 @@ export const FilterPanel = ({
                         onClick={() => handleToggleFilter('watched', !filters.watched)}
                     />
                     <Select
-                        options={ratings.length ? [{value: '', label: 'Рейтинг'}, ...ratings] : defaultOptions.ratings}
+                        options={ratingOptions}
                         value={filters.rating || ''}
-                        onChange={(value) => handleToggleFilter('rating', value)}
+                        onChange={handleRatingChange}
                     />
                 </div>
 
@@ -230,26 +387,29 @@ export const FilterPanel = ({
                     />
                     <ButtonToggle
                         label="Комедия"
-                        active={!!filters.comedy}
-                        onClick={() => handleToggleFilter('comedy', !filters.comedy)}
+                        active={filters.genres?.includes('<комедия')}
+                        onClick={() => handleGenreToggle('комедия')}
                     />
                     <ButtonToggle
                         label="Ужасы"
-                        active={!!filters.horror}
-                        onClick={() => handleToggleFilter('horror', !filters.horror)}
+                        active={filters.genres?.includes('<ужасы')}
+                        onClick={() => handleGenreToggle('ужасы')}
                     />
                 </div>
 
                 <div className="flex-1 flex gap-4 min-w-[240px]">
                     <Select
-                        options={genres.length ? [{value: '', label: 'Все жанры'}, ...genres] : defaultOptions.genres}
+                        options={[
+                            { value: '', label: 'Все жанры' },
+                            ...apiGenres
+                        ]}
                         value=""
-                        onChange={(value) => handleGenreToggle(value)}
+                        onChange={handleGenreToggle}
                     />
                     <ButtonToggle
-                        label="Одна вселенная"
-                        active={!!filters.universe}
-                        onClick={() => handleToggleFilter('universe', !filters.universe)}
+                        label="Топ-250"
+                        active={!!filters.top250}
+                        onClick={handleTop250Toggle}
                     />
                 </div>
             </div>
@@ -257,14 +417,20 @@ export const FilterPanel = ({
             <div className="flex flex-wrap gap-4">
                 <div className="flex-1 flex gap-4 min-w-[240px]">
                     <Select
-                        options={platforms.length ? [{value: '', label: 'Платформа'}, ...platforms] : defaultOptions.platforms}
+                        options={[{value: '', label: 'Платформа'}, ]}
                         value={filters.platform || ''}
-                        onChange={(value) => handleToggleFilter('platform', value)}
+                        onChange={handlePlatformChange}
                     />
                     <Select
-                        options={defaultOptions.ages}
+                        options={[
+                            {value: '', label: 'Возраст'},
+                            {value: '6', label: '6+'},
+                            {value: '12', label: '12+'},
+                            {value: '16', label: '16+'},
+                            {value: '18', label: '18+'}
+                        ]}
                         value={filters.age || ''}
-                        onChange={(value) => handleToggleFilter('age', value)}
+                        onChange={handleAgeChange}
                     />
                     <Select
                         options={defaultOptions.popularities}
@@ -275,12 +441,18 @@ export const FilterPanel = ({
 
                 <div className="flex-1 flex gap-4 min-w-[240px]">
                     <Select
-                        options={durations.length ? [{value: '', label: 'Продолжительность'}, ...durations] : defaultOptions.durations}
+                        options={durations.length ? [{
+                            value: '',
+                            label: 'Продолжительность'
+                        }, ...durations] : defaultOptions.durations}
                         value={filters.duration || ''}
                         onChange={(value) => handleToggleFilter('duration', value)}
                     />
                     <Select
-                        options={dates.length ? [{value: '', label: 'Дата добавления'}, ...dates] : defaultOptions.dates}
+                        options={dates.length ? [{
+                            value: '',
+                            label: 'Дата добавления'
+                        }, ...dates] : defaultOptions.dates}
                         value={filters.date || ''}
                         onChange={(value) => handleToggleFilter('date', value)}
                     />
@@ -293,12 +465,71 @@ export const FilterPanel = ({
                         onChange={(value) => handleToggleFilter('tag', value)}
                     />
                     <Select
-                        options={countries.length ? [{value: '', label: 'Страна'}, ...countries] : defaultOptions.countries}
+                        options={countries.length ? [{
+                            value: '',
+                            label: 'Страна'
+                        }, ...countries] : defaultOptions.countries}
                         value={filters.country || ''}
                         onChange={(value) => handleToggleFilter('country', value)}
                     />
                 </div>
             </div>
+            <Collapse isOpen={isExpanded}>
+                <div className="flex flex-wrap gap-4 mt-4">
+                    <div className="flex-1 flex gap-4 min-w-[240px]">
+                        <Select
+                            options={[
+                                {value: '', label: 'Язык оригинала'},
+                                {value: 'ru', label: 'Русский'},
+                                {value: 'en', label: 'Английский'},
+                                {value: 'ja', label: 'Японский'},
+                                {value: 'ko', label: 'Корейский'},
+                                {value: 'fr', label: 'Французский'},
+                            ]}
+                            value={filters.language || ''}
+                            onChange={(value) => handleToggleFilter('language', value)}
+                        />
+
+                        <Select
+                            options={[
+                                {value: '', label: 'Награды'},
+                                {value: 'oscar', label: 'Оскар'},
+                                {value: 'cannes', label: 'Канны'},
+                                {value: 'golden-globe', label: 'Золотой глобус'},
+                            ]}
+                            value={filters.award || ''}
+                            onChange={(value) => handleToggleFilter('award', value)}
+                        />
+                    </div>
+
+                    <div className="flex-1 flex gap-4 min-w-[240px]">
+                        <SearchInput
+                            placeholder="Актеры"
+                            onSearch={(value) => handleToggleFilter('actors', value)}
+                        />
+                    </div>
+
+                    <div className="flex-1 flex gap-4 min-w-[240px]">
+                        <SearchInput
+                            placeholder="Режиссеры"
+                            onSearch={(value) => handleToggleFilter('directors', value)}
+                        />
+                    </div>
+
+                    <div className="flex-1 flex gap-4 min-w-[240px]">
+                        <ButtonToggle
+                            label="3D"
+                            active={!!filters.is3d}
+                            onClick={() => handleToggleFilter('is3d', !filters.is3d)}
+                        />
+                        <ButtonToggle
+                            label="IMAX"
+                            active={!!filters.isImax}
+                            onClick={() => handleToggleFilter('isImax', !filters.isImax)}
+                        />
+                    </div>
+                </div>
+            </Collapse>
 
             <div className="flex items-center justify-between mt-4">
                 <Button
@@ -308,7 +539,7 @@ export const FilterPanel = ({
                     className="text-black hover:bg-transparent hover:text-ghoukie-light-green gap-2"
                 >
                     {isExpanded ? 'Скрыть фильтры' : 'Все фильтры'}
-                    <ChevronDown className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`}/>
                 </Button>
 
                 <Button
@@ -317,7 +548,7 @@ export const FilterPanel = ({
                     className="bg-ghoukie-green hover:bg-ghoukie-dark-green text-white min-w-[120px]"
                 >
                     {isLoadingPreview ? (
-                        <Spinner className="w-4 h-4" />
+                        <Spinner className="w-4 h-4"/>
                     ) : previewCount !== null ? (
                         `Показать ${previewCount}`
                     ) : (

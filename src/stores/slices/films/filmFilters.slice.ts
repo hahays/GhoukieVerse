@@ -17,7 +17,7 @@ interface FilmFiltersState extends MovieFilterParams {
 }
 
 const initialState: FilmFiltersState = {
-    year: { from: '', to: '' },
+    year: {from: '', to: ''},
     genres: [],
     countries: [],
     rating: '',
@@ -29,7 +29,9 @@ const initialState: FilmFiltersState = {
     popularity: '',
     watched: false,
     universe: false,
-    isInitialized: false
+    isInitialized: false,
+    favorite: false,
+    actor: ''
 }
 
 export const filmFiltersSlice = createSlice({
