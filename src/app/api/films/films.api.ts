@@ -17,10 +17,8 @@ export const filmsApi = kinoApi.injectEndpoints({
             ageRating?: { $gte?: number };
             movieLength?: { $lt?: number; $gte?: number; $lte?: number } | number;
             is3d?: boolean;
-            'productionCompanies.name'?: string;
             'awards.name'?: string;
             'persons.name'?: string;
-            'persons.enProfession'?: string;
             'names.language'?: string;
             universe?: boolean;
             'rating.imdb'?: string;
@@ -29,6 +27,8 @@ export const filmsApi = kinoApi.injectEndpoints({
             'sequelsAndPrequels.id'?: { $exists: boolean };
             'similarMovies.id'?: { $exists: boolean; $nin: (null | string)[] };
             'top250'?: { $exists: boolean; $lte: number };
+            'productionCompanies.name'?: string;
+            'persons.enProfession'?: string;
         }>({
             query: (params) => {
                 const queryParams = new URLSearchParams()
@@ -53,6 +53,14 @@ export const filmsApi = kinoApi.injectEndpoints({
                 if (params['awards.name']) queryParams.append('awards.name', params['awards.name']);
                 if (params.is3d) queryParams.append('is3d', 'true');
                 if (params.isImax) queryParams.append('isImax', 'true');
+                if (params['productionCompanies.name']) {
+                    queryParams.append('productionCompanies.name', params['productionCompanies.name']);
+                }
+
+                if (params['persons.enProfession']) {
+                    queryParams.append('persons.enProfession', params['persons.enProfession']);
+                }
+
 
                 if (params['rating.imdb']) {
                     queryParams.append('rating.imdb', params['rating.imdb']);

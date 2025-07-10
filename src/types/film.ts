@@ -119,6 +119,10 @@ export interface FilterValues {
     'sequelsAndPrequels.id'?: { $exists: boolean };
     'similarMovies.id'?: { $exists: boolean; $nin: (null | string)[] };
     'top250'?: { $exists: boolean; $lte: number };
+    studio: string;
+    operator: string;
+    'productionCompanies.name'?: string;
+    'persons.enProfession'?: string;
 }
 
 export interface MovieFilterParams {
@@ -148,4 +152,6 @@ export interface MovieFilterParams {
     'sequelsAndPrequels.id'?: { $exists: boolean };
     'similarMovies.id'?: { $exists: boolean; $nin: (null | string)[] };
     'top250'?: { $exists: boolean; $lte: number };
+    'productionCompanies.name'?: string;
+    'persons.enProfession'?: string;
 }

@@ -53,9 +53,15 @@ export const FilterPanel = ({
 
     const handleGenreToggle = (genre: string) => {
         const currentGenres = filters.genres || [];
-        const newGenres = currentGenres.includes(genre)
-            ? currentGenres.filter(g => g !== genre)
-            : [...currentGenres, genre];
+        let newGenres: string[];
+
+        if (genre === '') {
+            newGenres = [];
+        } else {
+            newGenres = currentGenres.includes(genre)
+                ? currentGenres.filter(g => g !== genre)
+                : [...currentGenres, genre];
+        }
 
         onFilterChange({
             genres: newGenres,
@@ -73,23 +79,7 @@ export const FilterPanel = ({
         { value: '5-10', label: '5+ (Так себе)' }
     ];
 
-    const handleRatingChange = (value: string) => {
-        if (!value) {
-            onFilterChange({
-                rating: '',
-                'rating.imdb': undefined,
-                'rating.kp': undefined
-            });
-            return;
-        }
 
-        const [from] = value.split('-');
-        onFilterChange({
-            rating: value,
-            'rating.imdb': `${from}-10`,
-            'rating.kp': `${from}-10`
-        });
-    };
 
     const defaultOptions = {
         years: safeApiYears.length > 1 ? safeApiYears : [
@@ -155,11 +145,25 @@ export const FilterPanel = ({
     }
 
 
-    const handleResetFilter = (filterName: keyof FilterValues) => {
-        const resetValue = typeof filters[filterName] === 'boolean' ? false :
-            filterName === 'year' ? {from: '', to: ''} : ''
-        onFilterChange({[filterName]: resetValue})
-    }
+    const handleResetFilter = (filterName: keyof FilterValues, filterValue?: string) => {
+        if (filterName === 'genres' && filterValue) {
+            // Удаляем только конкретный жанр
+            const newGenres = filters.genres?.filter(g => g !== filterValue) || [];
+            onFilterChange({
+                genres: newGenres,
+                'genres.name': newGenres.length > 0 ? newGenres : undefined
+            });
+        } else if (filterName === 'top250') {
+            onFilterChange({
+                top250: false,
+                'top250': undefined
+            });
+        } else {
+            const resetValue = typeof filters[filterName] === 'boolean' ? false :
+                filterName === 'year' ? {from: '', to: ''} : '';
+            onFilterChange({[filterName]: resetValue});
+        }
+    };
 
     const getActiveFilters = () => {
         const activeFilters: {key: keyof FilterValues; label: string}[] = [];
@@ -291,6 +295,35 @@ export const FilterPanel = ({
         });
     };
 
+
+    const handleRatingChange = (value: string) => {
+        if (!value) {
+            onFilterChange({
+                rating: '',
+                'rating.imdb': undefined,
+                'rating.kp': undefined
+            });
+            return;
+        }
+
+        const [from] = value.split('-');
+        onFilterChange({
+            rating: value,
+            'rating.imdb': `${from}-10`,
+            'rating.kp': `${from}-10`,
+            page: 1
+        });
+    };
+
+    const handleTop250Toggle = () => {
+        const newValue = !filters.top250;
+        onFilterChange({
+            top250: newValue,
+            'top250': newValue ? { $exists: true, $lte: 250 } : undefined,
+            page: 1
+        });
+    };
+
     const handleDurationChange = (value: string) => {
         let durationFilter;
         if (value === 'short') durationFilter = { $lt: 90 };
@@ -305,19 +338,22 @@ export const FilterPanel = ({
     };
 
     const handleResetAll = useCallback(() => {
-       dispatch(resetFilmFilters())
-    }, [dispatch])
+        dispatch(resetFilmFilters());
+        onFilterChange({
+            genres: [],
+            'genres.name': undefined,
+            top250: false,
+            'top250': undefined,
+            year: { from: '', to: '' },
+            rating: '',
+            'rating.imdb': undefined,
+            'rating.kp': undefined,
+        });
+    }, [dispatch, onFilterChange]);
 
     const activeFilters = getActiveFilters()
 
 
-    const handleTop250Toggle = () => {
-        const newValue = !filters.top250;
-        onFilterChange({
-            top250: newValue,
-            'top250': newValue ? { $exists: true, $lte: 250 } : undefined
-        });
-    };
 
     {genresLoading ? (
         <Spinner className="w-5 h-5" />
@@ -339,15 +375,16 @@ export const FilterPanel = ({
                             <FilterLabel
                                 key={`${key}-${label}`}
                                 label={label}
-                                onRemove={() => handleResetFilter(key)}
+                                onRemove={() => handleResetFilter(key, value)}
                             />
                         ))}
                     </div>
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="text-gray-500 hover:text-ghoukie-green"
+                        className="text-gray-500 hover:text-ghoukie-green transition-colors"
                         onClick={handleResetAll}
+                        disabled={activeFilters.length === 0}
                     >
                         <Trash2 size={16} className="mr-1"/>
                         Очистить всё
@@ -475,59 +512,100 @@ export const FilterPanel = ({
                 </div>
             </div>
             <Collapse isOpen={isExpanded}>
-                <div className="flex flex-wrap gap-4 mt-4">
-                    <div className="flex-1 flex gap-4 min-w-[240px]">
-                        <Select
-                            options={[
-                                {value: '', label: 'Язык оригинала'},
-                                {value: 'ru', label: 'Русский'},
-                                {value: 'en', label: 'Английский'},
-                                {value: 'ja', label: 'Японский'},
-                                {value: 'ko', label: 'Корейский'},
-                                {value: 'fr', label: 'Французский'},
-                            ]}
-                            value={filters.language || ''}
-                            onChange={(value) => handleToggleFilter('language', value)}
-                        />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                    {/* Язык оригинала */}
+                    <Select
+                        options={[
+                            {value: '', label: 'Язык оригинала'},
+                            {value: 'ru', label: 'Русский'},
+                            {value: 'en', label: 'Английский'},
+                            {value: 'ja', label: 'Японский'}
+                        ]}
+                        value={filters.language || ''}
+                        onChange={(value) => onFilterChange({
+                            language: value,
+                            'names.language': value || undefined,
+                            page: 1
+                        })}
+                    />
 
-                        <Select
-                            options={[
-                                {value: '', label: 'Награды'},
-                                {value: 'oscar', label: 'Оскар'},
-                                {value: 'cannes', label: 'Канны'},
-                                {value: 'golden-globe', label: 'Золотой глобус'},
-                            ]}
-                            value={filters.award || ''}
-                            onChange={(value) => handleToggleFilter('award', value)}
-                        />
-                    </div>
+                    <Select
+                        options={[
+                            {value: '', label: 'Награды'},
+                            {value: 'oscar', label: 'Оскар'},
+                            {value: 'golden-globe', label: 'Золотой глобус'}
+                        ]}
+                        value={filters.award || ''}
+                        onChange={(value) => onFilterChange({
+                            award: value,
+                            'awards.name': value || undefined,
+                            page: 1
+                        })}
+                    />
 
-                    <div className="flex-1 flex gap-4 min-w-[240px]">
-                        <SearchInput
-                            placeholder="Актеры"
-                            onSearch={(value) => handleToggleFilter('actors', value)}
-                        />
-                    </div>
+                    <Select
+                        options={[
+                            {value: '', label: 'Студия'},
+                            {value: 'marvel', label: 'Marvel Studios'},
+                            {value: 'warner', label: 'Warner Bros.'},
+                            {value: 'universal', label: 'Universal Pictures'}
+                        ]}
+                        value={filters.studio || ''}
+                        onChange={(value) => onFilterChange({
+                            studio: value,
+                            'productionCompanies.name': value || undefined,
+                            page: 1
+                        })}
+                    />
 
-                    <div className="flex-1 flex gap-4 min-w-[240px]">
-                        <SearchInput
-                            placeholder="Режиссеры"
-                            onSearch={(value) => handleToggleFilter('directors', value)}
-                        />
-                    </div>
+                    <SearchInput
+                        placeholder="Актеры"
+                        onSearch={(value) => onFilterChange({
+                            actor: value,
+                            'persons.name': value,
+                            'persons.enProfession': 'actor',
+                            page: 1
+                        })}
+                    />
 
-                    <div className="flex-1 flex gap-4 min-w-[240px]">
-                        <ButtonToggle
-                            label="3D"
-                            active={!!filters.is3d}
-                            onClick={() => handleToggleFilter('is3d', !filters.is3d)}
-                        />
-                        <ButtonToggle
-                            label="IMAX"
-                            active={!!filters.isImax}
-                            onClick={() => handleToggleFilter('isImax', !filters.isImax)}
-                        />
-                    </div>
+                    <SearchInput
+                        placeholder="Режиссеры"
+                        onSearch={(value) => onFilterChange({
+                            director: value,
+                            'persons.name': value,
+                            'persons.enProfession': 'director',
+                            page: 1
+                        })}
+                    />
+
+                    <SearchInput
+                        placeholder="Операторы"
+                        onSearch={(value) => onFilterChange({
+                            operator: value,
+                            'persons.name': value,
+                            'persons.enProfession': 'operator',
+                            page: 1
+                        })}
+                    />
+
+                    <ButtonToggle
+                        label="3D"
+                        active={!!filters.is3d}
+                        onClick={() => onFilterChange({
+                            is3d: !filters.is3d,
+                            page: 1
+                        })}
+                    />
+
+                    {/* IMAX */}
+                    <ButtonToggle
+                        label="IMAX"
+                        active={!!filters.isImax}
+                        onClick={() => onFilterChange({
+                            isImax: !filters.isImax,
+                            page: 1
+                        })}
+                    />
                 </div>
             </Collapse>
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export const useGenres = () => {
     const [genres, setGenres] = useState<{value: string; label: string}[]>([]);
@@ -7,13 +7,15 @@ export const useGenres = () => {
 
     useEffect(() => {
         const fetchGenres = async () => {
-            setIsLoading(true);
-            setError(null);
             try {
+                setIsLoading(true);
+                setError(null);
+
                 const response = await fetch(
-                    'https://api.kinopoisk.dev/v1.3/movie/possible-values-by-field?field=genres.name',
+                    'https://api.kinopoisk.dev/v1/movie/possible-values-by-field?field=genres.name',
                     {
                         headers: {
+                            'accept': 'application/json',
                             'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || ''
                         }
                     }
@@ -24,17 +26,22 @@ export const useGenres = () => {
                 }
 
                 const data = await response.json();
-                setGenres(data.map((genre: string) => ({
-                    value: genre.toLowerCase(),
-                    label: genre
-                })));
-            } catch (err) {
-                console.error('Error loading genres:', err);
-                setError('Не удалось загрузить жанры');
+
+                const formattedGenres = data.map((item: {name: string, slug: string}) => ({
+                    value: item.name,
+                    label: item.name
+                }));
+
+                setGenres(formattedGenres);
+            } catch (error) {
+                console.error('Error loading genres:', error);
+                setError('Не удалось загрузить список жанров');
                 setGenres([
                     { value: 'драма', label: 'Драма' },
                     { value: 'комедия', label: 'Комедия' },
-                    { value: 'фантастика', label: 'Фантастика' }
+                    { value: 'фантастика', label: 'Фантастика' },
+                    { value: 'боевик', label: 'Боевик' },
+                    { value: 'триллер', label: 'Триллер' }
                 ]);
             } finally {
                 setIsLoading(false);
