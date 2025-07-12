@@ -13,7 +13,7 @@ const buttonVariants = cva(
                 secondary: 'bg-ghoukie-black text-ghoukie-white hover:bg-ghoukie-light-green hover:text-ghoukie-black',
                 toggle: 'px-4 py-1 text-base rounded-md',
                 ghostToggle: 'px-6 py-3 text-xl',
-                tabs: ''
+                tabs: 'text-xl'
             },
             size: {
                 xs: 'h-7 px-2 text-xs',

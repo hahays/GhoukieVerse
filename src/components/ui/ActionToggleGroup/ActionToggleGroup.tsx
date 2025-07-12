@@ -9,7 +9,7 @@ interface ActionToggleGroupProps {
     gradientClass?: string;
     outerBgClass?: string;
     innerBgClass?: string;
-    buttonVariant?: 'ghostToggle' | 'toggle' | string; // или другие вариации
+    buttonVariant?: 'ghostToggle' | 'toggle' | string;
     buttonSize?: string;
     buttonClassName?: string;
 }
@@ -37,7 +37,7 @@ export const ActionToggleGroup = ({
     return (
         <div className={wrapperClass}>
             <div className={`relative rounded-lg p-[1.5px] ${gradientClass}`}>
-                <div className={`${outerBgClass} rounded-[calc(0.5rem-1.5px)] py-1`}>
+                <div className={`${outerBgClass} rounded-[calc(0.5rem-1.5px)]`}>
                     <div className={`${innerBgClass} rounded-[calc(0.5rem-3.5px)] gap-x-1.5 flex justify-center`}>
                         {options.map((option) => {
                             const isActive = selected === option.value;

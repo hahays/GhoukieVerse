@@ -155,3 +155,23 @@ export interface MovieFilterParams {
     'productionCompanies.name'?: string;
     'persons.enProfession'?: string;
 }
+export interface Top250Movie {
+    id: number;
+    name: string;
+    poster?: {
+        url: string;
+        previewUrl: string;
+    };
+}
+
+export interface Top250List {
+    movies: Top250Movie[];
+}
+
+export interface Top250Response {
+    docs: Top250List[];
+    total: number;
+    limit: number;
+    page: number;
+    pages: number;
+}

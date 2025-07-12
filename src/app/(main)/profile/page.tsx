@@ -21,7 +21,6 @@ export default function ProfilePage() {
     const {favorites, removeFromFavorites} = useFavorites()
     const {isWatched, toggleWatched, getWatchedItems} = useWatched()
 
-
     const recentlyWatchedIds = getWatchedItems('films');
     const recentlyWatched = recentlyWatchedIds
         .map(id => {
@@ -38,7 +37,6 @@ export default function ProfilePage() {
         removeFromFavorites(id, type)
     }
 
-
     const calculateAverageRating = () => {
         const allFilms = [...favorites.films, ...recentlyWatched]
         if (allFilms.length === 0) return 0
@@ -46,13 +44,15 @@ export default function ProfilePage() {
         return sum / allFilms.length
     }
 
+    const totalWatched = recentlyWatchedIds.length;
+    const currentYearWatched = recentlyWatchedIds.length; // Здесь можно добавить фильтрацию по году
+    const totalFavorites = favorites.films.length;
+
     return (
         <div className="min-h-screen bg-ghoukie-white">
-
             <div className="mt-28 shadow-figma bg-ghoukie-black h-24 w-full"></div>
 
             <div className="mx-auto px-16">
-
                 <div className="relative z-10">
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 my-6">
                         <div className="flex items-center gap-4">
@@ -81,16 +81,15 @@ export default function ProfilePage() {
                                 initial={activeContentTab}
                                 onChange={setActiveContentTab}
                                 wrapperClass="w-full"
-                                outerBgClass="bg-ghoukie-black px-0 py-0 border-2 border-ghoukie-black rounded-md"
+                                outerBgClass="bg-ghoukie-black px-[0.5] py-[0.5] border-2 border-ghoukie-black rounded-md"
                                 buttonVariant="tabs"
-                                buttonClassName="px-3 py-2 text-sm md:text-base"
+                                buttonClassName="px-10 py-2 text-sm md:text-2xl"
                                 innerBgClass="bg-ghoukie-white p-1 rounded flex gap-1"
-                                gradientClass="bg-ghoukie-green p-1"
+                                gradientClass="bg-ghoukie-green px-1 py-1"
                             />
                         </div>
                     </div>
                 </div>
-
 
                 <div className="border-t-4 border-b-4 border-ghoukie-black py-10 my-6">
                     <Tabs
@@ -110,22 +109,37 @@ export default function ProfilePage() {
 
                 {activeProfileTab === 'profile' && (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="relative w-full">
+                            <div
+                                className="absolute w-full h-full left-[-12px] bottom-[-12px] bg-ghoukie-green rounded-lg z-0"/>
 
-                        <div className="lg:col-span-1 bg-ghoukie-black/5 p-6 rounded-xl">
-                            <h2 className="text-2xl font-victor font-bold mb-4 text-ghoukie-black">
-                                Мой рейтинг
-                            </h2>
-                            <div className="flex justify-center">
-                                <RatingDiagram rating={calculateAverageRating()} size="lg"/>
+                            <div className="relative z-10 bg-ghoukie-black text-white p-6 rounded-lg shadow-xl h-full">
+                                <h2 className="text-2xl flex justify-center font-bold font-victor mb-6 text-ghoukie-white">
+                                    СРЕДНИЙ РЕЙТИНГ
+                                </h2>
+
+                                <div className="flex justify-center mb-6">
+                                    <RatingDiagram rating={calculateAverageRating()} size="lg"/>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <StatItem
+                                        label="Фильмов просмотрено"
+                                        value={totalWatched}
+                                    />
+                                    <StatItem
+                                        label="В этом году"
+                                        value={currentYearWatched}
+                                    />
+                                    <StatItem
+                                        label="В избранном"
+                                        value={totalFavorites}
+                                    />
+                                </div>
                             </div>
-                            <p className="text-center mt-4 text-ghoukie-light-gray">
-                                Средняя оценка: {calculateAverageRating().toFixed(1)}
-                            </p>
                         </div>
 
-
                         <div className="lg:col-span-2">
-
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-2xl font-victor font-bold text-ghoukie-black">
                                     Недавно смотрели
@@ -152,7 +166,6 @@ export default function ProfilePage() {
                                     </p>
                                 )}
                             </div>
-
 
                             <div className="mt-12">
                                 <div className="flex justify-between items-center mb-4">
@@ -199,3 +212,10 @@ export default function ProfilePage() {
         </div>
     )
 }
+
+const StatItem = ({label, value}: { label: string; value: number }) => (
+    <div className="flex justify-between items-center p-3 bg-ghoukie-dark-gray rounded-lg">
+        <span className="text-xl font-victor text-ghoukie-light-gray">{label}</span>
+        <span className="text-2xl font-victor font-bold text-ghoukie-green">{value}</span>
+    </div>
+);

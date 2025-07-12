@@ -147,26 +147,25 @@ export const FilterPanel = ({
 
     const handleResetFilter = (filterName: keyof FilterValues, filterValue?: string) => {
         if (filterName === 'genres' && filterValue) {
-            // Удаляем только конкретный жанр
-            const newGenres = filters.genres?.filter(g => g !== filterValue) || [];
+            const newGenres = filters.genres?.filter(g => g !== filterValue) || []
             onFilterChange({
                 genres: newGenres,
                 'genres.name': newGenres.length > 0 ? newGenres : undefined
-            });
+            })
         } else if (filterName === 'top250') {
             onFilterChange({
                 top250: false,
                 'top250': undefined
-            });
+            })
         } else {
             const resetValue = typeof filters[filterName] === 'boolean' ? false :
-                filterName === 'year' ? {from: '', to: ''} : '';
-            onFilterChange({[filterName]: resetValue});
+                filterName === 'year' ? {from: '', to: ''} : ''
+            onFilterChange({[filterName]: resetValue})
         }
-    };
+    }
 
     const getActiveFilters = () => {
-        const activeFilters: {key: keyof FilterValues; label: string}[] = [];
+        const activeFilters: {key: keyof FilterValues; label: string; value?: string}[] = [];
 
         if (filters.year?.from || filters.year?.to) {
             activeFilters.push({
@@ -178,10 +177,10 @@ export const FilterPanel = ({
 
         if (filters.genres?.length) {
             filters.genres.forEach(genre => {
-                const genreName = apiGenres.find(g => g.value === genre)?.label || genre;
                 activeFilters.push({
                     key: 'genres',
-                    label: `Жанр: ${genreName}`
+                    label: `Жанр: ${genre}`,
+                    value: genre
                 });
             });
         }
@@ -319,8 +318,11 @@ export const FilterPanel = ({
         const newValue = !filters.top250;
         onFilterChange({
             top250: newValue,
-            'top250': newValue ? { $exists: true, $lte: 250 } : undefined,
-            page: 1
+            ...(newValue ? {
+                year: { from: '', to: '' },
+                genres: [],
+                rating: ''
+            } : {})
         });
     };
 
@@ -371,7 +373,7 @@ export const FilterPanel = ({
             {activeFilters.length > 0 && (
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-4 p-2 bg-gray-50 rounded-lg">
                     <div className="flex flex-wrap items-center gap-2">
-                        {activeFilters.map(({key, label}) => (
+                        {activeFilters.map(({key, label, value}) => (
                             <FilterLabel
                                 key={`${key}-${label}`}
                                 label={label}

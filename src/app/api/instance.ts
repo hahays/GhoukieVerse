@@ -12,9 +12,10 @@ const baseQuery = fetchBaseQuery({
 export const kinoApi = createApi({
     reducerPath: 'kinoApi',
     baseQuery,
+    tagTypes: ['Movies', 'MovieDetails', 'Top250'],
     extractRehydrationInfo(action, { reducerPath }) {
         if (action.type === HYDRATE) {
-            return (action.payload as Record<string, any>)[reducerPath]
+            return action.payload[reducerPath]
         }
     },
     endpoints: () => ({}),
