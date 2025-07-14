@@ -133,71 +133,60 @@ export const filmsApi = kinoApi.injectEndpoints({
                 }
             }
         }),
-
-        getTop250: build.query<MovieResponse, {
-            page?: number;
-            limit?: number;
-        }>({
-            query: (params) => ({
-                url: `list`,
-                params: {
-                    page: params.page || 1,
-                    limit: params.limit || 36,
-                    slug: 'top250',
-                    selectFields: 'movies.id movies.name movies.poster.url movies.rating.kp',
-                    notNullFields: 'movies.poster.url',
-                    sortField: 'movies.rating.kp',
-                    sortType: '-1'
-                },
-                headers: {
-                    'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || ''
-                }
-            }),
-            transformResponse: (response: any) => {
-                console.log('Top250 List Response:', response);
-
-                if (!response.docs || response.docs.length === 0) {
-                    return {
-                        docs: [],
-                        total: 0,
-                        limit: response.limit || 36,
-                        page: response.page || 1,
-                        pages: 0
-                    };
-                }
-
-                const list = response.docs[0];
-                const movies = list.movies || [];
-
-                return {
-                    docs: movies,
-                    total: list.moviesCount || movies.length,
-                    limit: response.limit || 36,
-                    page: response.page || 1,
-                    pages: response.pages || Math.ceil((list.moviesCount || movies.length) / (response.limit || 36))
-                };
-            },
-            providesTags: ['Top250']
-        }),
-
-        getTop250Preview: build.query<{ moviesCount: number }, void>({
+        getTop250List: build.query<{
+            id: string;
+            name: string;
+            moviesCount: number;
+        }, void>({
             query: () => ({
                 url: `list`,
                 params: {
                     limit: 1,
                     slug: 'top250',
-                    selectFields: 'moviesCount'
+                    selectFields: 'id name moviesCount'
                 },
                 headers: {
                     'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || ''
                 }
             }),
             transformResponse: (response: any) => {
-                return {
-                    moviesCount: response.docs[0]?.moviesCount || 250
+                return response.docs[0] || {
+                    id: '67ebbcd25da2d4ce280a5cf2',
+                    name: '250 лучших фильмов',
+                    moviesCount: 250
                 };
             }
         }),
+
+        // getTop250Movies: build.query<MovieResponse, {
+        //     page?: number;
+        //     limit?: number;
+        // }>({
+        //     query: (params) => ({
+        //         url: `list/67ebbcd25da2d4ce280a5cf2/movie`,
+        //         params: {
+        //             page: params.page || 1,
+        //             limit: params.limit || 36,
+        //             notNullFields: 'poster.url',
+        //             sortField: 'top250',
+        //             sortType: '1'
+        //         },
+        //         headers: {
+        //             'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || ''
+        //         }
+        //     }),
+        //     transformResponse: (response: any) => {
+        //         console.log('Top250 Movies Response:', response);
+        //         return {
+        //             docs: response.docs || [],
+        //             total: response.total || 250,
+        //             limit: response.limit || 36,
+        //             page: response.page || 1,
+        //             pages: response.pages || Math.ceil(250 / (response.limit || 36))
+        //         };
+        //     },
+        //     providesTags: ['Top250']
+        // }),
 
 
         searchMovies: build.query<MovieResponse, { query: string; limit?: number }>({
@@ -208,10 +197,10 @@ export const filmsApi = kinoApi.injectEndpoints({
 
 export const {
     useGetTopMoviesQuery,
-    useGetTop250Query,
     useGetMovieDetailsQuery,
     useLazyGetTopMoviesQuery,
-    useLazyGetTop250Query,
     useSearchMoviesQuery,
-    useLazyGetTop250PreviewQuery
-} = filmsApi
+    useGetTop250ListQuery,
+    useGetTop250MoviesQuery,
+    useLazyGetTop250MoviesQuery
+} = filmsApi;

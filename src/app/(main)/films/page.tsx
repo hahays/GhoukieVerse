@@ -1,5 +1,4 @@
 'use client'
-
 import React, {useCallback, useEffect, useState} from 'react'
 import {useRouter, useSearchParams} from 'next/navigation'
 import {MediaGrid} from "../../../components/ui/MediaGrid/MediaGrid"
@@ -9,9 +8,8 @@ import {useAppDispatch, useAppSelector} from "../../../stores/hooks"
 import {resetFilmFilters, setFilmFilter} from "../../../stores/slices/films/filmFilters.slice"
 import {
     useGetTopMoviesQuery,
-    useLazyGetTop250PreviewQuery,
-    useLazyGetTop250Query,
-    useLazyGetTopMoviesQuery
+    useLazyGetTopMoviesQuery,
+    useLazyGetTop250MoviesQuery, useGetTop250ListQuery
 } from "../../api/films/films.api"
 import {useGenres} from "../../../hooks/useGenges"
 
@@ -21,28 +19,34 @@ export default function FilmsPage() {
     const dispatch = useAppDispatch()
 
     const filters = useAppSelector(state => state.filmFilters)
-    const {genres: apiGenres} = useGenres()
+    const { genres: apiGenres } = useGenres()
 
     const [page, setPage] = useState(1)
     const [displayData, setDisplayData] = useState<any>(null)
     const [previewCount, setPreviewCount] = useState<number | null>(null)
+    const [isLoading, setIsLoading] = useState(false)
 
-    const {data: initialData, isLoading: isInitialLoading} = useGetTopMoviesQuery({
+    // Первоначальная загрузка
+    const { data: initialData } = useGetTopMoviesQuery({
         limit: 36,
         page: 1,
         sortField: 'votes.kp',
         sortType: '-1'
     })
 
-    const [fetchMovies, {data: filteredData, isLoading: isFilterLoading}] = useLazyGetTopMoviesQuery()
-    const [fetchTop250, {data: top250Data, isLoading: isTop250Loading}] = useLazyGetTop250Query()
-    const [fetchTop250Preview] = useLazyGetTop250PreviewQuery()
+    // Ленивые запросы
+    const [fetchMovies] = useLazyGetTopMoviesQuery()
+    const [fetchTop250] = useLazyGetTop250MoviesQuery()
+    const { data: top250List, isLoading: isTop250Loading } = useGetTop250ListQuery();
 
-    const loadTop250Preview = useCallback(async () => {
-        const {data} = await fetchTop250Preview()
-        setPreviewCount(data?.moviesCount || 250)
-    }, [fetchTop250Preview])
 
+
+    // Инициализация данных
+    useEffect(() => {
+        setDisplayData(initialData)
+    }, [initialData])
+
+    // Инициализация из URL
     useEffect(() => {
         const params = new URLSearchParams(searchParams)
         const initialFilters: any = {}
@@ -62,73 +66,85 @@ export default function FilmsPage() {
 
         if (params.has('top250')) {
             initialFilters.top250 = params.get('top250') === 'true'
-            loadTop250Preview()
+            setPreviewCount(250)
         }
 
         if (Object.keys(initialFilters).length > 0) {
             dispatch(setFilmFilter(initialFilters))
         }
+    }, [dispatch, searchParams])
 
-        setDisplayData(initialData)
-    }, [dispatch, searchParams, initialData, loadTop250Preview])
-
+    // Расчет preview count при изменении фильтров
     useEffect(() => {
         if (filters.top250) {
-            loadTop250Preview()
+            setPreviewCount(250)
         } else {
+            // Для обычных фильтров делаем запрос preview
             fetchMovies({
-                limit: 1,
+                limit: 1, // Только для подсчета
                 page: 1,
                 ...buildQueryParams(filters)
-            }).then(({data}) => {
+            }).then(({ data }) => {
                 setPreviewCount(data?.total || 0)
             })
         }
-    }, [filters, fetchMovies, loadTop250Preview])
+    }, [filters, fetchMovies])
 
+    // Построение параметров запроса
     const buildQueryParams = useCallback((filters: any) => {
         return {
             ...(filters.year?.from || filters.year?.to ? {
                 year: `${filters.year.from || ''}-${filters.year.to || ''}`
             } : {}),
-            ...(filters.genres?.length ? {'genres.name': filters.genres} : {}),
-            ...(filters.rating ? {'rating.kp': `${filters.rating.split('-')[0]}-10`} : {}),
+            ...(filters.genres?.length ? { 'genres.name': filters.genres } : {}),
+            ...(filters.rating ? { 'rating.kp': `${filters.rating.split('-')[0]}-10` } : {}),
             sortField: 'votes.kp',
             sortType: '-1'
         }
     }, [])
 
-    const handleApplyFilters = useCallback(() => {
+    // Применение фильтров
+    const handleApplyFilters = useCallback(async () => {
+        setIsLoading(true)
         const params = new URLSearchParams()
-
-        if (filters.top250) {
-            params.set('top250', 'true')
-            fetchTop250({page: 1, limit: 36})
-                .then(({data}) => setDisplayData(data))
-        } else {
-            if (filters.year?.from || filters.year?.to) {
-                params.set('year', `${filters.year.from || ''}-${filters.year.to || ''}`)
+        try {
+            if (filters.top250) {
+                params.set('top250', 'true')
+                const { data } = await fetchMovies({
+                    limit: 36,
+                    page: 1,
+                    top250: { $exists: true },
+                    sortField: 'top250',
+                    sortType: '1'
+                })
+                setDisplayData(data)
+            } else {
+                if (filters.year?.from || filters.year?.to) {
+                    params.set('year', `${filters.year.from || ''}-${filters.year.to || ''}`)
+                }
+                if (filters.genres?.length) {
+                    params.set('genres', filters.genres.join(','))
+                }
+                if (filters.rating) {
+                    params.set('rating', filters.rating)
+                }
+                const { data } = await fetchMovies({
+                    limit: 36,
+                    page: 1,
+                    ...buildQueryParams(filters)
+                })
+                setDisplayData(data)
             }
-
-            if (filters.genres?.length) {
-                params.set('genres', filters.genres.join(','))
-            }
-
-            if (filters.rating) {
-                params.set('rating', filters.rating)
-            }
-
-            fetchMovies({
-                limit: 36,
-                page: 1,
-                ...buildQueryParams(filters)
-            }).then(({data}) => setDisplayData(data))
+            setPage(1)
+            router.replace(`/films?${params.toString()}`, {scroll: false})
+        } catch (error) {
+            console.error('Error applying filters:', error)
+        } finally {
+            setIsLoading(false)
         }
+    }, [filters, router, fetchMovies, buildQueryParams])
 
-        setPage(1)
-        router.replace(`/films?${params.toString()}`, {scroll: false})
-    }, [filters, router, fetchMovies, fetchTop250, buildQueryParams])
-
+    // Сброс фильтров
     const handleResetAll = useCallback(() => {
         setPage(1)
         setPreviewCount(null)
@@ -137,29 +153,28 @@ export default function FilmsPage() {
         router.replace('/films', {scroll: false})
     }, [dispatch, router, initialData])
 
-    const handlePageChange = useCallback((newPage: number) => {
-        setPage(newPage)
-        if (filters.top250) {
-            fetchTop250({page: newPage, limit: 36})
-                .then(({data}) => setDisplayData(data))
-        } else {
-            fetchMovies({
-                limit: 36,
-                page: newPage,
-                ...buildQueryParams(filters)
-            }).then(({data}) => setDisplayData(data))
+    // Изменение страницы
+    const handlePageChange = useCallback(async (newPage: number) => {
+        setIsLoading(true)
+        try {
+            if (filters.top250) {
+                const { data } = await fetchTop250({ page: newPage, limit: 36 })
+                setDisplayData(data)
+            } else {
+                const { data } = await fetchMovies({
+                    limit: 36,
+                    page: newPage,
+                    ...buildQueryParams(filters)
+                })
+                setDisplayData(data)
+            }
+            setPage(newPage)
+        } catch (error) {
+            console.error('Error changing page:', error)
+        } finally {
+            setIsLoading(false)
         }
     }, [filters, fetchMovies, fetchTop250, buildQueryParams])
-
-    const isLoading = filters.top250 ? isTop250Loading :
-        displayData === initialData ? isInitialLoading :
-            isFilterLoading
-
-    useEffect(() => {
-        if (top250Data) {
-            console.log('Processed Top250 data:', top250Data);
-        }
-    }, [top250Data]);
 
     return (
         <div className="">
