@@ -116,91 +116,46 @@ export const filmsApi = kinoApi.injectEndpoints({
             providesTags: ['Movies']
         }),
 
-        getMovieDetails: build.query<MovieDetails, string>({
-            query: (id) => `movie/${id}`,
-            providesTags: (result, error, id) => [{type: 'MovieDetails', id}],
-            transformResponse: (response: any) => {
-                if (!response.poster?.url) {
-                    response.poster = {url: '/placeholder-poster.jpg'}
-                }
-                if (!response.backdrop?.url) {
-                    response.backdrop = {url: response.poster.url}
-                }
-                return {
-                    ...response,
-                    persons: response.persons || [],
-                    videos: response.videos || {trailers: []},
-                }
-            }
-        }),
-        getTop250List: build.query<{
-            id: string;
-            name: string;
-            moviesCount: number;
-        }, void>({
-            query: () => ({
-                url: `list`,
+        getTop250Movies: build.query<MovieResponse, {
+            page?: number;
+            limit?: number;
+        }>({
+            query: (params) => ({
+                url: `movie`,
                 params: {
-                    limit: 1,
-                    slug: 'top250',
-                    selectFields: 'id name moviesCount'
+                    page: params.page || 1,
+                    limit: params.limit || 36,
+                    top250: { $exists: true, $lte: 250 },
+                    sortField: 'top250',
+                    sortType: '1',
+                    notNullFields: 'poster.url',
+                    type: 'movie'
                 },
                 headers: {
                     'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || ''
                 }
             }),
-            transformResponse: (response: any) => {
-                return response.docs[0] || {
-                    id: '67ebbcd25da2d4ce280a5cf2',
-                    name: '250 лучших фильмов',
-                    moviesCount: 250
-                };
-            }
+            transformResponse: (response: any) => ({
+                docs: response.docs.filter((movie) => movie.top250 > 0 && movie.top250 <= 250),
+                total: 250,
+                limit: response.limit || 36,
+                page: response.page || 1,
+                pages: Math.ceil(250 / (response.limit || 36))
+            })
         }),
 
-        // getTop250Movies: build.query<MovieResponse, {
-        //     page?: number;
-        //     limit?: number;
-        // }>({
-        //     query: (params) => ({
-        //         url: `list/67ebbcd25da2d4ce280a5cf2/movie`,
-        //         params: {
-        //             page: params.page || 1,
-        //             limit: params.limit || 36,
-        //             notNullFields: 'poster.url',
-        //             sortField: 'top250',
-        //             sortType: '1'
-        //         },
-        //         headers: {
-        //             'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || ''
-        //         }
-        //     }),
-        //     transformResponse: (response: any) => {
-        //         console.log('Top250 Movies Response:', response);
-        //         return {
-        //             docs: response.docs || [],
-        //             total: response.total || 250,
-        //             limit: response.limit || 36,
-        //             page: response.page || 1,
-        //             pages: response.pages || Math.ceil(250 / (response.limit || 36))
-        //         };
-        //     },
-        //     providesTags: ['Top250']
-        // }),
 
-
-        searchMovies: build.query<MovieResponse, { query: string; limit?: number }>({
-            query: ({query, limit = 5}) => `movie/search?page=1&limit=${limit}&query=${query}`,
-        }),
+        getMovieDetails: build.query<MovieDetails, string>({
+            query: (id) => `movie/${id}`,
+            providesTags: (result, error, id) => [{ type: 'MovieDetails', id }]
+        })
     })
 })
 
 export const {
     useGetTopMoviesQuery,
-    useGetMovieDetailsQuery,
     useLazyGetTopMoviesQuery,
-    useSearchMoviesQuery,
-    useGetTop250ListQuery,
     useGetTop250MoviesQuery,
-    useLazyGetTop250MoviesQuery
+    useLazyGetTop250MoviesQuery,
+    useGetMovieDetailsQuery
 } = filmsApi;
