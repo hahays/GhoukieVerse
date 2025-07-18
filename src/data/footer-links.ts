@@ -4,7 +4,7 @@ import {FooterColumn} from "../types/footer";
 
    export const footerColumns: FooterColumn[] = [
         {
-            title: 'Данные предоставлены',
+            title: 'API',
             links: [
                 {label: 'TMDB', href: '/TMDB'},
                 {label: 'IGDB', href: '/IGDB'},

@@ -76,7 +76,7 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
                         />
                     </div>
 
-                    <div className="hidden lg:flex text-lg md:text-lg 2xl:text-2xl text-ghoukie-black space-x-6">
+                    <div className="hidden xl:flex text-lg md:text-lg 2xl:text-2xl text-ghoukie-black space-x-6">
                         <NavLink href="/">Главная</NavLink>
                         <NavLink href="/GhoukieVerse/src/app/(main)/films">Фильмы</NavLink>
                         <NavLink href="/GhoukieVerse/src/app/(main)/games">Игры</NavLink>
@@ -85,19 +85,19 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
                     </div>
 
                     <div className="flex items-center space-x-2 md:space-x-4">
-                        <div className="hidden md:block w-64">
+                        <div className="hidden xl:block max-w-xs lg:max-w-sm xl:max-w-md w-full">
                             <Search value={query} className="shadow-figma" onChange={setQuery}/>
                         </div>
 
                         <Link href="/profile">
                             <Button
-                                className="shadow-figma hidden lg:inline-flex"
+                                className="shadow-figma hidden md:inline-flex"
                                 size="lg"
                             >
                                 Профиль
                             </Button>
                             <Button
-                                className="shadow-figma sm:hidden"
+                                className="shadow-figma md:hidden sm:inline-flex"
                                 size="sm"
                                 aria-label="Профиль"
                             >
@@ -106,7 +106,7 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
                         </Link>
 
                         <button
-                            className="lg:hidden p-2"
+                            className="xl:hidden p-2"
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                         >
                             <MenuIcon isOpen={isMenuOpen}/>
@@ -115,7 +115,7 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
                 </div>
 
                 {isMenuOpen && (
-                    <div className="lg:hidden mt-3 space-y-2 bg-white rounded-lg shadow-xl p-3">
+                    <div className="xl:hidden mt-3 space-y-2 bg-white rounded-lg shadow-xl p-3">
                         <div className="mb-3">
                             <Search query={query} setQuery={setQuery} className="w-full"/>
                         </div>

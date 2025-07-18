@@ -25,7 +25,7 @@ export const Footer: React.FC<FooterProps> = ({
     }
 
     return (
-        <footer className={`${bgColor} font-alef px-4 md:px-16 py-6 ${className}`}>
+        <footer className={`${bgColor} font-alef px-6 lg:px-16 py-6 ${className}`}>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {(columns || []).map((column, index) => (
                     <div key={`column-${index}`}>
@@ -41,13 +41,13 @@ export const Footer: React.FC<FooterProps> = ({
               </span>
                         </button>
 
-                        <h3 className={`hidden md:block text-2xl text-ghoukie-white mb-6`}>
+                        <h3 className={`hidden md:block text-xl lg:text-2xl text-ghoukie-white mb-6`}>
                             {column.title}
                         </h3>
 
                         <ul className={`${
                             openSections[index] ? 'block' : 'hidden'
-                        } md:block space-y-3 text-xl`}>
+                        } md:block space-y-3 text-sm lg:text-xl`}>
                             {column.links.map((link, linkIndex) => (
                                 <li key={`link-${index}-${linkIndex}`}>
                                     <Link

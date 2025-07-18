@@ -14,7 +14,7 @@ export const PageHeader = ({
                                className = ''
                            }: PageHeaderProps) => {
     return (
-        <section className={`pt-20 md:pt-36 text-center mb-8 md:pb-16 ${className}`}>
+        <section className={`pt-20 md:pt-36 text-center mb-8 md:pb-0 lg:pb-16 ${className}`}>
             <div className="container mx-auto px-4">
                 <h1 className={`2xl:text-9xl lg:text-8xl text-5xl pb-4 font-customBold text-shadow-figma tracking-absolute-18 text-ghoukie-black ${
                     title === "GHOUKIEVERSE" ? "hidden md:block" : ""

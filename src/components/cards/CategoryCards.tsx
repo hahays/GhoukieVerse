@@ -56,21 +56,21 @@ const categories: CategoryItem[] = [
 export const CategoryCards = () => {
     return (
         <div className="font-victor">
-            <div className="hidden lg:grid grid-cols-3 gap-8">
+            <div className="hidden xl:grid grid-cols-3 gap-8">
                 {categories.map((category) => (
                     <DesktopCard key={category.id} category={category} />
                 ))}
             </div>
 
-            <div className="hidden md:flex md:flex-col lg:hidden gap-6">
+            <div className="hidden md:flex md:flex-col xl:hidden gap-6">
                 {categories.map((category) => (
-                    <div key={category.id} className={`group relative p-3 ${category.bgColor} ${category.hoverColor} rounded-xl shadow-lg flex h-32`}>
+                    <div key={category.id} className={`group relative p-3 ${category.bgColor} ${category.hoverColor} rounded-xl shadow-lg flex h-44 md:h-56 gap-4`}>
 
                         <div className="w-1/2 p-3 flex flex-col justify-center">
-                            <h3 className={`text-2xl font-bold mb-2 ${category.titleColor}`}>
+                            <h3 className={`text-xl lg:text-4xl font-bold mb-2 ${category.titleColor}`}>
                                 {category.title}
                             </h3>
-                            <p className={`text-sm ${category.descriptionColor}`}>
+                            <p className={`text-sm lg:text-xl ${category.descriptionColor}`}>
                                 {category.description}
                             </p>
                         </div>
@@ -127,7 +127,7 @@ const DesktopCard = ({ category }: { category: CategoryItem }) => (
 );
 
 const MobileCard = ({ category }: { category: CategoryItem }) => (
-    <div className={`group relative p-2 ${category.bgColor} ${category.hoverColor} overflow-hidden rounded-xl shadow-lg transition-all duration-300 flex h-[116px]`}>
+    <div className={`group relative p-2 ${category.bgColor} ${category.hoverColor} overflow-hidden rounded-xl shadow-lg transition-all duration-300 flex h-44`}>
         <div className="w-[60%] p-3 flex flex-col justify-center">
             <Link href={category.href}>
                 <h3 className={`text-xl leading-tight font-bold mb-1 ${category.titleColor || 'text-ghoukie-white'}`}>
