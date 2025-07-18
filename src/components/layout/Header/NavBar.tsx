@@ -3,7 +3,6 @@
 import React, {useEffect, useState} from "react";
 import {Logo} from "../../../containers/Logo";
 import {Search} from "../../../features/Search";
-import {NumResults} from "../../../containers/NumResults";
 import {Movie} from "../../../types";
 import Link from "next/link";
 import {Button} from "../../ui/Button";
@@ -63,21 +62,21 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
     }, [prevScrollPos])
 
     return (
-        <nav className={`fixed w-full h-24 transition-all duration-300 z-50  ${
+        <nav className={`fixed w-full h-16 md:h-24 transition-all duration-300 z-50 ${
             visible ? 'top-0' : '-top-24'
-        } ${
-            scrolled
-                ? 'bg-ghoukie-white '
-                : 'bg-ghoukie-white '
-        }`}>
-            <div className=" mx-auto px-16 py-6 font-victor">
+        } bg-ghoukie-white`}>
+            <div className="mx-4 md:mx-8 lg:mx-16 py-3 md:py-6 font-victor">
                 <div className="flex justify-between items-center">
 
                     <div className="flex items-center ">
-                        <Logo href="/" logoSize="lg" className="hover:opacity-80"/>
+                        <Logo
+                            href="/"
+                            logoSize="lg"
+                            className="hover:opacity-80 w-[180px] h-[45px] md:w-[200px] md:h-[50px]"
+                        />
                     </div>
 
-                    <div className="hidden md:flex text-2xl text-ghoukie-black space-x-6 flex p">
+                    <div className="hidden lg:flex text-lg md:text-lg 2xl:text-2xl text-ghoukie-black space-x-6">
                         <NavLink href="/">Главная</NavLink>
                         <NavLink href="/GhoukieVerse/src/app/(main)/films">Фильмы</NavLink>
                         <NavLink href="/GhoukieVerse/src/app/(main)/games">Игры</NavLink>
@@ -85,20 +84,29 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
                         <NavLink href="/roadmap">Roadmap</NavLink>
                     </div>
 
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2 md:space-x-4">
                         <div className="hidden md:block w-64">
                             <Search value={query} className="shadow-figma" onChange={setQuery}/>
                         </div>
 
                         <Link href="/profile">
-                            <Button className="shadow-figma" size="lg">
+                            <Button
+                                className="shadow-figma hidden lg:inline-flex"
+                                size="lg"
+                            >
+                                Профиль
+                            </Button>
+                            <Button
+                                className="shadow-figma sm:hidden"
+                                size="sm"
+                                aria-label="Профиль"
+                            >
                                 Профиль
                             </Button>
                         </Link>
 
-
                         <button
-                            className="md:hidden p-2"
+                            className="lg:hidden p-2"
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                         >
                             <MenuIcon isOpen={isMenuOpen}/>
@@ -107,14 +115,17 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
                 </div>
 
                 {isMenuOpen && (
-                    <div className="md:hidden mt-4 pb-4 space-y-3">
-                        <div className="mb-4">
-                            <Search query={query} setQuery={setQuery}/>
+                    <div className="lg:hidden mt-3 space-y-2 bg-white rounded-lg shadow-xl p-3">
+                        <div className="mb-3">
+                            <Search query={query} setQuery={setQuery} className="w-full"/>
                         </div>
-                        <MobileNavLink href="/GhoukieVerse/src/app/(main)/films">Фильмы</MobileNavLink>
-                        <MobileNavLink href="/GhoukieVerse/src/app/(main)/games">Игры</MobileNavLink>
-                        <MobileNavLink href="/GhoukieVerse/src/app/(main)/anime">Aниме</MobileNavLink>
-                        <MobileNavLink href="/roadmap">Roadmap</MobileNavLink>
+                        <div className="grid grid-cols-2 gap-2">
+                            <MobileNavLink href="/">Главная</MobileNavLink>
+                            <MobileNavLink href="/films">Фильмы</MobileNavLink>
+                            <MobileNavLink href="/games">Игры</MobileNavLink>
+                            <MobileNavLink href="/anime">Аниме</MobileNavLink>
+                            <MobileNavLink href="/roadmap">Roadmap</MobileNavLink>
+                        </div>
                     </div>
                 )}
             </div>

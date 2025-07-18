@@ -14,6 +14,9 @@ const loadState = () => {
 
 interface FilmFiltersState extends MovieFilterParams {
     isInitialized: boolean
+    platform: string
+    age: string
+    popularity: string
 }
 
 const initialState: FilmFiltersState = {

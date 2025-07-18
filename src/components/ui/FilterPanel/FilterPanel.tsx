@@ -22,6 +22,7 @@ export const FilterPanel = ({
                                 platforms = [],
                                 countries = [],
                                 durations = [],
+
                                 dates = [],
                                 tags = [],
                                 onFilterChange,
@@ -42,7 +43,9 @@ export const FilterPanel = ({
         platforms: apiPlatforms,
         awards: apiAwards,
         isLoading: isLoadingFilters,
-        error: filtersError
+        error: filtersError,
+        ages,
+        popularities,
     } = useFilmFiltersData();
 
     const { genres: apiGenres, isLoading: genresLoading } = useGenres();
@@ -290,7 +293,21 @@ export const FilterPanel = ({
     const handleAgeChange = (value: string) => {
         onFilterChange({
             age: value,
-            ageRating: value ? { $gte: parseInt(value) } : undefined
+            ageRating: value ? parseInt(value) : undefined
+        });
+    };
+
+    const handlePopularityChange = (value: string) => {
+        const popularityMap: Record<string, { $gte?: number }> = {
+            'blockbuster': { $gte: 100000000 },
+            'high': { $gte: 50000000 },
+            'medium': { $gte: 10000000 },
+            'low': { $lt: 10000000 }
+        };
+
+        onFilterChange({
+            popularity: value,
+            'fees.world': value ? popularityMap[value] : undefined
         });
     };
 
@@ -456,25 +473,31 @@ export const FilterPanel = ({
             <div className="flex flex-wrap gap-4">
                 <div className="flex-1 flex gap-4 min-w-[240px]">
                     <Select
-                        options={[{value: '', label: 'Платформа'}, ]}
+                        options={[
+                            { value: '', label: 'Платформа' },
+                            ...platforms
+                        ]}
                         value={filters.platform || ''}
                         onChange={handlePlatformChange}
+                        disabled={isLoadingFilters}
                     />
                     <Select
                         options={[
-                            {value: '', label: 'Возраст'},
-                            {value: '6', label: '6+'},
-                            {value: '12', label: '12+'},
-                            {value: '16', label: '16+'},
-                            {value: '18', label: '18+'}
+                            { value: '', label: 'Возраст' },
+                            ...ages
                         ]}
                         value={filters.age || ''}
                         onChange={handleAgeChange}
+                        disabled={isLoadingFilters}
                     />
                     <Select
-                        options={defaultOptions.popularities}
+                        options={[
+                            { value: '', label: 'Популярность' },
+                            ...popularities
+                        ]}
                         value={filters.popularity || ''}
-                        onChange={(value) => handleToggleFilter('popularity', value)}
+                        onChange={handlePopularityChange}
+                        disabled={isLoadingFilters}
                     />
                 </div>
 

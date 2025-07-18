@@ -11,8 +11,7 @@ export default function Home() {
                 title="GHOUKIEVERSE"
                 description="Отслеживай свои любимые фильмы, игры и аниме."
             />
-
-            <section className="px-16">
+            <section className="lg:px-16 lg:mb-20 px-4 mb-8 bg-ghoukie-white">
                 <div className="mx-auto">
                     <CategoryCards/>
                 </div>

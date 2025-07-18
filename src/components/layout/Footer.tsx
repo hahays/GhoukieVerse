@@ -1,9 +1,9 @@
-import Link from 'next/link';
-import React from 'react';
-import {FooterProps} from "../../types/footer";
+'use client'
+
+import {useState} from 'react'
+import Link from 'next/link'
 import {footerColumns} from "../../data/footer-links";
-
-
+import {FooterProps} from "../../types/footer";
 
 export const Footer: React.FC<FooterProps> = ({
                                                   bgColor = 'bg-ghoukie-green',
@@ -15,22 +15,44 @@ export const Footer: React.FC<FooterProps> = ({
                                                   dividerColor = 'border-ghoukie-black',
                                                   className = '',
                                               }) => {
-    const safeColumns = columns || [];
+    const [openSections, setOpenSections] = useState<Record<number, boolean>>({})
+
+    const toggleSection = (index: number) => {
+        setOpenSections(prev => ({
+            ...prev,
+            [index]: !prev[index]
+        }))
+    }
 
     return (
-        <footer className={`${bgColor} font-alef px-16 py-9 mt-16 ${className}`}>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {safeColumns.map((column, index) => (
+        <footer className={`${bgColor} font-alef px-4 md:px-16 py-6 ${className}`}>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {(columns || []).map((column, index) => (
                     <div key={`column-${index}`}>
-                        <h3 className={`text-2xl text-ghoukie-white mb-6`}>
+                        <button
+                            className="md:hidden flex items-center justify-between w-full"
+                            onClick={() => toggleSection(index)}
+                        >
+                            <h3 className={`text-2xl text-ghoukie-white`}>
+                                {column.title}
+                            </h3>
+                            <span className="text-ghoukie-white text-2xl">
+                {openSections[index] ? '−' : '+'}
+              </span>
+                        </button>
+
+                        <h3 className={`hidden md:block text-2xl text-ghoukie-white mb-6`}>
                             {column.title}
                         </h3>
-                        <ul className="space-y-3 text-xl">
+
+                        <ul className={`${
+                            openSections[index] ? 'block' : 'hidden'
+                        } md:block space-y-3 text-xl`}>
                             {column.links.map((link, linkIndex) => (
                                 <li key={`link-${index}-${linkIndex}`}>
                                     <Link
                                         href={link.href}
-                                        className={`${textColor} ${hoverColor} transition-colors flex items-center gap-2`}
+                                        className={`${textColor} ${hoverColor} transition-colors flex items-center gap-2 py-1`}
                                     >
                                         {link.icon && <span>{link.icon}</span>}
                                         {link.label}
@@ -42,8 +64,8 @@ export const Footer: React.FC<FooterProps> = ({
                 ))}
             </div>
 
-            <div className="mt-8 text-center text-xl text-shadow-figma">
-                <hr className={`my-8 w-full ${dividerColor} shadow-figma`} />
+            <div className="mt-8 text-center lg:text-xl  text-shadow-figma">
+                <hr className={`my-6 md:my-8 w-full ${dividerColor} shadow-figma`}/>
                 <Link
                     href={copyrightHref}
                     className={`${textColor} ${hoverColor} transition-colors font-bold`}
@@ -52,5 +74,5 @@ export const Footer: React.FC<FooterProps> = ({
                 </Link>
             </div>
         </footer>
-    );
-};
+    )
+}

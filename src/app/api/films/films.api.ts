@@ -116,6 +116,21 @@ export const filmsApi = kinoApi.injectEndpoints({
             providesTags: ['Movies']
         }),
 
+        getWatchabilityPlatforms: build.query<Array<{ name: string }>, void>({
+            query: () => ({
+                url: 'movie/possible-values-by-field?field=watchability.items.name',
+                headers: {
+                    'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || ''
+                }
+            }),
+            transformResponse: (response: any) => {
+                console.log('Watchability platforms response:', response);
+                return response?.map((item: any) => ({
+                    name: item.name
+                })) || [];
+            }
+        }),
+
         getTop250Movies: build.query<MovieResponse, {
             page?: number;
             limit?: number;
@@ -150,6 +165,7 @@ export const filmsApi = kinoApi.injectEndpoints({
             providesTags: (result, error, id) => [{ type: 'MovieDetails', id }]
         })
     })
+
 })
 
 export const {

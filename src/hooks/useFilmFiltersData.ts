@@ -8,11 +8,15 @@ export const useFilmFiltersData = () => {
         years: [] as Array<{ value: string; label: string }>,
         platforms: [] as Array<{ value: string; label: string }>,
         awards: [] as Array<{ value: string; label: string }>,
+        ages: [] as Array<{ value: string; label: string }>,
+        popularities: [] as Array<{ value: string; label: string }>,
         isLoading: true,
         error: null as Error | null,
     });
 
     const [triggerMovies] = filmsApi.useLazyGetTopMoviesQuery();
+    const { data: platformsData, isLoading: isPlatformsLoading, error: platformsError } =
+        filmsApi.useGetWatchabilityPlatformsQuery();
 
     useEffect(() => {
         const loadFilterData = async () => {
@@ -20,8 +24,19 @@ export const useFilmFiltersData = () => {
 
                 const { data: moviesData } = await triggerMovies({
                     limit: 500,
-                    selectFields: ['genres', 'countries', 'year', 'watchability']
+                    selectFields: ['genres', 'countries', 'year']
                 });
+
+                const platforms = platformsData?.map(p => ({
+                    value: p.name.toLowerCase(),
+                    label: p.name
+                })) || [];
+
+                const finalPlatforms = platforms.length > 0 ? platforms : [
+                    { value: 'netflix', label: 'Netflix' },
+                    { value: 'amazon', label: 'Amazon Prime' },
+                    // ... другие платформы
+                ];
 
                 if (moviesData?.docs) {
                     const allGenres = moviesData.docs.flatMap(movie =>
@@ -35,16 +50,40 @@ export const useFilmFiltersData = () => {
                     const uniqueCountries = [...new Set(allCountries.filter(Boolean))];
 
 
-                    const allPlatforms = moviesData.docs.flatMap(movie =>
-                        movie.watchability?.items?.map(item => item.name) || []
-                    );
-                    const uniquePlatforms = [...new Set(allPlatforms.filter(Boolean))];
+                    const platforms = platformsData?.docs[0]?.watchability?.items?.map(item => ({
+                        value: item.name.toLowerCase(),
+                        label: item.name
+                    })) || [];
+
+
+                    const ages = [
+                        { value: '6', label: '6+' },
+                        { value: '12', label: '12+' },
+                        { value: '16', label: '16+' },
+                        { value: '18', label: '18+' },
+                        { value: '21', label: '21+' }
+                    ];
+
+
+                    const popularities = [
+                        { value: 'blockbuster', label: 'Блокбастеры' },
+                        { value: 'high', label: 'Высокая' },
+                        { value: 'medium', label: 'Средняя' },
+                        { value: 'low', label: 'Низкая' }
+                    ];
 
                     const currentYear = new Date().getFullYear();
                     const years = Array.from({ length: 30 }, (_, i) => ({
                         value: (currentYear - i).toString(),
                         label: (currentYear - i).toString(),
                     }));
+
+                    const ageRatings = [
+                        { value: '6', label: '6+' },
+                        { value: '12', label: '12+' },
+                        { value: '16', label: '16+' },
+                        { value: '18', label: '18+' }
+                    ];
 
                     setFilterOptions({
                         genres: uniqueGenres.map(genre => ({
@@ -56,14 +95,13 @@ export const useFilmFiltersData = () => {
                             label: country
                         })),
                         years: [{ value: '', label: 'Год' }, ...years],
-                        platforms: uniquePlatforms.map(platform => ({
-                            value: platform.toLowerCase(),
-                            label: platform
-                        })),
+                        platforms: finalPlatforms,
                         awards: [
                             { value: 'oscar', label: 'Оскар' },
                             { value: 'golden-globe', label: 'Золотой глобус' }
                         ],
+                        ages,
+                        popularities,
                         isLoading: false,
                         error: null
                     });

@@ -55,40 +55,101 @@ const categories: CategoryItem[] = [
 
 export const CategoryCards = () => {
     return (
-        <div className="grid grid-cols-1 font-victor md:grid-cols-3 gap-8">
-            {categories.map((category) => (
-                <div
-                    key={category.id}
-                    className={`group relative p-2 ${category.bgColor} ${category.hoverColor} overflow-hidden rounded-xl shadow-lg transition-all duration-300`}
-                >
-                    <div className="aspect-video relative flex items-center justify-center p-8">
-                        <div className={`absolute inset-4 rounded-lg ${category.innerBlockColor} backdrop-blur-sm`}/>
+        <div className="font-victor">
+            <div className="hidden lg:grid grid-cols-3 gap-8">
+                {categories.map((category) => (
+                    <DesktopCard key={category.id} category={category} />
+                ))}
+            </div>
 
-                        <div className="relative w-full h-full">
-                            <Link href={category.href}>
-                                <Image
-                                    src={category.svgPath}
-                                    alt={category.title}
-                                    fill
-                                    className="object-contain p-4 transition-transform duration-500 group-hover:scale-110"
-                                    quality={100}
-                                />
-                            </Link>
-                        </div>
-                    </div>
+            <div className="hidden md:flex md:flex-col lg:hidden gap-6">
+                {categories.map((category) => (
+                    <div key={category.id} className={`group relative p-3 ${category.bgColor} ${category.hoverColor} rounded-xl shadow-lg flex h-32`}>
 
-                    <Link href={category.href}>
-                        <div className="px-4 pb-2 transition-colors duration-300">
-                            <h3 className={`text-4xl font-bold mb-4 ${category.titleColor || 'text-ghoukie-white'}`}>
+                        <div className="w-1/2 p-3 flex flex-col justify-center">
+                            <h3 className={`text-2xl font-bold mb-2 ${category.titleColor}`}>
                                 {category.title}
                             </h3>
-                            <p className={`text-xl ${category.descriptionColor || 'text-ghoukie-gray'}`}>
+                            <p className={`text-sm ${category.descriptionColor}`}>
                                 {category.description}
                             </p>
                         </div>
-                    </Link>
-                </div>
-            ))}
+
+                        <div className="w-1/2 relative">
+                            <div className={`absolute inset-2 rounded-lg ${category.innerBlockColor}`}/>
+                            <Image
+                                src={category.svgPath}
+                                alt={category.title}
+                                fill
+                                className="object-contain p-3"
+                            />
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <div className="md:hidden space-y-4">
+                {categories.map((category) => (
+                    <MobileCard key={category.id} category={category} />
+                ))}
+            </div>
         </div>
     );
 };
+
+const DesktopCard = ({ category }: { category: CategoryItem }) => (
+    <div className={`group relative p-2 ${category.bgColor} ${category.hoverColor} overflow-hidden rounded-xl shadow-lg transition-all duration-300`}>
+        <div className="aspect-video relative flex items-center justify-center p-8">
+            <div className={`absolute inset-4 rounded-lg ${category.innerBlockColor} backdrop-blur-sm`}/>
+            <div className="relative w-full h-full">
+                <Link href={category.href}>
+                    <Image
+                        src={category.svgPath}
+                        alt={category.title}
+                        fill
+                        className="object-contain p-4 transition-transform duration-500 group-hover:scale-110"
+                        quality={100}
+                    />
+                </Link>
+            </div>
+        </div>
+        <Link href={category.href}>
+            <div className="px-4 pb-2 transition-colors duration-300">
+                <h3 className={`text-4xl font-bold mb-4 ${category.titleColor || 'text-ghoukie-white'}`}>
+                    {category.title}
+                </h3>
+                <p className={`text-xl ${category.descriptionColor || 'text-ghoukie-gray'}`}>
+                    {category.description}
+                </p>
+            </div>
+        </Link>
+    </div>
+);
+
+const MobileCard = ({ category }: { category: CategoryItem }) => (
+    <div className={`group relative p-2 ${category.bgColor} ${category.hoverColor} overflow-hidden rounded-xl shadow-lg transition-all duration-300 flex h-[116px]`}>
+        <div className="w-[60%] p-3 flex flex-col justify-center">
+            <Link href={category.href}>
+                <h3 className={`text-xl leading-tight font-bold mb-1 ${category.titleColor || 'text-ghoukie-white'}`}>
+                    {category.title}
+                </h3>
+                <p className={`text-[12px] ${category.descriptionColor || 'text-ghoukie-gray'}`}>
+                    {category.description}
+                </p>
+            </Link>
+        </div>
+        <div className="w-[40%] relative">
+            <div className={`absolute inset-1 rounded-lg ${category.innerBlockColor} backdrop-blur-sm`}/>
+            <Link href={category.href}>
+                <Image
+                    src={category.svgPath}
+                    alt={category.title}
+                    fill
+                    className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
+                    quality={100}
+                    sizes="(max-width: 768px) 116px, 254px"
+                />
+            </Link>
+        </div>
+    </div>
+);

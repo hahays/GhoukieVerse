@@ -9,6 +9,7 @@ import {useAppDispatch, useAppSelector} from '../../../stores/hooks'
 import {resetFilmFilters, setFilmFilter} from '../../../stores/slices/films/filmFilters.slice'
 import {useGetTopMoviesQuery, useLazyGetTopMoviesQuery} from '../../api/films/films.api'
 import {useGenres} from '../../../hooks/useGenges'
+import {useFilmFiltersData} from "../../../hooks/useFilmFiltersData";
 
 export default function FilmsPage() {
     const router = useRouter()
@@ -26,10 +27,18 @@ export default function FilmsPage() {
     const {data: initialData} = useGetTopMoviesQuery({
         limit: 36,
         page: 1,
-        year: '2025-2025',
         sortField: 'votes.imdb',
-        sortType: '-1'
+        sortType: '-1',
+        notNullFields: 'poster.url',
+        year: '2025-2025',
     })
+
+    const {
+        platforms,
+        ages,
+        popularities,
+        isLoading: isLoadingFilters
+    } = useFilmFiltersData();
 
 
     const [fetchMovies] = useLazyGetTopMoviesQuery()
@@ -73,9 +82,6 @@ export default function FilmsPage() {
             fetchMovies({
                 limit: 1,
                 page: 1,
-                year: '2025-2025',
-                sortField: 'year',
-                sortType: '-1',
                 ...buildQueryParams(filters)
             }).then(({data}) => {
                 setPreviewCount(data?.total || 0)
@@ -91,8 +97,8 @@ export default function FilmsPage() {
                 year: `${filters.year.from || ''}-${filters.year.to || ''}`
             } : {}),
             ...(filters.genres?.length ? {'genres.name': filters.genres} : {}),
-            ...(filters.rating ? {'rating.kp': `${filters.rating.split('-')[0]}-10`} : {}),
-            sortField: 'votes.kp',
+            ...(filters.rating ? {'rating.imdb': `${filters.rating.split('-')[0]}-10`} : {}),
+            sortField: 'votes.imdb',
             sortType: '-1'
         }
     }, [])
@@ -222,6 +228,9 @@ export default function FilmsPage() {
         }
     }, [filters, fetchMovies, buildQueryParams])
 
+    const filterData = useFilmFiltersData();
+    console.log('Filter Data:', filterData);
+
 
     return (
         <div className="">
@@ -232,6 +241,9 @@ export default function FilmsPage() {
                 previewCount={previewCount}
                 genres={apiGenres}
                 isLoadingPreview={isLoading}
+                platforms={platforms}
+                ages={ages}
+                popularities={popularities}
             />
             <section className="px-16">
                 <MediaGrid

@@ -5,7 +5,7 @@ import React from 'react';
 interface LogoProps {
     className?: string;
     href?: string;
-    logoSize?: 'sm' | 'md' | 'lg';
+    logoSize?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl'
 }
 
 export const Logo: React.FC<LogoProps> = ({
@@ -14,9 +14,9 @@ export const Logo: React.FC<LogoProps> = ({
                                               logoSize = 'md',
                                           }) => {
     const sizeClasses = {
-        sm: { width: 32, height: 32 },  // 32x32px
-        md: { width: 48, height: 48 },  // 48x48px
-        lg: { width: 254, height: 64 }, // 120x60px (примерно как Search/Button)
+        sm: { width: 32, height: 32 },
+        md: { width: 48, height: 48 },
+        lg: { width: 254, height: 64 },
     };
 
     const size = sizeClasses[logoSize];
