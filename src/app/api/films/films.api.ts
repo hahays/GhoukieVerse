@@ -14,8 +14,6 @@ export const filmsApi = kinoApi.injectEndpoints({
             budget?: string;
             language?: string;
             isImax?: boolean;
-            'watchability.items.name'?: string;
-            ageRating?: { $gte?: number };
             movieLength?: { $lt?: number; $gte?: number; $lte?: number } | number;
             is3d?: boolean;
             'awards.name'?: string;
@@ -30,7 +28,11 @@ export const filmsApi = kinoApi.injectEndpoints({
             'top250'?: { $exists: boolean; $lte: number };
             'productionCompanies.name'?: string;
             'persons.enProfession'?: string;
+            'watchability.items.name'?: string;
+            ageRating?: number;
+            'fees.world'?: { $gte?: number; $lt?: number };
         }>({
+
             query: (params) => {
                 const queryParams = new URLSearchParams()
 
@@ -45,11 +47,8 @@ export const filmsApi = kinoApi.injectEndpoints({
                 if (params['countries.name']) queryParams.append('countries.name', params['countries.name']);
                 if (params.watched) queryParams.append('isWatched', 'true');
                 if (params.universe) queryParams.append('isUniverse', 'true');
-
                 if (params.ageRating) queryParams.append('ageRating', params.ageRating);
                 if (params['persons.name']) queryParams.append('persons.name', params['persons.name']);
-                if (params.language) queryParams.append('language', params.language);
-
                 if (params.language) queryParams.append('language', params.language);
                 if (params['awards.name']) queryParams.append('awards.name', params['awards.name']);
                 if (params.is3d) queryParams.append('is3d', 'true');
@@ -61,8 +60,20 @@ export const filmsApi = kinoApi.injectEndpoints({
                 if (params['persons.enProfession']) {
                     queryParams.append('persons.enProfession', params['persons.enProfession']);
                 }
-
-
+                if (params['watchability.items.name']) {
+                    queryParams.append('watchability.items.name', params['watchability.items.name']);
+                }
+                if (params.ageRating) {
+                    queryParams.append('ageRating', params.ageRating.toString());
+                }
+                if (params['fees.world']) {
+                    if (params['fees.world'].$gte) {
+                        queryParams.append('fees.world', `>=${params['fees.world'].$gte}`);
+                    }
+                    if (params['fees.world'].$lt) {
+                        queryParams.append('fees.world', `<${params['fees.world'].$lt}`);
+                    }
+                }
                 if (params['rating.imdb']) {
                     queryParams.append('rating.imdb', params['rating.imdb']);
                 } else if (params['rating.kp']) {
@@ -90,7 +101,16 @@ export const filmsApi = kinoApi.injectEndpoints({
                     queryParams.append('watchability.items.name', params['watchability.items.name']);
                 }
                 if (params.ageRating) {
-                    queryParams.append('ageRating', JSON.stringify(params.ageRating));
+                    queryParams.append('ageRating', params.ageRating);
+                }
+
+                if (params['votes.kp']) {
+                    if (params['votes.kp'].$gte) {
+                        queryParams.append('votes.kp', `>=${params['votes.kp'].$gte}`);
+                    }
+                    if (params['votes.kp'].$lt) {
+                        queryParams.append('votes.kp', `<${params['votes.kp'].$lt}`);
+                    }
                 }
 
                 queryParams.append('sortField', 'votes.kp')
@@ -116,18 +136,96 @@ export const filmsApi = kinoApi.injectEndpoints({
             providesTags: ['Movies']
         }),
 
-        getWatchabilityPlatforms: build.query<Array<{ name: string }>, void>({
+        getPlatforms: build.query<{ value: string; label: string }[], void>({
             query: () => ({
-                url: 'movie/possible-values-by-field?field=watchability.items.name',
+                url: 'movie',
+                params: {
+                    limit: 100,
+                    selectFields: 'watchability',
+                },
+                headers: { 'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || '' },
+            }),
+            transformResponse: (response: any) => {
+                const fallbackPlatforms = [
+                    { value: 'Иви',      label: 'IVI' },
+                    { value: 'Okko',     label: 'Okko' },
+                    { value: 'kinopoisk',label: 'Кинопоиск HD' },
+                    { value: 'netflix',  label: 'Netflix' },
+                    { value: 'disney',   label: 'Disney+' },
+                    { value: 'Wink',     label: 'Wink' },
+                    { value: 'start',    label: 'START' },
+                    { value: 'PREMIER',   label: 'PREMIER' },
+                    { value: 'KION',      label: 'KION' },
+                    { value: 'Кино1ТВ',    label: 'Кино1ТВ' },
+                    { value: 'AMEDIATEKA',    label: 'AMEDIATEKA' },
+                ];
+                try {
+                    if (response?.docs) return fallbackPlatforms;
+
+                    const platforms = new Set<string>();
+
+                    response.docs.forEach((movie: any) => {
+                        movie.watchability?.items?.forEach((item: any) => {
+                            if (item?.name) {
+                                platforms.add(item.name);
+                            }
+                        });
+                    });
+
+                    return platforms.size > 0
+                        ? Array.from(platforms).map(name => ({
+                            value: name.toLowerCase().replace(/\s+/g, '-'),
+                            label: name
+                        }))
+                        : fallbackPlatforms;
+                } catch (error) {
+                    console.error('Error transforming platforms:', error);
+                    return fallbackPlatforms;
+                }
+            }
+        }),
+
+
+        getAgeRatings: build.query<{ value: string; label: string }[], void>({
+            query: () => ({
+                url: `movie`,
+                params: {
+                    selectFields: 'ageRating',
+                    limit: 100
+                },
                 headers: {
                     'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || ''
                 }
             }),
             transformResponse: (response: any) => {
-                console.log('Watchability platforms response:', response);
-                return response?.map((item: any) => ({
-                    name: item.name
-                })) || [];
+                const ratings = new Set<number>();
+                response.docs.forEach((doc: any) => {
+                    if (typeof doc.ageRating === 'number') {
+                        ratings.add(doc.ageRating);
+                    }
+                });
+                return Array.from(ratings).map(rating => ({
+                    value: rating.toString(),
+                    label: `${rating}+`
+                }));
+            }
+        }),
+
+
+        getPopularities: build.query<{ value: string; label: string }[], void>({
+            query: () => ({
+                url: 'movie',
+                params: {
+                    selectFields: 'fees.world',
+                    limit: 100
+                }
+            }),
+            transformResponse: () => {
+                return [
+                    {value: 'high', label: 'Высокая'},
+                    {value: 'medium', label: 'Средняя'},
+                    {value: 'low', label: 'Низкая'}
+                ]
             }
         }),
 
@@ -140,7 +238,7 @@ export const filmsApi = kinoApi.injectEndpoints({
                 params: {
                     page: params.page || 1,
                     limit: params.limit || 36,
-                    top250: { $exists: true, $lte: 250 },
+                    top250: {$exists: true, $lte: 250},
                     sortField: 'top250',
                     sortType: '1',
                     notNullFields: 'poster.url',
@@ -162,7 +260,7 @@ export const filmsApi = kinoApi.injectEndpoints({
 
         getMovieDetails: build.query<MovieDetails, string>({
             query: (id) => `movie/${id}`,
-            providesTags: (result, error, id) => [{ type: 'MovieDetails', id }]
+            providesTags: (result, error, id) => [{type: 'MovieDetails', id}]
         })
     })
 
@@ -173,5 +271,8 @@ export const {
     useLazyGetTopMoviesQuery,
     useGetTop250MoviesQuery,
     useLazyGetTop250MoviesQuery,
-    useGetMovieDetailsQuery
+    useGetMovieDetailsQuery,
+    useGetPlatformsQuery,
+    useGetAgeRatingsQuery,
+    useGetPopularitiesQuery
 } = filmsApi;

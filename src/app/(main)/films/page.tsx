@@ -7,7 +7,7 @@ import {FilterPanel} from '../../../components/ui/FilterPanel/FilterPanel'
 import {Pagination} from '../../../components/ui/Pagination/Pagination'
 import {useAppDispatch, useAppSelector} from '../../../stores/hooks'
 import {resetFilmFilters, setFilmFilter} from '../../../stores/slices/films/filmFilters.slice'
-import {useGetTopMoviesQuery, useLazyGetTopMoviesQuery} from '../../api/films/films.api'
+import {useGetPlatformsQuery, useGetTopMoviesQuery, useLazyGetTopMoviesQuery} from '../../api/films/films.api'
 import {useGenres} from '../../../hooks/useGenges'
 import {useFilmFiltersData} from "../../../hooks/useFilmFiltersData";
 
@@ -34,16 +34,16 @@ export default function FilmsPage() {
     })
 
     const {
-        platforms,
         ages,
         popularities,
         isLoading: isLoadingFilters
     } = useFilmFiltersData();
 
 
+    const {platforms = []} = useGetPlatformsQuery();
+
     const [fetchMovies] = useLazyGetTopMoviesQuery()
 
-    // Инициализация данных
     useEffect(() => {
         setDisplayData(initialData)
     }, [initialData])
@@ -98,6 +98,9 @@ export default function FilmsPage() {
             } : {}),
             ...(filters.genres?.length ? {'genres.name': filters.genres} : {}),
             ...(filters.rating ? {'rating.imdb': `${filters.rating.split('-')[0]}-10`} : {}),
+            ...(filters.platform ? {'watchability.items.name': filters.platform} : {}),
+            ...(filters.age ? {ageRating: filters.age} : {}),
+            ...(filters.popularity ? getPopularityFilter(filters.popularity) : {}),
             sortField: 'votes.imdb',
             sortType: '-1'
         }
@@ -110,7 +113,6 @@ export default function FilmsPage() {
 
         try {
             if (filters.top250) {
-                // Запрос к топ-250
                 params.set('top250', 'true')
 
                 const {data} = await fetchMovies({
@@ -121,7 +123,6 @@ export default function FilmsPage() {
                     sortType: '1'
                 })
 
-                // Дополнительная фильтрация на клиенте
                 const filteredDocs = data.docs.filter(
                     (movie) => typeof movie.top250 === 'number' && movie.top250 >= 1 && movie.top250 <= 250
                 )
@@ -134,17 +135,31 @@ export default function FilmsPage() {
                 })
 
             } else if (filters.genres?.length || filters.year || filters.rating) {
-                // Если есть другие фильтры — применяем их
                 if (filters.year?.from || filters.year?.to) {
                     params.set('year', `${filters.year.from || ''}-${filters.year.to || ''}`)
                 }
-
                 if (filters.genres?.length) {
                     params.set('genres', filters.genres.join(','))
                 }
-
                 if (filters.rating) {
                     params.set('rating', filters.rating)
+                }
+                if (filters.platform) {
+                    params['watchability.items.name'] = filters.platform;
+                }
+                if (filters.age) params.set('age', filters.age);
+                if (filters.popularity) {
+                    switch (filters.popularity) {
+                        case 'high':
+                            params['fees.world'] = {$gte: 50000000};
+                            break;
+                        case 'medium':
+                            params['fees.world'] = {$gte: 10000000, $lt: 50000000};
+                            break;
+                        case 'low':
+                            params['fees.world'] = {$lt: 10000000};
+                            break;
+                    }
                 }
 
                 const {data} = await fetchMovies({
@@ -156,7 +171,6 @@ export default function FilmsPage() {
                 setDisplayData(data)
 
             } else {
-                // Нет активных фильтров — загружаем новинки
                 const {data} = await fetchMovies({
                     limit: 36,
                     page: 1,
@@ -186,6 +200,19 @@ export default function FilmsPage() {
         dispatch(resetFilmFilters())
         router.replace('/films', {scroll: false})
     }, [dispatch, router, initialData])
+
+    const getPopularityFilter = (popularity: string) => {
+        switch (popularity) {
+            case 'high':
+                return {'fees.world': {$gte: 50000000}};
+            case 'medium':
+                return {'fees.world': {$gte: 10000000, $lt: 50000000}};
+            case 'low':
+                return {'fees.world': {$lt: 10000000}};
+            default:
+                return {};
+        }
+    }
 
     const handlePageChange = useCallback(async (newPage: number) => {
         setIsLoading(true)

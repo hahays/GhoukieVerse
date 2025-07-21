@@ -1,5 +1,6 @@
 
 export interface Movie {
+    top250: any;
     watchability: any;
     id: number;
     name: string;
