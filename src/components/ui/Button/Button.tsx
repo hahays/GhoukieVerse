@@ -11,26 +11,35 @@ const buttonVariants = cva(
                 ghost: 'hover:bg-primary-50 px-0 text-ghoukie-black',
                 danger: 'bg-red-600 text-white hover:bg-red-700',
                 secondary: 'bg-ghoukie-black text-ghoukie-white hover:bg-ghoukie-light-green hover:text-ghoukie-black',
-                toggle: 'px-4 py-1 text-base rounded-md',
-                ghostToggle: 'px-6 py-3 text-xl',
-                tabs: 'text-xl'
+                toggle: 'px-4 py-1 rounded-md',
+                ghostToggle: 'px-6 py-3',
+                tabs: ''
             },
             size: {
-                xs: 'h-7 px-2 text-xs',
-                sm: 'h-10 px-4 text-sm',
-                md: 'h-11 px-8 text-base',
-                lg: 'h-16 px-8 text-2xl',
-                ghost: 'text-xl',
+                xs: 'h-7 px-2 ',
+                sm: 'h-10 px-4 ',
+                md: 'h-11 px-8 ',
+                lg: 'h-16 px-8 ',
+                ghost: '',
                 icon: 'h-9 w-9',
                 toggle: '',
                 ghostToggle: '',
                 tabs: '',
+            },
+            textSize: {
+                sm: 'text-sm',
+                base: 'text-base',
+                lg: 'text-lg',
+                xl: 'text-xl',
+                '2xl': 'text-2xl'
             },
             active: {
                 true: '',
                 false: '',
             },
         },
+
+
         compoundVariants: [
             {
                 variant: 'toggle',
@@ -77,6 +86,7 @@ const buttonVariants = cva(
             variant: 'default',
             size: 'sm',
             active: false,
+            textSize: undefined
         },
     }
 )
@@ -91,6 +101,7 @@ export interface ButtonProps
     fullWidth?: boolean
     as?: React.ElementType
     active?: boolean
+    textSize?: 'sm' | 'base' | 'lg' | 'xl' | '2xl'
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -107,6 +118,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             fullWidth,
             active,
             as: Component = 'button',
+            textSize,
             ...props
         },
         ref
@@ -117,6 +129,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                     variant,
                     size,
                     active,
+                    textSize,
                     className: `${className || ''} ${fullWidth ? 'w-full' : ''}`,
                 })}
                 disabled={loading || props.disabled}

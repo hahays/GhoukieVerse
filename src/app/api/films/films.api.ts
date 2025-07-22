@@ -1,5 +1,6 @@
 import {kinoApi} from '../instance'
 import {MovieDetails, MovieResponse} from "../../../types/film";
+import {string} from "postcss-selector-parser";
 
 
 export const filmsApi = kinoApi.injectEndpoints({
@@ -27,7 +28,7 @@ export const filmsApi = kinoApi.injectEndpoints({
             'similarMovies.id'?: { $exists: boolean; $nin: (null | string)[] };
             'top250'?: { $exists: boolean; $lte: number };
             'productionCompanies.name'?: string;
-            'persons.enProfession'?: string;
+            'networks.items.name'?: string;
             'watchability.items.name'?: string;
             ageRating?: number;
             'fees.world'?: { $gte?: number; $lt?: number };
@@ -53,10 +54,9 @@ export const filmsApi = kinoApi.injectEndpoints({
                 if (params['awards.name']) queryParams.append('awards.name', params['awards.name']);
                 if (params.is3d) queryParams.append('is3d', 'true');
                 if (params.isImax) queryParams.append('isImax', 'true');
-                if (params['productionCompanies.name']) {
-                    queryParams.append('productionCompanies.name', params['productionCompanies.name']);
+                if (params['movies.studio.id']) {
+                    queryParams.append('movies.studio.id', params['movies.studio.id']);
                 }
-
                 if (params['persons.enProfession']) {
                     queryParams.append('persons.enProfession', params['persons.enProfession']);
                 }
@@ -79,31 +79,26 @@ export const filmsApi = kinoApi.injectEndpoints({
                 } else if (params['rating.kp']) {
                     queryParams.append('rating.kp', params['rating.kp']);
                 }
-
                 if (params['genres.name']) {
                     params['genres.name'].forEach(genre => {
                         queryParams.append('genres.name', genre);
                     });
                 }
-
                 if (params['top250']?.$exists) {
                     queryParams.append('top250', '!null');
                     queryParams.append('top250', `<=${params['top250'].$lte}`);
                 }
-
                 if (params['sequelsAndPrequels.id']?.$exists) {
                     queryParams.append('sequelsAndPrequels.id', 'exists');
                 } else if (params['similarMovies.id']?.$exists) {
                     queryParams.append('similarMovies.id', 'exists');
                 }
-
                 if (params['watchability.items.name']) {
                     queryParams.append('watchability.items.name', params['watchability.items.name']);
                 }
                 if (params.ageRating) {
                     queryParams.append('ageRating', params.ageRating);
                 }
-
                 if (params['votes.kp']) {
                     if (params['votes.kp'].$gte) {
                         queryParams.append('votes.kp', `>=${params['votes.kp'].$gte}`);
@@ -143,21 +138,21 @@ export const filmsApi = kinoApi.injectEndpoints({
                     limit: 100,
                     selectFields: 'watchability',
                 },
-                headers: { 'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || '' },
+                headers: {'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || ''},
             }),
             transformResponse: (response: any) => {
                 const fallbackPlatforms = [
-                    { value: 'Иви',      label: 'IVI' },
-                    { value: 'Okko',     label: 'Okko' },
-                    { value: 'kinopoisk',label: 'Кинопоиск HD' },
-                    { value: 'netflix',  label: 'Netflix' },
-                    { value: 'disney',   label: 'Disney+' },
-                    { value: 'Wink',     label: 'Wink' },
-                    { value: 'start',    label: 'START' },
-                    { value: 'PREMIER',   label: 'PREMIER' },
-                    { value: 'KION',      label: 'KION' },
-                    { value: 'Кино1ТВ',    label: 'Кино1ТВ' },
-                    { value: 'AMEDIATEKA',    label: 'AMEDIATEKA' },
+                    {value: 'Иви', label: 'IVI'},
+                    {value: 'Okko', label: 'Okko'},
+                    {value: 'kinopoisk', label: 'Кинопоиск HD'},
+                    {value: 'netflix', label: 'Netflix'},
+                    {value: 'disney', label: 'Disney+'},
+                    {value: 'Wink', label: 'Wink'},
+                    {value: 'start', label: 'START'},
+                    {value: 'PREMIER', label: 'PREMIER'},
+                    {value: 'KION', label: 'KION'},
+                    {value: 'Кино1ТВ', label: 'Кино1ТВ'},
+                    {value: 'AMEDIATEKA', label: 'AMEDIATEKA'},
                 ];
                 try {
                     if (response?.docs) return fallbackPlatforms;
@@ -185,6 +180,74 @@ export const filmsApi = kinoApi.injectEndpoints({
             }
         }),
 
+        getStudios: build.query<{ value: string; label: string }[], void>({
+            query: () => ({
+                url: 'movie',
+                params: {
+                    limit: 100,
+                    selectFields: 'networks.items.name',
+                },
+                headers: { 'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || '' },
+            }),
+            transformResponse: (response: any) => {
+                const fallbackStudios = [
+                    { value: 'Disney+', label: 'Disney+' },
+                    { value: 'Shudder', label: 'Shudder' },
+                    { value: 'HBO', label: 'HBO' },
+                    { value: 'Max', label: 'Max' },
+                    { value: 'FX', label: 'FX' },
+                    { value: 'Амедиатека', label: 'Амедиатека' },
+                    { value: 'The CW', label: 'The CW' },
+                    { value: 'Apple TV+', label: 'Apple TV+' },
+                    { value: 'Amazon Prime Video', label: 'Amazon' },
+                    { value: 'Hulu', label: 'Hulu' },
+                    { value: 'Netflix', label: 'Netflix' },
+                    { value: 'Marvel Studios', label: 'Marvel Studios' },
+                    { value: 'Warner Bros.', label: 'Warner Bros.' },
+                    { value: 'Universal Pictures', label: 'Universal Pictures' },
+                    { value: 'Paramount Pictures', label: 'Paramount Pictures' },
+                    { value: '20th Century Studios', label: '20th Century Studios' },
+                    { value: 'Sony Pictures', label: 'Sony Pictures' },
+                    { value: 'START+', label: 'START+' },
+                    { value: 'DC Comics', label: 'DC Comics' },
+                    { value: 'Pixar', label: 'Pixar' },
+                    { value: 'DreamWorks Animation', label: 'DreamWorks' },
+                    { value: 'Studio Ghibli', label: 'Studio Ghibli' },
+                    { value: 'A24', label: 'A24' },
+                    { value: 'Lionsgate', label: 'Lionsgate' },
+                    { value: 'Miramax', label: 'Miramax' },
+                    { value: 'Мосфильм', label: 'Мосфильм' },
+                    { value: 'СТВ', label: 'СТВ' },
+                    { value: 'KION', label: 'KION' },
+                    { value: 'Starz', label: 'Starz' },
+                    { value: 'Кинокомпания СТВ', label: 'Кинокомпания СТВ' }
+                ];
+
+                try {
+                    if (!response?.docs) return fallbackStudios;
+
+                    const studios = new Set<string>();
+
+                    response.docs.forEach((movie: any) => {
+                        movie.productionCompanies?.forEach((company: any) => {
+                            if (company?.name) {
+                                studios.add(company.name);
+                            }
+                        });
+                    });
+
+                    return studios.size > 0
+                        ? Array.from(studios).map(name => ({
+                            value: name,
+                            label: name
+                        }))
+                        : fallbackStudios;
+                } catch (error) {
+                    console.error('Error transforming studios:', error);
+                    return fallbackStudios;
+                }
+            }
+        }),
 
         getAgeRatings: build.query<{ value: string; label: string }[], void>({
             query: () => ({

@@ -26,11 +26,11 @@ export const PageHeader = ({
                 </p>
 
                 {showButtons && (
-                    <div className="flex flex-col md:flex-row justify-center gap-3 md:gap-4 md:space-x-4">
-                        <Button size="lg" variant="secondary" className="w-full md:w-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
+                        <Button size="lg" textSize="2xl" variant="secondary" className="w-full">
                             Твой каталог
                         </Button>
-                        <Button size="lg" variant="outline" className="w-full md:w-auto">
+                        <Button size="lg" variant="outline" textSize="2xl" className="w-full">
                             Начать
                         </Button>
                     </div>

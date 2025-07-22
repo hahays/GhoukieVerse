@@ -17,6 +17,7 @@ interface FilmFiltersState extends MovieFilterParams {
     platform: string
     age: string
     popularity: string
+    studio: string
 }
 
 const initialState: FilmFiltersState = {
@@ -33,6 +34,7 @@ const initialState: FilmFiltersState = {
     watched: false,
     universe: false,
     isInitialized: false,
+    studio: '',
     favorite: false,
     actor: ''
 }

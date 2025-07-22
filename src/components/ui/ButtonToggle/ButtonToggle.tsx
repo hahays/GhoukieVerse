@@ -16,6 +16,7 @@ interface ButtonToggleProps extends Pick<ButtonProps, 'variant' | 'size'> {
     inactiveInnerClass?: string;
     activeButtonClass?: string;
     inactiveButtonClass?: string;
+    textSize?: 'sm' | 'base' | 'lg' | 'xl';
 }
 
 export const ButtonToggle: React.FC<ButtonToggleProps> = ({
@@ -32,7 +33,10 @@ export const ButtonToggle: React.FC<ButtonToggleProps> = ({
                                                               inactiveInnerClass = 'bg-ghoukie-green',
                                                               activeButtonClass = 'bg-ghoukie-black text-ghoukie-green',
                                                               inactiveButtonClass = 'bg-ghoukie-black text-ghoukie-white hover:opacity-90',
+    textSize = "lg",
                                                           }) => {
+
+
     return (
         <div className={`shrink-0 flex-1 ${className}`}>
             <div className={`relative rounded-lg p-[1.5px] ${
@@ -46,7 +50,8 @@ export const ButtonToggle: React.FC<ButtonToggleProps> = ({
                         size={size}
                         active={active}
                         onClick={onClick}
-                        className={`whitespace-nowrap w-full py-2 px-4 rounded-[calc(0.5rem-3.5px)] transition-all text-sm ${
+                        textSize={textSize}
+                        className={`whitespace-nowrap w-full py-2 px-4 rounded-[calc(0.5rem-3.5px)] transition-all ${
                             active ? activeButtonClass : inactiveButtonClass
                         }`}
                     >

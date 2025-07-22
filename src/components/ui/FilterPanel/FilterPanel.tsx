@@ -15,6 +15,8 @@ import {SearchInput} from "../SearchInput/SearchInput";
 import {useFilmFiltersData} from "../../../hooks/useFilmFiltersData";
 import {useGenres} from "../../../hooks/useGenges";
 import {useGetAgeRatingsQuery} from '../../../app/api/films/films.api'
+import {useStudios} from "../../../hooks/useStudios";
+
 
 export const FilterPanel = ({
                                 genres = [],
@@ -32,6 +34,8 @@ export const FilterPanel = ({
                             }: FilterPanelProps) => {
     const dispatch = useAppDispatch()
     const filters = useAppSelector(state => state.filmFilters)
+    const { studios, isLoading: isStudiosLoading} = useStudios();
+    const [studioInput, setStudioInput] = useState('');
     const [isExpanded, setIsExpanded] = useState(false)
     const [ratingType, setRatingType] = useState<'kp' | 'imdb' | 'tmdb'>('kp');
     const [ratingRange, setRatingRange] = useState<{ min: string, max: string }>({min: '', max: ''});
@@ -62,6 +66,16 @@ export const FilterPanel = ({
     const safeApiYears = apiYears || [];
     const safeApiGenres = apiGenres || [];
     const safeApiCountries = apiCountries || [];
+
+
+
+    const handleStudioChange = (value: string) => {
+        onFilterChange({
+            studio: value,
+            'movies.studio.id': value || undefined,
+            page: 1
+        });
+    };
 
     const handleGenreToggle = (genre: string) => {
         const currentGenres = filters.genres || [];
@@ -163,11 +177,17 @@ export const FilterPanel = ({
                 genres: newGenres,
                 'genres.name': newGenres.length > 0 ? newGenres : undefined
             })
-        } else if (filterName === 'top250') {
+        }  if (filterName === 'top250') {
             onFilterChange({
                 top250: false,
                 'top250': undefined
             })
+            if (filterName === 'studio') {
+                onFilterChange({
+                    studio: '',
+                    'movies.studio.id': undefined
+                });
+            }
         } else {
             const resetValue = typeof filters[filterName] === 'boolean' ? false :
                 filterName === 'year' ? {from: '', to: ''} : ''
@@ -205,6 +225,16 @@ export const FilterPanel = ({
                 activeFilters.push({
                     key: 'rating',
                     label: `Рейтинг: ${option.label}`
+                });
+            }
+        }
+        if (filters.studio) {
+            const selectedStudio = studios.find(s => s.value === filters.studio);
+            if (selectedStudio) {
+                activeFilters.push({
+                    key: 'studio',
+                    label: `Студия: ${selectedStudio.label}`,
+                    value: selectedStudio.value
                 });
             }
         }
@@ -329,18 +359,6 @@ export const FilterPanel = ({
         });
     };
 
-    // const platformOptions = platformsOptions.length
-    //     ? platformsOptions
-    //     : [{ value: '', label: 'Все платформы' }];
-    //
-    // const ageOptions = agesOptions.length
-    //     ? agesOptions
-    //     : [{ value: '', label: 'Любой возраст' }];
-    //
-    // const popularityOptions = popularitiesOptions.length
-    //     ? popularitiesOptions
-    //     : [{ value: '', label: 'Популярность' }];
-    //
 
     const handleRatingChange = (value: string) => {
         if (!value) {
@@ -397,7 +415,8 @@ export const FilterPanel = ({
             rating: '',
             'rating.imdb': undefined,
             'rating.kp': undefined,
-            'watchability.items.name': undefined
+            'watchability.items.name': undefined,
+            'movies.studio.id': undefined
         });
     }, [dispatch, onFilterChange]);
 
@@ -417,7 +436,8 @@ export const FilterPanel = ({
     }
 
     return (
-        <div className={`pt-36 px-16 w-full rounded-lg p-4 space-y-4 border border-transparent bg-clip-padding bg-origin-border before:content-[''] before:absolute before:inset-0 before:rounded-lg before:p-[1px] before:bg-gradient-to-r before:-z-10 relative z-0 ${className}`}>
+        <div
+            className={` pt-36 px-16 w-full rounded-lg p-4 space-y-4 border border-transparent bg-clip-padding bg-origin-border before:content-[''] before:absolute before:inset-0 before:rounded-lg before:p-[1px] before:bg-gradient-to-r before:-z-10 relative z-0 ${className}`}>
 
             <div className="flex flex-wrap gap-4">
                 <div className="flex-1 flex gap-4 min-w-[240px]">
@@ -427,6 +447,7 @@ export const FilterPanel = ({
                         label="Год выпуска"
                     />
                     <ButtonToggle
+                        textSize="lg    "
                         label="Просмотрено"
                         active={!!filters.watched}
                         onClick={() => handleToggleFilter('watched', !filters.watched)}
@@ -483,7 +504,7 @@ export const FilterPanel = ({
                 <div className="flex-1 flex gap-2 min-w-[240px]">
                     <div className="w-[30%] min-w-[100px]">
                         <Select
-                            options={[{ value: '', label: 'Платформа' }, ...platforms]}
+                            options={[{value: '', label: 'Платформа'}, ...platforms]}
                             value={filters.platform || ''}
                             onChange={handlePlatformChange}
                             isLoading={isPlatformsLoading}
@@ -491,18 +512,12 @@ export const FilterPanel = ({
                     </div>
                     <div className="w-[30%] min-w-[100px]">
                         <Select
-                            options={[
-                                {value: '', label: 'Студия'},
-                                {value: 'marvel', label: 'Marvel Studios'},
-                                {value: 'warner', label: 'Warner Bros.'},
-                                {value: 'universal', label: 'Universal Pictures'}
-                            ]}
-                            value={filters.studio || ''}
-                            onChange={(value) => onFilterChange({
-                                studio: value,
-                                'productionCompanies.name': value || undefined,
-                                page: 1
-                            })}
+                            options={dates.length ? [{
+                                value: '',
+                                label: 'Дата добавления'
+                            }, ...dates] : defaultOptions.dates}
+                            value={filters.date || ''}
+                            onChange={(value) => handleToggleFilter('date', value)}
                         />
                     </div>
                     <div className="w-[40%] min-w-[120px]">
@@ -527,15 +542,19 @@ export const FilterPanel = ({
                         value={filters.duration || ''}
                         onChange={(value) => handleToggleFilter('duration', value)}
                     />
-                    <Select
-                        options={dates.length ? [{
-                            value: '',
-                            label: 'Дата добавления'
-                        }, ...dates] : defaultOptions.dates}
-                        value={filters.date || ''}
-                        onChange={(value) => handleToggleFilter('date', value)}
-                    />
+                    {isStudiosLoading ? (
+                        <div className="min-w-[180px] flex items-center justify-center">
+                            <Spinner className="w-5 h-5" />
+                        </div>
+                    ) : (
+                        <Select
+                            options={[{ value: '', label: 'Все студии' }, ...studios]}
+                            value={filters.studio || ''}
+                            onChange={handleStudioChange}
+                        />
+                    )}
                 </div>
+
 
                 <div className="flex-1 flex gap-4 min-w-[240px] justify-end">
                     <Select

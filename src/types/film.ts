@@ -154,6 +154,7 @@ export interface MovieFilterParams {
     'similarMovies.id'?: { $exists: boolean; $nin: (null | string)[] };
     'top250'?: { $exists: boolean; $lte: number };
     'productionCompanies.name'?: string;
+    studio: string;
     'persons.enProfession'?: string;
 }
 export interface Top250Movie {

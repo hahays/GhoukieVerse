@@ -27,7 +27,6 @@ export const Select: React.FC<CustomSelectProps> = ({
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedValue = e.target.value;
-        // Если выбрано то же значение, что и сейчас - сбрасываем
         onChange?.(selectedValue === value ? '' : selectedValue);
     };
 

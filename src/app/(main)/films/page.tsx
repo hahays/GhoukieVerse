@@ -10,6 +10,8 @@ import {resetFilmFilters, setFilmFilter} from '../../../stores/slices/films/film
 import {useGetPlatformsQuery, useGetTopMoviesQuery, useLazyGetTopMoviesQuery} from '../../api/films/films.api'
 import {useGenres} from '../../../hooks/useGenges'
 import {useFilmFiltersData} from "../../../hooks/useFilmFiltersData";
+import {FilterPanelMobile} from "../../../features/filters/FilterPanelMobile";
+
 
 export default function FilmsPage() {
     const router = useRouter()
@@ -271,7 +273,9 @@ export default function FilmsPage() {
                 platforms={platforms}
                 ages={ages}
                 popularities={popularities}
+                className="hidden md:block"
             />
+            <FilterPanelMobile mediaType="film" className="md:hidden"/>
             <section className="px-16">
                 <MediaGrid
                     movies={displayData?.docs || []}

@@ -93,12 +93,14 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
                             <Button
                                 className="shadow-figma hidden md:inline-flex"
                                 size="lg"
+                                textSize="2xl"
                             >
                                 Профиль
                             </Button>
                             <Button
                                 className="shadow-figma md:hidden sm:inline-flex"
                                 size="sm"
+                                textSize="lg"
                                 aria-label="Профиль"
                             >
                                 Профиль
