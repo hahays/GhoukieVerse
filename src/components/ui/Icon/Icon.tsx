@@ -7,11 +7,11 @@ import ImdbRatingIcon from "../../../../public/icons/imdb_rating.svg"
 import KinoPoiskRatingIcon from "../../../assets/kinopoisk.svg";
 import Image from "next/image";
 
-type PublicIconName = 'addToList' | 'other-icon'; // Добавьте нужные
+type PublicIconName = 'addToList' | 'other-icon';
 
 export type IconName =
     | 'kinopoisk' | 'ivi' | 'okko' | 'apple-tv' | 'google-play' | 'kinopoiskRating' | 'imdbRating'
-    | PublicIconName; // Объединяем типы
+    | PublicIconName;
 
 interface IconProps {
     name: IconName;

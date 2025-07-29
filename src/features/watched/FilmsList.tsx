@@ -15,7 +15,7 @@ export const FilmsList: React.FC<FilmsListProps> = ({watched}) => {
                     key={movie.imdbID}
                     movie={movie}
                     onSelectMovie={() => {
-                    }} // Добавьте обработчик при необходимости
+                    }}
                 />
             ))}
         </ul>

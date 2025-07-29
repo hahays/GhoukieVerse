@@ -13,7 +13,7 @@ export const filmsMock: CategoryCard[] = [
         title: 'ФИЛЬМЫ',
         description: 'Track watched movies',
         href: '/films',
-        image: '/images/films-bg.jpg', // положите файл в public/images
+        image: '/images/films-bg.jpg',
         details: 'Browse 10,000+ movies\nRate and review\nCreate watchlist'
     },
     {
@@ -21,7 +21,7 @@ export const filmsMock: CategoryCard[] = [
         title: 'ИГРЫ',
         description: 'Track watched movies',
         href: '/films',
-        image: '/images/games-bg.jpg', // положите файл в public/images
+        image: '/images/games-bg.jpg',
         details: 'Browse 10,000+ movies\nRate and review\nCreate watchlist'
     },
     {
@@ -29,7 +29,7 @@ export const filmsMock: CategoryCard[] = [
         title: 'АНИМЕ',
         description: 'Track watched movies',
         href: '/films',
-        image: '/images/anime-bg.jpg', // положите файл в public/images
+        image: '/images/anime-bg.jpg',
         details: 'Browse 10,000+ movies\nRate and review\nCreate watchlist'
     },
 

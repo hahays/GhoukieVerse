@@ -14,7 +14,6 @@ export function Pagination({
                                onPageChange,
                                maxVisiblePages = 5,
                            }: PaginationProps) {
-    // Вычисляем диапазон отображаемых страниц
     const getPageRange = () => {
         const half = Math.floor(maxVisiblePages / 2);
         let start = Math.max(currentPage - half, 1);

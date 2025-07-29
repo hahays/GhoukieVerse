@@ -6,25 +6,25 @@ import { motion } from 'framer-motion';
 const steps = [
     {
         title: 'GAMES',
-        desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod.',
+        desc: '.',
         img: '/images/gamepad_roadmap.png',
         imgSide: 'right',
     },
     {
         title: 'ANIME',
-        desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod.',
+        desc: '.',
         img: '/images/anime_roadmap.png',
         imgSide: 'left',
     },
     {
         title: 'COMICS',
-        desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod.',
+        desc: '.',
         img: '/images/comics_roadmap.png',
         imgSide: 'right',
     },
     {
         title: 'BOOKS',
-        desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod.',
+        desc: '',
         img: '/images/books_roadmap.png',
         imgSide: 'left',
     },

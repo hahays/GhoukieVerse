@@ -1,4 +1,3 @@
-// components/RatingDiagram.tsx
 import { StarIcon } from 'lucide-react';
 
 interface RatingDiagramProps {

@@ -17,7 +17,6 @@ export const Label = React.forwardRef<HTMLDivElement, LabelProps>(
          children,
          ...props
      }, ref) => {
-        // Стили для вариантов
         const variantStyles = {
             default: 'bg-gray-100 text-gray-800',
             primary: 'bg-ghoukie-green text-white',
@@ -25,14 +24,12 @@ export const Label = React.forwardRef<HTMLDivElement, LabelProps>(
             outline: 'bg-transparent border border-gray-300 text-gray-800'
         }
 
-        // Стили для размеров
         const sizeStyles = {
             sm: 'px-2 py-0.5 text-xs',
             md: 'px-3 py-1 text-sm',
             lg: 'px-4 py-2 text-base'
         }
 
-        // Комбинируем классы
         const combinedClasses = [
             'inline-flex items-center rounded-full font-medium',
             variantStyles[variant],
