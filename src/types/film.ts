@@ -26,7 +26,6 @@ export interface Movie {
     movieLength?: number;
 }
 
-
 export interface MovieDetails {
     id: number;
     name: string;
@@ -73,7 +72,6 @@ export interface MovieDetails {
     };
 }
 
-
 export interface FilmListProps {
     movies: Movie[];
     onSelectMovie: (id: string) => void;
@@ -88,42 +86,55 @@ export interface MovieResponse {
     pages: number;
 }
 
-export interface FilterValues {
+export interface YearRange {
+    from?: string;
+    to?: string;
+}
+
+export interface FilmFilters {
     watched: boolean
     action: boolean
     drama: boolean
     comedy: boolean
     horror: boolean
     universe: boolean
-    year: { from: string; to: string }
     rating: string
     platform: string
     genre: string
     country: string
     duration: string
-    date: string
     tag: string
-    age: string
-    popularity: string
     favorite: boolean;
-    language: string;
     actor: string;
-    award: string;
     actors: string;
     directors: string;
-    is3d: boolean;
-    isImax: boolean;
-    genres: string[];
     'rating.imdb'?: string;
     'rating.kp'?: string;
     'genres.name'?: string[];
     'sequelsAndPrequels.id'?: { $exists: boolean };
     'similarMovies.id'?: { $exists: boolean; $nin: (null | string)[] };
     'top250'?: { $exists: boolean; $lte: number };
-    studio: string;
     operator: string;
     'productionCompanies.name'?: string;
     'persons.enProfession'?: string;
+    year?: YearRange;
+    genres?: string[];
+    studio?: string;
+    age?: string;
+    popularity?: 'high' | 'medium' | 'low';
+    type?: string;
+    movieLength?: string;
+    countries?: string[];
+    award?: string;
+    is3d?: boolean;
+    isImax?: boolean;
+    budget?: {
+        from?: number;
+        to?: number;
+    };
+    language?: string;
+    date?: 'month' | 'year' | 'old';
+    feesWorld?: string;
 }
 
 export interface MovieFilterParams {

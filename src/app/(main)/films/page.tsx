@@ -1,369 +1,50 @@
-'use client'
+'use client';
 
-import React, {useCallback, useEffect, useState} from 'react'
-import {useRouter, useSearchParams} from 'next/navigation'
-import {MediaGrid} from '../../../components/ui/MediaGrid/MediaGrid'
-import {FilterPanel} from '../../../components/ui/FilterPanel/FilterPanel'
-import {Pagination} from '../../../components/ui/Pagination/Pagination'
-import {useAppDispatch, useAppSelector} from '../../../stores/hooks'
-import {resetFilmFilters, setFilmFilter} from '../../../stores/slices/films/filmFilters.slice'
-import {
-    useGetPlatformsQuery,
-    useGetTopMoviesQuery,
-    useLazyGetMoviesByStudioIdsQuery,
-    useLazyGetTopMoviesQuery
-} from '../../api/films/films.api'
-import {useGenres} from '../../../hooks/useGenges'
+import {useGenres} from "../../../hooks/useGenges";
+import {useFilmFilters} from "../../../hooks/useFilmFilters";
 import {useFilmFiltersData} from "../../../hooks/useFilmFiltersData";
-import {FilterPanelMobile} from "../../../features/filters/FilterPanelMobile";
-import {useLazyGetStudioWithMoviesQuery} from "../../api/films/filmFilters.api";
 
+import {FilterPanelMobile} from "../../../features/filters/films/components/FilterPanelMobile";
+import {MediaGrid} from "../../../components/ui/MediaGrid/MediaGrid";
+import {Pagination} from "../../../components/ui/Pagination/Pagination";
+import {FilterPanelDesktop} from "../../../features/filters/films/components/FilterPanelDesktop";
 
 export default function FilmsPage() {
-    const router = useRouter()
-    const searchParams = useSearchParams()
-    const dispatch = useAppDispatch()
-    const filters = useAppSelector(state => state.filmFilters)
-    const {genres: apiGenres} = useGenres()
-
-    const [page, setPage] = useState(1)
-    const [displayData, setDisplayData] = useState<any>(null)
-    const [previewCount, setPreviewCount] = useState<number | null>(null)
-    const [isLoading, setIsLoading] = useState(false)
-    const [fetchStudioWithMovies] = useLazyGetStudioWithMoviesQuery();
-    const [fetchMoviesByStudioIds] = useLazyGetMoviesByStudioIdsQuery();
-
-
-    const {data: initialData} = useGetTopMoviesQuery({
-        limit: 36,
-        page: 1,
-        sortField: 'votes.imdb',
-        sortType: '-1',
-        notNullFields: 'poster.url',
-        year: '2025-2025',
-    })
-
-    const {
-        ages,
-        popularities,
-        isLoading: isLoadingFilters
-    } = useFilmFiltersData();
-
-
-    const {platforms = []} = useGetPlatformsQuery();
-
-    const [fetchMovies] = useLazyGetTopMoviesQuery()
-
-    // useEffect(() => {
-    //     setDisplayData(initialData)
-    // }, [initialData])
-
-    useEffect(() => {
-        const params = new URLSearchParams(searchParams)
-        const initialFilters: any = {}
-
-        if (params.has('year')) {
-            const [from, to] = params.get('year')!.split('-')
-            initialFilters.year = {from: from || '', to: to || ''}
-        }
-
-        if (params.has('genres')) {
-            initialFilters.genres = params.get('genres')!.split(',')
-        }
-
-        if (params.has('rating')) {
-            initialFilters.rating = params.get('rating')
-        }
-
-        if (params.has('top250')) {
-            initialFilters.top250 = params.get('top250') === 'true'
-            setPreviewCount(250)
-        }
-
-        if (Object.keys(initialFilters).length > 0) {
-            dispatch(setFilmFilter(initialFilters))
-        }
-    }, [dispatch, searchParams])
-
-    useEffect(() => {
-        if (filters.top250) {
-            setPreviewCount(250);
-        } else if (filters.studio) {
-            fetchStudioWithMovies({ studioId: filters.studio })
-                .unwrap()
-                .then((studioData) => {
-                    const movieIds = studioData.docs?.[0]?.movies?.map(m => m.id) || [];
-                    if (movieIds.length === 0) {
-                        setPreviewCount(0);
-                        return;
-                    }
-                    return fetchMoviesByStudioIds({ ids: movieIds }).unwrap();
-                })
-                .then((data) => {
-                    setPreviewCount(data?.total || 0);
-                })
-                .catch(() => {
-                    setPreviewCount(0);
-                });
-        } else if (
-            filters.genres?.length ||
-            filters.year ||
-            filters.rating ||
-            filters.platform ||
-            filters.age ||
-            filters.popularity
-        ) {
-            fetchMovies({
-                limit: 1,
-                page: 1,
-                ...buildQueryParams(filters),
-            }).then(({ data }) => {
-                setPreviewCount(data?.total || 0);
-            });
-        } else {
-            setPreviewCount(null);
-        }
-    }, [filters, fetchStudioWithMovies, fetchMoviesByStudioIds]);
-
-    useEffect(() => {
-        console.log('current filters →', filters);
-    }, [filters]);
-
-    const getDateFilter = (dateType: string) => {
-        const now = new Date();
-        switch(dateType) {
-            case 'month':
-                return `${new Date(now.setMonth(now.getMonth() - 1)).toISOString()}-${new Date().toISOString()}`;
-            case 'year':
-                return `${new Date(now.setFullYear(now.getFullYear() - 1)).toISOString()}-${new Date().toISOString()}`;
-            case 'old':
-                return `-${new Date(now.setFullYear(now.getFullYear() - 5)).toISOString()}`;
-            default:
-                return '';
-        }
-    }
-
-    const buildQueryParams = useCallback((filters: any) => {
-        return {
-            ...(filters.year?.from || filters.year?.to ? {
-                year: `${filters.year.from || ''}-${filters.year.to || ''}`
-            } : {}),
-            ...(filters.genres?.length ? {'genres.name': filters.genres} : {}),
-            ...(filters.rating ? {'rating.imdb': `${filters.rating.split('-')[0]}-10`} : {}),
-            ...(filters.platform ? {'watchability.items.name': filters.platform} : {}),
-            ...(filters.age ? {ageRating: filters.age} : {}),
-            ...(filters.popularity ? getPopularityFilter(filters.popularity) : {}),
-            ...(filters.studio ? { 'productionCompanies.id': filters.studio } : {}),
-            ...(filters.type ? { type: filters.type } : {}),
-            ...(filters.movieLength ? { movieLength: filters.movieLength } : {}),
-            ...(filters.countries?.length ? { 'countries.name': filters.countries } : {}),
-            ...(filters.award ? { 'awards.name': filters.award } : {}),
-            ...(filters.is3d ? { 'technology.is3d': true } : {}),
-            ...(filters.is3d ? { is3d: true } : {}),
-            ...(filters.isImax ? { 'technology.isImax': true } : {}),
-            ...(filters.budget ? { budget: filters.budget } : {}),
-            ...(filters.language ? { 'names.language': filters.language } : {}),
-            ...(filters.date ? { createdAt: getDateFilter(filters.date) } : {}),
-            ...(filters.feesWorld ? { 'fees.world': filters.feesWorld } : {}),
-            ...(filters.budget ? { 'budget.value': `${filters.budget.from || ''}-${filters.budget.to || ''}` } : {}),
-            sortField: 'votes.imdb',
-            sortType: '-1'
-        };
-        console.log('built params →', p);
-        return p;
-    }, [])
-
-
-    const handleApplyFilters = useCallback(async () => {
-        setIsLoading(true)
-        const params = new URLSearchParams()
-
-        try {
-            if (filters.top250) {
-                params.set('top250', 'true')
-
-                const {data} = await fetchMovies({
-                    limit: 36,
-                    page: 1,
-                    top250: {$exists: true, $lte: 250},
-                    sortField: 'top250',
-                    sortType: '1'
-                })
-
-                const filteredDocs = data.docs.filter(
-                    (movie) => typeof movie.top250 === 'number' && movie.top250 >= 1 && movie.top250 <= 250
-                )
-
-                setDisplayData({
-                    ...data,
-                    docs: filteredDocs,
-                    total: 250,
-                    pages: Math.ceil(250 / 36)
-                })
-
-            } else if (filters.genres?.length ||
-                filters.year ||
-                filters.rating ||
-                filters.studio
-            ) {
-                if (filters.year?.from || filters.year?.to) {
-                    params.set('year', `${filters.year.from || ''}-${filters.year.to || ''}`)
-                }
-                if (filters.genres?.length) {
-                    params.set('genres', filters.genres.join(','))
-                }
-                if (filters.rating) {
-                    params.set('rating', filters.rating)
-                }
-                if (filters.platform) {
-                    params['watchability.items.name'] = filters.platform;
-                }
-                if (filters.studio) {
-                    params.set('productionCompanies.id', filters.studio);
-                }
-
-                if (filters.age) params.set('age', filters.age);
-                if (filters.popularity) {
-                    switch (filters.popularity) {
-                        case 'high':
-                            params['fees.world'] = {$gte: 50000000};
-                            break;
-                        case 'medium':
-                            params['fees.world'] = {$gte: 10000000, $lt: 50000000};
-                            break;
-                        case 'low':
-                            params['fees.world'] = {$lt: 10000000};
-                            break;
-                    }
-                }
-
-                const {data} = await fetchMovies({
-                    limit: 36,
-                    page: 1,
-                    ...buildQueryParams(filters)
-                })
-
-                setDisplayData(data)
-
-            } else {
-                const {data} = await fetchMovies({
-                    limit: 36,
-                    page: 1,
-                    year: '2025-2025',
-                    sortField: 'year',
-                    sortType: '-1'
-                })
-
-                setDisplayData(data)
-            }
-
-            setPage(1)
-            router.replace(`/films?${params.toString()}`, {scroll: false})
-
-        } catch (error) {
-            console.error('Error applying filters:', error)
-        } finally {
-            setIsLoading(false)
-        }
-    }, [filters, fetchMovies, buildQueryParams])
-
-
-    const handleResetAll = useCallback(() => {
-        setPage(1)
-        setPreviewCount(null)
-        setDisplayData(initialData)
-        dispatch(resetFilmFilters())
-        router.replace('/films', {scroll: false})
-    }, [dispatch, router, initialData])
-
-    const getPopularityFilter = (popularity: string) => {
-        switch (popularity) {
-            case 'high':
-                return {'fees.world': {$gte: 50000000}};
-            case 'medium':
-                return {'fees.world': {$gte: 10000000, $lt: 50000000}};
-            case 'low':
-                return {'fees.world': {$lt: 10000000}};
-            default:
-                return {};
-        }
-    }
-
-    const handlePageChange = useCallback(async (newPage: number) => {
-        setIsLoading(true)
-
-        try {
-            if (filters.top250) {
-                const {data} = await fetchMovies({
-                    limit: 36,
-                    page: newPage,
-                    top250: {$exists: true},
-                    sortField: 'top250',
-                    sortType: '1'
-                })
-
-                const filteredDocs = data.docs.filter(
-                    (movie) => typeof movie.top250 === 'number' && movie.top250 >= 1 && movie.top250 <= 250
-                )
-
-                setDisplayData({
-                    ...data,
-                    docs: filteredDocs,
-                    total: 250,
-                    pages: Math.ceil(250 / (data.limit || 36))
-                })
-            } else {
-                const {data} = await fetchMovies({
-                    limit: 36,
-                    page: newPage,
-                    ...buildQueryParams(filters)
-                })
-
-                setDisplayData(data)
-            }
-
-            setPage(newPage)
-        } catch (error) {
-            console.error('Error changing page:', error)
-        } finally {
-            setIsLoading(false)
-        }
-    }, [filters, fetchMovies, buildQueryParams])
-
-    const filterData = useFilmFiltersData();
-    console.log('Filter Data:', filterData);
-
+    const { filters, movies, isLoading, applyFilters, resetAll, setPage } = useFilmFilters();
+    const { genres } = useGenres();
+    const { ages, popularities, platforms } = useFilmFiltersData();
 
     return (
-        <div className="">
-            <FilterPanel
-                onFilterChange={(newFilters) => dispatch(setFilmFilter(newFilters))}
-                onResetAll={handleResetAll}
-                onApplyFilters={handleApplyFilters}
-                previewCount={previewCount}
-                genres={apiGenres}
-                isLoadingPreview={isLoading}
-                platforms={platforms}
+        <>
+            <FilterPanelDesktop
+                filters={filters}
+                onFilterChange={applyFilters}
+                onResetAll={resetAll}
+                genres={genres}
                 ages={ages}
+                platforms={platforms}
                 popularities={popularities}
-                className="max-xl:hidden "
+                isLoadingPreview={isLoading}
+                className="max-xl:hidden"
             />
-            <FilterPanelMobile mediaType="film" className="xl:hidden"/>
+
+            <FilterPanelMobile mediaType="film" className="xl:hidden" />
+
             <section className="px-16">
                 <MediaGrid
-                    movies={displayData?.docs || []}
+                    movies={movies?.docs ?? []}
                     mediaType="films"
                     isLoading={isLoading}
-                    error={displayData?.error ? 'Ошибка загрузки фильмов' : undefined}
                 />
             </section>
-            {displayData?.pages && displayData.pages > 1 && (
+
+            {movies && movies.pages > 1 && (
                 <Pagination
-                    currentPage={page}
-                    totalPages={displayData.pages}
-                    onPageChange={handlePageChange}
+                    currentPage={movies.page}
+                    totalPages={movies.pages}
+                    onPageChange={setPage}
                 />
             )}
-        </div>
-    )
+        </>
+    );
 }

@@ -86,7 +86,7 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
 
                     <div className="flex items-center space-x-2 md:space-x-4">
                         <div className="hidden xl:block max-w-xs lg:max-w-sm xl:max-w-md w-full">
-                            <Search value={query} className="shadow-figma" onChange={setQuery}/>
+                            <Search value={query} className="shadow-figma h-16 text-2xl" onChange={setQuery}/>
                         </div>
 
                         <Link href="/profile">
@@ -119,7 +119,7 @@ export const NavBar: React.FC<NavBarProps> = ({movies, query, setQuery, onLoginC
                 {isMenuOpen && (
                     <div className="xl:hidden mt-3 space-y-2 bg-white rounded-lg shadow-xl p-3">
                         <div className="mb-3">
-                            <Search query={query} setQuery={setQuery} className="w-full"/>
+                            <Search query={query} setQuery={setQuery} inputClassName="h-16 text-2xl" className="w-full"/>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                             <MobileNavLink href="/">Главная</MobileNavLink>

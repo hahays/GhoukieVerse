@@ -8,6 +8,7 @@ interface SearchProps extends Omit<React.ComponentProps<typeof Input>, "onChange
     value?: string;
     onChange?: (value: string) => void;
     debounceTime?: number;
+    inputClassName?: string;
 }
 
 export const Search: React.FC<SearchProps> = ({
@@ -48,6 +49,7 @@ export const Search: React.FC<SearchProps> = ({
             clearable={!!localValue}
             onClear={handleClear}
             placeholder='Найти...'
+            className={props.inputClassName}
             {...props}
         />
     );

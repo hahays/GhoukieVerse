@@ -37,7 +37,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 <input
                     ref={ref}
                     className={`
-    w-full py-2 h-10 text-base
+    w-full py-2 h-10
     ${leftIcon ? "pl-10" : "pl-4"}
     ${showClearButton || rightIcon ? "pr-10" : "pr-4"}
     bg-ghoukie-black rounded-md
