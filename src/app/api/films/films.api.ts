@@ -7,9 +7,14 @@ export const filmsApi = kinoApi.injectEndpoints({
     overrideExisting: true,
     endpoints: (build) => ({
         getTopMovies: build.query<MovieResponse, {
+            createdAt?: string;
+            studio: any;
+            type?: string;
             limit?: number
             page?: number
             year?: string;
+           award?: string;
+            fees?: { world: string }
             'countries.name'?: string;
             watched?: boolean;
             budget?: string;
@@ -45,6 +50,8 @@ export const filmsApi = kinoApi.injectEndpoints({
                         queryParams.append('genres.name', genre);
                     });
                 }
+                if (params['budget.value']) queryParams.append('budget.value', params['budget.value']);
+
                 if (params['countries.name']) queryParams.append('countries.name', params['countries.name']);
                 if (params.watched) queryParams.append('isWatched', 'true');
                 if (params.universe) queryParams.append('isUniverse', 'true');
@@ -57,6 +64,13 @@ export const filmsApi = kinoApi.injectEndpoints({
                 if (params['movies.studio.id']) {
                     queryParams.append('movies.studio.id', params['movies.studio.id']);
                 }
+                if (params['persons.name']) queryParams.append('persons.name', params['persons.name']);
+                if (params['persons.enProfession']) queryParams.append('persons.enProfession', params['persons.enProfession']);
+                if (params.createdAt) {
+                    queryParams.append('createdAt', params.createdAt);
+                }
+                if (params['names.language']) queryParams.append('names.language', params['names.language']);
+                if (params['fees.world']) queryParams.append('fees.world', params['fees.world']);
                 if (params['persons.enProfession']) {
                     queryParams.append('persons.enProfession', params['persons.enProfession']);
                 }
@@ -70,8 +84,17 @@ export const filmsApi = kinoApi.injectEndpoints({
                     if (params['fees.world'].$gte) {
                         queryParams.append('fees.world', `>=${params['fees.world'].$gte}`);
                     }
-                    if (params['fees.world'].$lt) {
-                        queryParams.append('fees.world', `<${params['fees.world'].$lt}`);
+                    if (params['fees.world']) {
+                        if (typeof params['fees.world'] === 'object') {
+                            if (params['fees.world'].$gte) {
+                                queryParams.append('fees.world', `>=${params['fees.world'].$gte}`);
+                            }
+                            if (params['fees.world'].$lt) {
+                                queryParams.append('fees.world', `<${params['fees.world'].$lt}`);
+                            }
+                        } else {
+                            queryParams.append('fees.world', params['fees.world']);
+                        }
                     }
                 }
                 if (params['rating.imdb']) {
@@ -96,9 +119,24 @@ export const filmsApi = kinoApi.injectEndpoints({
                 if (params['watchability.items.name']) {
                     queryParams.append('watchability.items.name', params['watchability.items.name']);
                 }
+
+                if (params['productionCompanies.id']) {
+                    queryParams.append('productionCompanies.id', params['productionCompanies.id']);
+                }
+                if (params['countries.name']) {
+                    params['countries.name'].forEach(country => {
+                        queryParams.append('countries.name', country);
+                    });
+                }
                 if (params.ageRating) {
                     queryParams.append('ageRating', params.ageRating);
                 }
+                if (params.type) {
+                    queryParams.append('type', params.type);
+                }
+               if (params.movieLength) {
+                   queryParams.append('movieLength', params.movieLength);
+               }
                 if (params['votes.kp']) {
                     if (params['votes.kp'].$gte) {
                         queryParams.append('votes.kp', `>=${params['votes.kp'].$gte}`);
@@ -106,13 +144,16 @@ export const filmsApi = kinoApi.injectEndpoints({
                     if (params['votes.kp'].$lt) {
                         queryParams.append('votes.kp', `<${params['votes.kp'].$lt}`);
                     }
+
                 }
 
                 queryParams.append('sortField', 'votes.kp')
                 queryParams.append('sortType', '-1')
                 queryParams.append('notNullFields', 'poster.url')
                 queryParams.append('notNullFields', 'backdrop.url')
-                queryParams.append('type', 'movie')
+                if (!params.type) {
+                    queryParams.append('type', 'movie');
+                }
 
                 return {
                     url: `movie?${queryParams.toString()}`,
@@ -130,6 +171,8 @@ export const filmsApi = kinoApi.injectEndpoints({
             },
             providesTags: ['Movies']
         }),
+
+
 
         getPlatforms: build.query<{ value: string; label: string }[], void>({
             query: () => ({
@@ -180,73 +223,33 @@ export const filmsApi = kinoApi.injectEndpoints({
             }
         }),
 
-        getStudios: build.query<{ value: string; label: string }[], void>({
-            query: () => ({
-                url: 'movie',
+        getMoviesByAwards: build.query<MovieResponse, { award: string }>({
+            query: ({ award }) => ({
+                url: 'movie/awards',
                 params: {
+                    'nomination.award.title': award,
+                    winning: true,
                     limit: 100,
-                    selectFields: 'networks.items.name',
-                },
-                headers: { 'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || '' },
-            }),
-            transformResponse: (response: any) => {
-                const fallbackStudios = [
-                    { value: 'Disney+', label: 'Disney+' },
-                    { value: 'Shudder', label: 'Shudder' },
-                    { value: 'HBO', label: 'HBO' },
-                    { value: 'Max', label: 'Max' },
-                    { value: 'FX', label: 'FX' },
-                    { value: 'Амедиатека', label: 'Амедиатека' },
-                    { value: 'The CW', label: 'The CW' },
-                    { value: 'Apple TV+', label: 'Apple TV+' },
-                    { value: 'Amazon Prime Video', label: 'Amazon' },
-                    { value: 'Hulu', label: 'Hulu' },
-                    { value: 'Netflix', label: 'Netflix' },
-                    { value: 'Marvel Studios', label: 'Marvel Studios' },
-                    { value: 'Warner Bros.', label: 'Warner Bros.' },
-                    { value: 'Universal Pictures', label: 'Universal Pictures' },
-                    { value: 'Paramount Pictures', label: 'Paramount Pictures' },
-                    { value: '20th Century Studios', label: '20th Century Studios' },
-                    { value: 'Sony Pictures', label: 'Sony Pictures' },
-                    { value: 'START+', label: 'START+' },
-                    { value: 'DC Comics', label: 'DC Comics' },
-                    { value: 'Pixar', label: 'Pixar' },
-                    { value: 'DreamWorks Animation', label: 'DreamWorks' },
-                    { value: 'Studio Ghibli', label: 'Studio Ghibli' },
-                    { value: 'A24', label: 'A24' },
-                    { value: 'Lionsgate', label: 'Lionsgate' },
-                    { value: 'Miramax', label: 'Miramax' },
-                    { value: 'Мосфильм', label: 'Мосфильм' },
-                    { value: 'СТВ', label: 'СТВ' },
-                    { value: 'KION', label: 'KION' },
-                    { value: 'Starz', label: 'Starz' },
-                    { value: 'Кинокомпания СТВ', label: 'Кинокомпания СТВ' }
-                ];
-
-                try {
-                    if (!response?.docs) return fallbackStudios;
-
-                    const studios = new Set<string>();
-
-                    response.docs.forEach((movie: any) => {
-                        movie.productionCompanies?.forEach((company: any) => {
-                            if (company?.name) {
-                                studios.add(company.name);
-                            }
-                        });
-                    });
-
-                    return studios.size > 0
-                        ? Array.from(studios).map(name => ({
-                            value: name,
-                            label: name
-                        }))
-                        : fallbackStudios;
-                } catch (error) {
-                    console.error('Error transforming studios:', error);
-                    return fallbackStudios;
+                    selectFields: 'movieId'
                 }
+            }),
+            transformResponse: (response) => {
+                const movieIds = response.docs.map(doc => doc.movieId);
+                return {
+                    url: 'movie',
+                    params: {
+                        id: movieIds.join(','),
+                        limit: 36
+                    }
+                };
             }
+        }),
+
+        getPersons: build.query({
+            query: (name) => ({
+                url: 'person/search',
+                params: { query: name, limit: 5 },
+            }),
         }),
 
         getAgeRatings: build.query<{ value: string; label: string }[], void>({
@@ -324,10 +327,28 @@ export const filmsApi = kinoApi.injectEndpoints({
         getMovieDetails: build.query<MovieDetails, string>({
             query: (id) => `movie/${id}`,
             providesTags: (result, error, id) => [{type: 'MovieDetails', id}]
-        })
+        }),
+        getMoviesByStudioIds: build.query<MovieResponse, { ids: string[] }>({
+            query: ({ ids }) => ({
+                url: 'movie',
+                params: {
+                    limit: 1,
+                    page: 1,
+                    id: ids.join(','),
+                    sortField: 'votes.kp',
+                    sortType: '-1',
+                    notNullFields: 'poster.url',
+                    type: 'movie',
+                },
+                headers: {
+                    'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || '',
+                },
+            }),
+        }),
     })
 
 })
+
 
 export const {
     useGetTopMoviesQuery,
@@ -337,5 +358,9 @@ export const {
     useGetMovieDetailsQuery,
     useGetPlatformsQuery,
     useGetAgeRatingsQuery,
-    useGetPopularitiesQuery
+    useGetPopularitiesQuery,
+    useGetMoviesByStudioIdsQuery,
+    useGetPersonsQuery,
+    useLazyGetMoviesByStudioIdsQuery,
+    useGetMoviesByAwardsQuery
 } = filmsApi;

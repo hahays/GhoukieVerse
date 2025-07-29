@@ -36,9 +36,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 )}
                 <input
                     ref={ref}
-                    className={`w-full py-2 h-16 text-2xl ${leftIcon ? "pl-12" : "pl-4"} ${
-                        showClearButton || rightIcon ? "pr-12" : "pr-4"
-                    } bg-ghoukie-black rounded-md focus:outline-none focus:ring-2 focus:ring-ghoukie-green placeholder:text-ghoukie-white ${className}`}
+                    className={`
+    w-full py-2 h-10 text-base
+    ${leftIcon ? "pl-10" : "pl-4"}
+    ${showClearButton || rightIcon ? "pr-10" : "pr-4"}
+    bg-ghoukie-black rounded-md
+    focus:outline-none focus:ring-2 focus:ring-ghoukie-green
+    placeholder:text-ghoukie-white
+    ${className}
+  `}
                     value={value}
                     onChange={onChange}
                     {...props}

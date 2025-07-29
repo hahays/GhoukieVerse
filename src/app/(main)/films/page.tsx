@@ -7,10 +7,16 @@ import {FilterPanel} from '../../../components/ui/FilterPanel/FilterPanel'
 import {Pagination} from '../../../components/ui/Pagination/Pagination'
 import {useAppDispatch, useAppSelector} from '../../../stores/hooks'
 import {resetFilmFilters, setFilmFilter} from '../../../stores/slices/films/filmFilters.slice'
-import {useGetPlatformsQuery, useGetTopMoviesQuery, useLazyGetTopMoviesQuery} from '../../api/films/films.api'
+import {
+    useGetPlatformsQuery,
+    useGetTopMoviesQuery,
+    useLazyGetMoviesByStudioIdsQuery,
+    useLazyGetTopMoviesQuery
+} from '../../api/films/films.api'
 import {useGenres} from '../../../hooks/useGenges'
 import {useFilmFiltersData} from "../../../hooks/useFilmFiltersData";
 import {FilterPanelMobile} from "../../../features/filters/FilterPanelMobile";
+import {useLazyGetStudioWithMoviesQuery} from "../../api/films/filmFilters.api";
 
 
 export default function FilmsPage() {
@@ -24,6 +30,8 @@ export default function FilmsPage() {
     const [displayData, setDisplayData] = useState<any>(null)
     const [previewCount, setPreviewCount] = useState<number | null>(null)
     const [isLoading, setIsLoading] = useState(false)
+    const [fetchStudioWithMovies] = useLazyGetStudioWithMoviesQuery();
+    const [fetchMoviesByStudioIds] = useLazyGetMoviesByStudioIdsQuery();
 
 
     const {data: initialData} = useGetTopMoviesQuery({
@@ -46,9 +54,9 @@ export default function FilmsPage() {
 
     const [fetchMovies] = useLazyGetTopMoviesQuery()
 
-    useEffect(() => {
-        setDisplayData(initialData)
-    }, [initialData])
+    // useEffect(() => {
+    //     setDisplayData(initialData)
+    // }, [initialData])
 
     useEffect(() => {
         const params = new URLSearchParams(searchParams)
@@ -79,19 +87,61 @@ export default function FilmsPage() {
 
     useEffect(() => {
         if (filters.top250) {
-            setPreviewCount(250)
-        } else if (filters.genres?.length || filters.year || filters.rating) {
+            setPreviewCount(250);
+        } else if (filters.studio) {
+            fetchStudioWithMovies({ studioId: filters.studio })
+                .unwrap()
+                .then((studioData) => {
+                    const movieIds = studioData.docs?.[0]?.movies?.map(m => m.id) || [];
+                    if (movieIds.length === 0) {
+                        setPreviewCount(0);
+                        return;
+                    }
+                    return fetchMoviesByStudioIds({ ids: movieIds }).unwrap();
+                })
+                .then((data) => {
+                    setPreviewCount(data?.total || 0);
+                })
+                .catch(() => {
+                    setPreviewCount(0);
+                });
+        } else if (
+            filters.genres?.length ||
+            filters.year ||
+            filters.rating ||
+            filters.platform ||
+            filters.age ||
+            filters.popularity
+        ) {
             fetchMovies({
                 limit: 1,
                 page: 1,
-                ...buildQueryParams(filters)
-            }).then(({data}) => {
-                setPreviewCount(data?.total || 0)
-            })
+                ...buildQueryParams(filters),
+            }).then(({ data }) => {
+                setPreviewCount(data?.total || 0);
+            });
         } else {
-            setPreviewCount(null)
+            setPreviewCount(null);
         }
-    }, [filters, fetchMovies])
+    }, [filters, fetchStudioWithMovies, fetchMoviesByStudioIds]);
+
+    useEffect(() => {
+        console.log('current filters →', filters);
+    }, [filters]);
+
+    const getDateFilter = (dateType: string) => {
+        const now = new Date();
+        switch(dateType) {
+            case 'month':
+                return `${new Date(now.setMonth(now.getMonth() - 1)).toISOString()}-${new Date().toISOString()}`;
+            case 'year':
+                return `${new Date(now.setFullYear(now.getFullYear() - 1)).toISOString()}-${new Date().toISOString()}`;
+            case 'old':
+                return `-${new Date(now.setFullYear(now.getFullYear() - 5)).toISOString()}`;
+            default:
+                return '';
+        }
+    }
 
     const buildQueryParams = useCallback((filters: any) => {
         return {
@@ -103,9 +153,24 @@ export default function FilmsPage() {
             ...(filters.platform ? {'watchability.items.name': filters.platform} : {}),
             ...(filters.age ? {ageRating: filters.age} : {}),
             ...(filters.popularity ? getPopularityFilter(filters.popularity) : {}),
+            ...(filters.studio ? { 'productionCompanies.id': filters.studio } : {}),
+            ...(filters.type ? { type: filters.type } : {}),
+            ...(filters.movieLength ? { movieLength: filters.movieLength } : {}),
+            ...(filters.countries?.length ? { 'countries.name': filters.countries } : {}),
+            ...(filters.award ? { 'awards.name': filters.award } : {}),
+            ...(filters.is3d ? { 'technology.is3d': true } : {}),
+            ...(filters.is3d ? { is3d: true } : {}),
+            ...(filters.isImax ? { 'technology.isImax': true } : {}),
+            ...(filters.budget ? { budget: filters.budget } : {}),
+            ...(filters.language ? { 'names.language': filters.language } : {}),
+            ...(filters.date ? { createdAt: getDateFilter(filters.date) } : {}),
+            ...(filters.feesWorld ? { 'fees.world': filters.feesWorld } : {}),
+            ...(filters.budget ? { 'budget.value': `${filters.budget.from || ''}-${filters.budget.to || ''}` } : {}),
             sortField: 'votes.imdb',
             sortType: '-1'
-        }
+        };
+        console.log('built params →', p);
+        return p;
     }, [])
 
 
@@ -136,7 +201,11 @@ export default function FilmsPage() {
                     pages: Math.ceil(250 / 36)
                 })
 
-            } else if (filters.genres?.length || filters.year || filters.rating) {
+            } else if (filters.genres?.length ||
+                filters.year ||
+                filters.rating ||
+                filters.studio
+            ) {
                 if (filters.year?.from || filters.year?.to) {
                     params.set('year', `${filters.year.from || ''}-${filters.year.to || ''}`)
                 }
@@ -149,6 +218,10 @@ export default function FilmsPage() {
                 if (filters.platform) {
                     params['watchability.items.name'] = filters.platform;
                 }
+                if (filters.studio) {
+                    params.set('productionCompanies.id', filters.studio);
+                }
+
                 if (filters.age) params.set('age', filters.age);
                 if (filters.popularity) {
                     switch (filters.popularity) {
@@ -273,9 +346,9 @@ export default function FilmsPage() {
                 platforms={platforms}
                 ages={ages}
                 popularities={popularities}
-                className="hidden md:block"
+                className="max-xl:hidden "
             />
-            <FilterPanelMobile mediaType="film" className="md:hidden"/>
+            <FilterPanelMobile mediaType="film" className="xl:hidden"/>
             <section className="px-16">
                 <MediaGrid
                     movies={displayData?.docs || []}

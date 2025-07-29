@@ -18,62 +18,42 @@ const FALLBACK_STUDIOS = [
 ];
 
 export const useStudios = () => {
-    const [studios, setStudios] = useState<{value: string; label: string}[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [studios, setStudios] = useState(FALLBACK_STUDIOS);
+    const [isLoading, setIsLoading] = useState(false);
 
-    useEffect(() => {
-        const fetchStudios = async () => {
-            try {
-                setIsLoading(true);
-                setError(null);
-
-                // Параметры запроса для получения студий с наибольшим рейтингом
-                const params = new URLSearchParams({
-                    limit: '15',
-                    sortField: 'movies.rating.kp',
-                    sortType: '-1',
-                    selectFields: 'id,title',
-                    notNullFields: 'title,id'
-                });
-
-                const response = await fetch(
-                    `https://api.kinopoisk.dev/v1.4/studio?${params}`,
-                    {
-                        headers: {
-                            'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || ''
-                        }
+    const searchStudios = async (query: string) => {
+        try {
+            setIsLoading(true);
+            const response = await fetch(
+                `https://api.kinopoisk.dev/v1.4/studio?title=${encodeURIComponent(query)}&limit=5`,
+                {
+                    headers: {
+                        'X-API-KEY': process.env.NEXT_PUBLIC_KINO_API_KEY || ''
                     }
-                );
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
+            );
 
+            if (response.ok) {
                 const data = await response.json();
-
-                // Если API вернуло пустой массив, используем фолбэк
-                if (!data.docs || data.docs.length === 0) {
-                    throw new Error('API вернуло пустой список студий');
+                if (data.docs?.length > 0) {
+                    return data.docs.map((studio: any) => ({
+                        value: studio.id,
+                        label: studio.title
+                    }));
                 }
-
-                const formattedStudios = data.docs.map((studio: any) => ({
-                    value: studio.id,
-                    label: studio.title || `Студия ${studio.id}`
-                }));
-
-                setStudios(formattedStudios);
-            } catch (error) {
-                console.error('Ошибка загрузки студий:', error);
-                setError('Не удалось загрузить список студий');
-                setStudios(FALLBACK_STUDIOS);
-            } finally {
-                setIsLoading(false);
             }
-        };
+            return FALLBACK_STUDIOS;
+        } catch (error) {
+            console.error('Search studios error:', error);
+            return FALLBACK_STUDIOS;
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-        fetchStudios();
-    }, []);
-
-    return { studios, isLoading, error };
+    return {
+        studios,
+        isLoading,
+        searchStudios
+    };
 };

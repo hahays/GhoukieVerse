@@ -18,6 +18,8 @@ interface FilmFiltersState extends MovieFilterParams {
     age: string
     popularity: string
     studio: string
+    productionCompanies: string;
+    type: string
 }
 
 const initialState: FilmFiltersState = {
@@ -26,6 +28,7 @@ const initialState: FilmFiltersState = {
     countries: [],
     rating: '',
     platform: '',
+    productionCompanies: '',
     duration: '',
     date: '',
     tag: '',
@@ -36,7 +39,8 @@ const initialState: FilmFiltersState = {
     isInitialized: false,
     studio: '',
     favorite: false,
-    actor: ''
+    actor: '',
+    type: '',
 }
 
 export const filmFiltersSlice = createSlice({

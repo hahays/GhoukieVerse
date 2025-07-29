@@ -32,6 +32,7 @@ export const SearchInput = ({
     const timerRef = useRef<NodeJS.Timeout>();
     const wrapperRef = useRef<HTMLDivElement>(null);
 
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = e.target.value;
         setInputValue(newValue);
@@ -73,21 +74,21 @@ export const SearchInput = ({
     return (
         <div className={`relative ${className}`} ref={wrapperRef}>
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-6 w-6 text-ghoukie-white" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-ghoukie-white" />
                 <Input
                     type="text"
                     placeholder={placeholder}
                     value={inputValue}
-                    rightIcon={!localValue ? <FiSearch size={24} /> : undefined}
+                    rightIcon={!localValue ? <FiSearch size={20} /> : undefined}
                     onChange={handleChange}
                     onFocus={() => setShowSuggestions(true)}
                     className={`
-            w-full py-2 h-16 text-2xl
-            pl-12 pr-12
-            bg-ghoukie-black rounded-md
-            focus:outline-none focus:ring-2 focus:ring-ghoukie-green
-            placeholder:text-ghoukie-white
-          `}
+                        w-full py-2 h-12 text-base
+                        pl-10 pr-10
+                        bg-ghoukie-black rounded-md
+                        focus:outline-none focus:ring-2 focus:ring-ghoukie-green
+                        placeholder:text-ghoukie-white
+                    `}
                 />
                 {showClearButton && (
                     <button

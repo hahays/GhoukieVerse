@@ -13,16 +13,14 @@ import {Spinner} from "../Spinner/Spinner"
 import {Collapse} from '../Collapse/Collapse'
 import {SearchInput} from "../SearchInput/SearchInput";
 import {useFilmFiltersData} from "../../../hooks/useFilmFiltersData";
-import {useGenres} from "../../../hooks/useGenges";
-import {useGetAgeRatingsQuery} from '../../../app/api/films/films.api'
-import {useStudios} from "../../../hooks/useStudios";
+import {useGetAgeRatingsQuery, useGetMoviesByAwardsQuery} from '../../../app/api/films/films.api'
+import {useGetStudiosQuery} from "../../../app/api/films/filmFilters.api";
+import { usePossibleValues } from '../../../hooks/usePossibleValues'
 
 
 export const FilterPanel = ({
-                                genres = [],
                                 years = [],
                                 ratings = [],
-                                countries = [],
                                 durations = [],
                                 dates = [],
                                 tags = [],
@@ -34,18 +32,22 @@ export const FilterPanel = ({
                             }: FilterPanelProps) => {
     const dispatch = useAppDispatch()
     const filters = useAppSelector(state => state.filmFilters)
-    const { studios, isLoading: isStudiosLoading} = useStudios();
+
     const [studioInput, setStudioInput] = useState('');
     const [isExpanded, setIsExpanded] = useState(false)
     const [ratingType, setRatingType] = useState<'kp' | 'imdb' | 'tmdb'>('kp');
     const [ratingRange, setRatingRange] = useState<{ min: string, max: string }>({min: '', max: ''});
-
+    const { data: studios = [], isLoading: isStudiosLoading } = useGetStudiosQuery();
 
     const {
         platforms,
         isLoading: isPlatformsLoading
     } = useFilmFiltersData();
+    const { values: countries, isLoading: isCountriesLoading } =
+        usePossibleValues('countries.name');
 
+    const { values: genres, isLoading: isGenresLoading } =
+        usePossibleValues('genres.name');
 
     const {
         data: ageRatings = [],
@@ -61,20 +63,20 @@ export const FilterPanel = ({
         error: filtersError,
     } = useFilmFiltersData();
 
-    const {genres: apiGenres, isLoading: genresLoading} = useGenres();
 
     const safeApiYears = apiYears || [];
-    const safeApiGenres = apiGenres || [];
     const safeApiCountries = apiCountries || [];
 
-
+    const TYPE_OPTIONS = [
+        { value: '', label: 'Все' },
+        { value: 'movie', label: 'Фильмы' },
+        { value: 'tv-series', label: 'Сериалы' },
+        { value: 'cartoon', label: 'Мультфильмы' },
+    ];
 
     const handleStudioChange = (value: string) => {
-        onFilterChange({
-            studio: value,
-            'movies.studio.id': value || undefined,
-            page: 1
-        });
+        console.log('studio selected →', value);
+        onFilterChange({ studio: value, page: 1 });
     };
 
     const handleGenreToggle = (genre: string) => {
@@ -105,6 +107,11 @@ export const FilterPanel = ({
         {value: '5-10', label: '5+ (Так себе)'}
     ];
 
+    const AWARD_OPTIONS = [
+        { value: '', label: 'Все награды' },
+        { value: 'Оскар', label: 'Оскар' },
+        { value: 'Золотой глобус', label: 'Золотой глобус' },
+    ];
 
     const defaultOptions = {
         years: safeApiYears.length > 1 ? safeApiYears : [
@@ -125,13 +132,7 @@ export const FilterPanel = ({
         //     {value: 'disney', label: 'Disney+'},
         //     {value: 'hbo', label: 'HBO'}
         // ],
-        genres: safeApiGenres.length > 0 ?
-            [{value: '', label: 'Все жанры'}, ...safeApiGenres] :
-            [
-                {value: '', label: 'Все жанры'},
-                {value: 'фэнтези', label: 'Фентези'},
-                {value: 'триллер', label: 'Триллер'}
-            ],
+
         countries: safeApiCountries.length > 0 ?
             [{value: '', label: 'Страна'}, ...safeApiCountries] :
             [
@@ -391,6 +392,11 @@ export const FilterPanel = ({
         });
     };
 
+    const { data: awardMovies } = useGetMoviesByAwardsQuery(
+        { award: filters.award },
+        { skip: !filters.award }
+    );
+
     const handleDurationChange = (value: string) => {
         let durationFilter;
         if (value === 'short') durationFilter = {$lt: 90};
@@ -424,11 +430,11 @@ export const FilterPanel = ({
 
 
     {
-        genresLoading ? (
+        isGenresLoading ? (
             <Spinner className="w-5 h-5"/>
         ) : (
             <Select
-                options={[{value: '', label: 'Все жанры'}, ...apiGenres]}
+                options={[{value: '', label: 'Все жанры'}, ...genres]}
                 value=""
                 onChange={(value) => handleGenreToggle(value)}
             />
@@ -437,10 +443,10 @@ export const FilterPanel = ({
 
     return (
         <div
-            className={` pt-36 px-16 w-full rounded-lg p-4 space-y-4 border border-transparent bg-clip-padding bg-origin-border before:content-[''] before:absolute before:inset-0 before:rounded-lg before:p-[1px] before:bg-gradient-to-r before:-z-10 relative z-0 ${className}`}>
+            className={`pt-36 px-4 md:px-16 w-full rounded-lg p-4 space-y-4 border border-transparent bg-clip-padding bg-origin-border before:content-[''] before:absolute before:inset-0 before:rounded-lg before:p-[1px] before:bg-gradient-to-r before:-z-10 relative z-0 ${className}`}>
 
-            <div className="flex flex-wrap gap-4">
-                <div className="flex-1 flex gap-4 min-w-[240px]">
+            <div className="flex flex-col md:flex-row gap-4 mb-4">
+                <div className="flex flex-col md:flex-row gap-2 md:gap-4 w-full md:w-1/3">
                     <RangeSelect
                         value={filters.year || {from: '', to: ''}}
                         onChange={handleYearChange}
@@ -485,7 +491,7 @@ export const FilterPanel = ({
                 <div className="flex-1 flex gap-4 min-w-[240px] justify-end">
                     <div className="w-[65%]">
                         <Select
-                            options={[{value: '', label: 'Все жанры'}, ...apiGenres]}
+                            options={[{value: '', label: 'Все жанры'}, ...genres]}
                             value=""
                             onChange={handleGenreToggle}
                         />
@@ -512,12 +518,24 @@ export const FilterPanel = ({
                     </div>
                     <div className="w-[30%] min-w-[100px]">
                         <Select
-                            options={dates.length ? [{
-                                value: '',
-                                label: 'Дата добавления'
-                            }, ...dates] : defaultOptions.dates}
+                            options={[
+                                { value: '', label: 'Дата добавления' },
+                                { value: '01.01.2024-31.12.2024', label: 'За 2024' },
+                                { value: '01.01.2025-31.12.2025', label: 'За 2025' },
+                                { value: 'last-month', label: 'Последний месяц' },
+                            ]}
                             value={filters.date || ''}
-                            onChange={(value) => handleToggleFilter('date', value)}
+                            onChange={(value) => {
+                                const now = new Date();
+                                let from = '';
+                                if (value === 'last-month') {
+                                    const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                                    from = prevMonth.toLocaleDateString('ru-RU');
+                                    const to = now.toLocaleDateString('ru-RU');
+                                    value = `${from}-${to}`;
+                                }
+                                handleToggleFilter('createdAt', value);
+                            }}
                         />
                     </div>
                     <div className="w-[40%] min-w-[120px]">
@@ -535,12 +553,16 @@ export const FilterPanel = ({
 
                 <div className="flex-1 flex gap-4 min-w-[240px] justify-center">
                     <Select
-                        options={durations.length ? [{
-                            value: '',
-                            label: 'Продолжительность'
-                        }, ...durations] : defaultOptions.durations}
-                        value={filters.duration || ''}
-                        onChange={(value) => handleToggleFilter('duration', value)}
+                        options={[
+                            { value: '', label: 'Продолжительность' },
+                            { value: '30-60', label: '30-60 мин' },
+                            { value: '60-120', label: '60-120 мин' },
+                            { value: '120-180', label: '120-180 мин' },
+                        ]}
+                        value={filters.movieLength || ''}
+                        onChange={(value) =>
+                            onFilterChange({ movieLength: value || undefined })
+                        }
                     />
                     {isStudiosLoading ? (
                         <div className="min-w-[180px] flex items-center justify-center">
@@ -548,9 +570,9 @@ export const FilterPanel = ({
                         </div>
                     ) : (
                         <Select
-                            options={[{ value: '', label: 'Все студии' }, ...studios]}
-                            value={filters.studio || ''}
-                            onChange={handleStudioChange}
+                            options={TYPE_OPTIONS}
+                            value={filters.type || ''}
+                            onChange={(value) => onFilterChange({ type: value })}
                         />
                     )}
                 </div>
@@ -563,12 +585,15 @@ export const FilterPanel = ({
                         onChange={(value) => handleToggleFilter('tag', value)}
                     />
                     <Select
-                        options={countries.length ? [{
-                            value: '',
-                            label: 'Страна'
-                        }, ...countries] : defaultOptions.countries}
-                        value={filters.country || ''}
-                        onChange={(value) => handleToggleFilter('country', value)}
+                        options={[{ value: '', label: 'Все страны' }, ...countries]}
+                        value={filters.countries?.[0] || ''}
+                        onChange={(value) =>
+                            onFilterChange({
+                                countries: value ? [value] : [],
+                                'countries.name': value ? [value] : undefined,
+                            })
+                        }
+                        isLoading={isCountriesLoading}
                     />
                 </div>
             </div>
@@ -576,26 +601,15 @@ export const FilterPanel = ({
             <Collapse isOpen={isExpanded}>
                 <div className="flex flex-wrap gap-4 mt-4">
                     <div className="flex-1 flex gap-4 min-w-[240px]">
-                        <ButtonToggle
-                            label="3D"
-                            active={!!filters.is3d}
-                            onClick={() => onFilterChange({
-                                is3d: !filters.is3d,
-                                page: 1
-                            })}
-                        />
+                        <ButtonToggle label="3D" active={!!filters.is3d} onClick={() => onFilterChange({ is3d: !filters.is3d })} />
                         <Select
                             options={[
-                                {value: '', label: 'Награды'},
-                                {value: 'oscar', label: 'Оскар'},
-                                {value: 'golden-globe', label: 'Золотой глобус'}
+                                { value: '', label: 'Все награды' },
+                                { value: 'Оскар', label: 'Оскар' },
+                                { value: 'Золотой глобус', label: 'Золотой глобус' },
                             ]}
                             value={filters.award || ''}
-                            onChange={(value) => onFilterChange({
-                                award: value,
-                                'awards.name': value || undefined,
-                                page: 1
-                            })}
+                            onChange={(value) => onFilterChange({ award: value })}
                         />
                         <Select
                             options={[
@@ -637,13 +651,10 @@ export const FilterPanel = ({
                             />
                         </div>
                         <div className="w-full">
-                            <ButtonToggle
-                                label="Бюджет"
-                                active={!!filters.budget}
-                                onClick={() => onFilterChange({
-                                    budget: !filters.budget,
-                                    page: 1
-                                })}
+                            <RangeSelect
+                                label="Бюджет, $"
+                                value={filters.budget || { from: '', to: '' }}
+                                onChange={(range) => onFilterChange({ budget: range })}
                             />
                         </div>
                     </div>
@@ -661,14 +672,7 @@ export const FilterPanel = ({
                             />
                         </div>
                         <div className="w-[25%]">
-                            <ButtonToggle
-                                label="IMAX"
-                                active={!!filters.isImax}
-                                onClick={() => onFilterChange({
-                                    isImax: !filters.isImax,
-                                    page: 1
-                                })}
-                            />
+                            <ButtonToggle label="IMAX" active={!!filters.isImax} onClick={() => onFilterChange({ isImax: !filters.isImax })} />
                         </div>
                         <div className="w-[30%]">
                             <Select
